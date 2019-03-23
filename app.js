@@ -12,6 +12,7 @@ var usersRouter = require('./routes/users');
 
 /* --- V2: Adding Web Pages --- */
 var aboutRouter = require('./routes/about');
+var homepageRouter = require('./routes/homepage');
 /* ---------------------------- */
 
 /* --- V3: Basic Template   --- */
@@ -48,6 +49,7 @@ app.use('/users', usersRouter);
 
 /* --- V2: Adding Web Pages --- */
 app.use('/about', aboutRouter);
+app.use('/homepage', homepageRouter);
 /* ---------------------------- */
 
 /* --- V3: Basic Template   --- */
