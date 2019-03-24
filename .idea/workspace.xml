@@ -1,27 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d4d99367-c8de-4134-a5ce-48b3e9815ad1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/sql/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/pg/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/pg/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/init.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/init.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/select.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/select.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/schema.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sql/postgre.sql" beforeDir="false" afterPath="$PROJECT_DIR$/sql/postgre.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sql/query.sql" beforeDir="false" afterPath="$PROJECT_DIR$/routes/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/about.ejs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/forms.ejs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/insert.ejs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/loops.ejs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/select.ejs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/signup.ejs" beforeDir="false" afterPath="$PROJECT_DIR$/views/signup.ejs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/table.ejs" beforeDir="false" />
-    </list>
+    <list default="true" id="d4d99367-c8de-4134-a5ce-48b3e9815ad1" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -148,6 +128,11 @@
               <item name="term-project" type="b2602c69:ProjectViewProjectNode" />
               <item name="term-project" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="term-project" type="b2602c69:ProjectViewProjectNode" />
+              <item name="term-project" type="462c0819:PsiDirectoryNode" />
+              <item name="views" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -157,7 +142,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1553418312605" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1553418587061" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.0" />
@@ -199,7 +184,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="188" y="101" width="1440" height="828" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.1988555" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
