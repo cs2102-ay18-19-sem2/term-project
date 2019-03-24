@@ -1,35 +1,40 @@
-const passport = require('passport');
-const sql_query = require('./sql/query.sql');
-const inits = require('./routes/init');
+const sql_query = require('./sql');
 
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var bodyParser = require('body-parser');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+
+const exphbs = require('express-handlebars')
+const bodyParser = require('body-parser')
+const session = require('express-session')
+const passport = require('passport')
+
+const app = express();
+
+// Body Parser Config
+app.use( bodyParser.json() );       // to support JSON-encoded bodies
+app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+  extended: true
+}));
 
 require('dotenv').config();
 
-var app = express();
-
-// view engine setup
+// View Engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({
+    extended: true
+    }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-inits(app);
 
-/* --- Modify Database  --- */
-var insertRouter = require('./routes/insert');
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use('/insert', insertRouter);
-/* ---------------------------- */
+// Router Setup
+require('./routes').init(app);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

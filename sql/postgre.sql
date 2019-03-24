@@ -2,76 +2,76 @@ CREATE TYPE gender AS ENUM ('MALE', 'FEMALE');
 CREATE TYPE education AS ENUM ('other', 'high school', 'college', 'postgraduate');
 CREATE TYPE role AS ENUM ('finder','tasker');
 
-CREATE TABLE Regions (
+CREATE TABLE regions (
   rname   VARCHAR(74) PRIMARY KEY
 );
 
-CREATE TABLE Specializations (
+CREATE TABLE specializations (
   sname   VARCHAR(74) PRIMARY KEY,
   details VARCHAR(100)
   check (sname <> 'OTHER' OR details IS NOT NULL)
 );
 
-CREATE TABLE States (
+CREATE TABLE states (
   sname VARCHAR(74) PRIMARY KEY
 );
 
-CREATE TABLE Classifications (
+CREATE TABLE classifications (
   cname VARCHAR(74) PRIMARY KEY
 );
 
-CREATE TABLE Accounts(
+CREATE TABLE accounts(
   aid 		INTEGER PRIMARY KEY,
   email 	VARCHAR(74) UNIQUE,
   username 	VARCHAR(74) NOT NULL,
   password 	VARCHAR(74) NOT NULL
 );
 
-CREATE TABLE Users(
+CREATE TABLE users(
   aid 		INTEGER,
   rname		VARCHAR(74),
   score     INTEGER,
   PRIMARY KEY (aid),
-  FOREIGN KEY (aid)   REFERENCES Accounts,
-  FOREIGN KEY (rname) REFERENCES Regions
+  FOREIGN KEY (aid)   REFERENCES accounts,
+  FOREIGN KEY (rname) REFERENCES regions
 );
 
-CREATE TABLE Admins(
+CREATE TABLE admins(
   aid 			   INTEGER PRIMARY KEY,
-  FOREIGN KEY(aid) REFERENCES Accounts
+  FOREIGN KEY(aid) REFERENCES accounts
 );
 
-CREATE TABLE Specializes (
-  aid		   INTEGER     REFERENCES Users,
-  sname		   VARCHAR(74) REFERENCES Specializations,
+CREATE TABLE specializes (
+  aid		   INTEGER     REFERENCES users,
+  sname		   VARCHAR(74) REFERENCES specializations,
   PRIMARY KEY  (aid, sname)
 );
 
-CREATE TABLE Tasks(
+CREATE TABLE tasks(
   tid INTEGER PRIMARY KEY,
   title       VARCHAR(74) UNIQUE,
-  sname       VARCHAR(74) DEFAULT 'Unassigned' REFERENCES States,
-  rname       VARCHAR(74) DEFAULT 'All' REFERENCES Regions,
-  cname       VARCHAR(74) DEFAULT 'All' REFERENCES Classifications,
-  finder_id   INTEGER REFERENCES Users(aid) NOT NULL,
+  sname       VARCHAR(74) DEFAULT 'Unassigned' REFERENCES states,
+  rname       VARCHAR(74) DEFAULT 'All' REFERENCES regions,
+  cname       VARCHAR(74) DEFAULT 'All' REFERENCES classifications,
+  finder_id   INTEGER REFERENCES users(aid) NOT NULL,
   salary      INTEGER NOT NULL,
   task    	  DATE NOT NULL,
   description VARCHAR(200),
-  tasker_id   INTEGER REFERENCES Users(aid)
+  tasker_id   INTEGER REFERENCES users(aid)
   check (tasker_id <> finder_id)
 );
 
-CREATE TABLE Bids (
-  tid       INTEGER REFERENCES Tasks,
-  tasker_id INTEGER REFERENCES Users,
+CREATE TABLE bids (
+  tid       INTEGER REFERENCES tasks,
+  tasker_id INTEGER REFERENCES users,
   salary    INTEGER NOT NULL,
   PRIMARY   KEY (tid, tasker_id)
 );
 
-CREATE TABLE Reviews(
-  tid         	INTEGER REFERENCES Tasks,
-  reviewer_id 	INTEGER NOT NULL REFERENCES Users(aid),
-  receiver_id 	INTEGER NOT NULL REFERENCES Users(aid),
+CREATE TABLE reviews(
+  tid         	INTEGER REFERENCES tasks,
+  reviewer_id 	INTEGER NOT NULL REFERENCES users(aid),
+  receiver_id 	INTEGER NOT NULL REFERENCES users(aid),
   receiver_role role NOT NULL,
   score       	INTEGER NOT NULL,
   PRIMARY KEY (tid, reviewer_id, receiver_id),
@@ -79,34 +79,34 @@ CREATE TABLE Reviews(
 );
 
 
-INSERT INTO Regions (rname) VALUES ('Kent Ridge');
-INSERT INTO Regions (rname) VALUES ('Buona Vista');
-INSERT INTO Regions (rname) VALUES ('Bugis');
-INSERT INTO Regions (rname) VALUES ('Marina Bay');
-INSERT INTO Regions (rname) VALUES ('Orchard');
-INSERT INTO Regions (rname) VALUES ('Jurong East');
-INSERT INTO Regions (rname) VALUES ('Changi Airport');
-INSERT INTO Regions (rname) VALUES ('Malaysia');
-INSERT INTO Regions (rname) VALUES ('Bishan');
-INSERT INTO Regions (rname) VALUES ('Holland Village');
-INSERT INTO Regions (rname) VALUES ('Yishun');
+INSERT INTO regions (rname) VALUES ('Kent Ridge');
+INSERT INTO regions (rname) VALUES ('Buona Vista');
+INSERT INTO regions (rname) VALUES ('Bugis');
+INSERT INTO regions (rname) VALUES ('Marina Bay');
+INSERT INTO regions (rname) VALUES ('Orchard');
+INSERT INTO regions (rname) VALUES ('Jurong East');
+INSERT INTO regions (rname) VALUES ('Changi Airport');
+INSERT INTO regions (rname) VALUES ('Malaysia');
+INSERT INTO regions (rname) VALUES ('Bishan');
+INSERT INTO regions (rname) VALUES ('Holland Village');
+INSERT INTO regions (rname) VALUES ('Yishun');
 
-INSERT INTO Specializations (sname) VALUES ('Mandarin');
-INSERT INTO Specializations (sname) VALUES ('Highschool Mathemetics');
-INSERT INTO Specializations (sname) VALUES ('Singing');
-INSERT INTO Specializations (sname) VALUES ('Drawing');
-INSERT INTO Specializations (sname) VALUES ('English');
-INSERT INTO Specializations (sname) VALUES ('Cooking');
-INSERT INTO Specializations (sname) VALUES ('Driving');
+INSERT INTO specializations (sname) VALUES ('Mandarin');
+INSERT INTO specializations (sname) VALUES ('Highschool Mathemetics');
+INSERT INTO specializations (sname) VALUES ('Singing');
+INSERT INTO specializations (sname) VALUES ('Drawing');
+INSERT INTO specializations (sname) VALUES ('English');
+INSERT INTO specializations (sname) VALUES ('Cooking');
+INSERT INTO specializations (sname) VALUES ('Driving');
 
-INSERT INTO States (sname) VALUES ('Unassigned');
-INSERT INTO States (sname) VALUES ('Ongoing');
-INSERT INTO States (sname) VALUES ('Completed');
-INSERT INTO States (sname) VALUES ('Failed');
+INSERT INTO states (sname) VALUES ('Unassigned');
+INSERT INTO states (sname) VALUES ('Ongoing');
+INSERT INTO states (sname) VALUES ('Completed');
+INSERT INTO states (sname) VALUES ('Failed');
 
-INSERT INTO Classifications (cname) VALUES ('Baby Sitting');
-INSERT INTO Classifications (cname) VALUES ('Tutor');
-INSERT INTO Classifications (cname) VALUES ('Horticulture');
-INSERT INTO Classifications (cname) VALUES ('Lifting');
-INSERT INTO Classifications (cname) VALUES ('Pets Caring');
-INSERT INTO Classifications (cname) VALUES ('Electrical');
+INSERT INTO classifications (cname) VALUES ('Baby Sitting');
+INSERT INTO classifications (cname) VALUES ('Tutor');
+INSERT INTO classifications (cname) VALUES ('Horticulture');
+INSERT INTO classifications (cname) VALUES ('Lifting');
+INSERT INTO classifications (cname) VALUES ('Pets Caring');
+INSERT INTO classifications (cname) VALUES ('Electrical');

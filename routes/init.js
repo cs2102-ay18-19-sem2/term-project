@@ -1,22 +1,26 @@
-const sql_query = require('../sql/query.sql');
+const sql_query = require('../sql');
 const passport = require('passport');
 const bcrypt = require('bcrypt')
 
 // Postgre SQL Connection
 const { Pool } = require('pg');
 const pool = new Pool({
-	connectionString: process.env.DATABASE_URL,
+	connectionString: process.env.DATABASE_URL
 });
 
 const round = 10;
 const salt  = bcrypt.genSaltSync(round);
 
 function initRouter(app) {
+    console.log("connecting to the database: " + process.env.DATABASE_URL);
+
 	/* GET */
 	app.get('/', homepage);
     app.get('/login', login);
     app.get('/signup', signup);
-    app.post('/signupreq', receiveSignup);
+
+    /* POST */
+    app.post('/receive_signup', receive_signup);
 }
 
 function homepage(req, res, next) {
@@ -31,16 +35,38 @@ function signup(req, res, next) {
     res.render('signup', { title: 'SignUp' });
 }
 
-function receiveSignup(req, res, next) {
-    var email = req.body.email;
-    var username = req.body.username;
-    var password = req.body.subject;
-    var in_query = 'INSERT INTO student_info VALUES';
-    in_query = in_query + "('" + "1" + email + "','" + username + "','" + password + "')";
+function receive_signup(req, res, next) {
+    //add sign up information into the database
+    var aid;
+    pool.query(sql_query.query.get_user_num, (err, data) => {
+        if(err){
+            console.log("cannot read the number");
+            res.redirect('/login');
+        }else{
+            aid = parseInt(data.rows[0].num, 10) + 1;
+            var email = req.body.email;
+            var username = req.body.username;
+            var password = req.body.password;
+            var password_confirm = req.body.password_confirm;
 
-    pool.query(in_query, (err, data) => {
-    		res.redirect('/')
-    	});
+            if (password.localeCompare(password_confirm) != 0) {
+                //if the password and the confirmed password not match
+                //reload the sign up page
+                console.error("passwords not match");
+                signup(req, res, next);
+            } else {
+                pool.query(sql_query.query.add_account, [aid, email, username, password], (err, data) => {
+                                if(err) {
+                                	console.error("Cannot add the user");
+                                	res.redirect('/');
+                                } else {
+                                	res.redirect('/login');
+                                }
+                            });
+            }
+        }
+    });
+
 }
 
 module.exports = initRouter;
