@@ -55,6 +55,7 @@ CREATE TABLE tasks(
   cname       VARCHAR(74) DEFAULT 'All' REFERENCES classifications,
   finder_id   INTEGER REFERENCES users(aid) NOT NULL,
   salary      INTEGER NOT NULL,
+  post_date   DATE NOT NULL,
   task_date   DATE NOT NULL,
   description VARCHAR(200),
   tasker_id   INTEGER REFERENCES users(aid)

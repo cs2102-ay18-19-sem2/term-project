@@ -140,13 +140,14 @@ function receive_post(req, res, next) {
 			var date = new Date(req.body.date);
 
 			var today = new Date()
+			var today_date = today.getUTCFullYear() + "-" + (today.getUTCMonth() + 1) + "-" + today.getUTCDate();
 
 			if (date < today) {
 				console.error("This date has already passed.");
 				post(req, res, next);
 			} else {
 				var datestring = date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
-				pool.query(sql_query.query.add_task, [tid, title, rname, cname, finder_id, salary, datestring, desc], (err, data) => {
+				pool.query(sql_query.query.add_task, [tid, title, rname, cname, finder_id, salary, today_date, datestring, desc], (err, data) => {
 					if(err) {
 						console.error("Cannot add the task");
 						res.redirect('/');
