@@ -1,29 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <title>Task Sourcing Homepage</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <link href="https://fonts.googleapis.com/css?family=Nanum+Gothic:400,700,800" rel="stylesheet">
-    <link rel="stylesheet" href="/fonts/icomoon/style.css">
-
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/magnific-popup.css">
-    <link rel="stylesheet" href="css/jquery-ui.css">
-    <link rel="stylesheet" href="css/owl.carousel.min.css">
-    <link rel="stylesheet" href="css/owl.theme.default.min.css">
-
-    <link rel="stylesheet" href="css/bootstrap-datepicker.css">
-
-    <link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
-
-    <link rel="stylesheet" href="css/aos.css">
-    <link rel="stylesheet" href="css/rangeslider.css">
-
-    <link rel="stylesheet" href="css/style.css">
-
-</head>
+<%- include head.ejs %>
 <body>
 
 <div class="site-wrap">
@@ -52,53 +29,58 @@
             <table class="table">
                     <thead>
                         <tr>
-                            <th scope="col">Title</th>
+                            <form id="tableForm" action="/tasks" method="get">
+                            <th scope="col">
+                                <select id="type" name="type">
+                                    <optgroup label="Type">
+                                        <option name="" value=""><%= type %></option>
+                                        <% for (var i = 0; i < types.length; i++) { %>
+                                            <option name="tableType"><%= types[i].cname %></option>
+                                        <% } %>
+                                    </optgroup>
+                                </select>
+                            </th>
                             <th scope="col">Date</th>
                             <th scope="col">Salary</th>
-                            <th scope="col">Region</th>
+                            <th scope="col">
+                                <select data-style="btn-info" id="region" name="region">
+                                    <optgroup label="Region">
+                                        <option name="" value="">Region</option>
+                                        <% for (var i = 0; i < regions.length; i++) { %>
+                                            <option name="tableType"><%= regions[i].rname %></option>
+                                        <% } %>
+                                    </optgroup>
+                                </select>
+                            </th>
+                            <th><input type="submit" value="Filter" class="btn btn-white"></th>
+                            </form>
                         </tr>
                     </thead>
                     <tbody>
                         <% for(var i=0; i < tasks.length; i++) { %>
                             <tr>
-                            <td><%= tasks[i].title %></td>
-                            <td><%= tasks[i].task %></td>
-                            <td><%= tasks[i].salary %></td>
-                            <td><%= tasks[i].rname %></td>
+                            <p class = "title"><%= tasks[i].title %></p>
+                            <%= tasks[i].task_date %>
+                            <%= tasks[i].salary %>
+                            <%= tasks[i].rname %>
                             </tr>
                         <% } %>
+                        <tr>
+                            <td colspan="4">
+                                <div class = "card">
+                                    <h5 class="card-title">A0000002B</h5>
+                                    <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
             </table>
-        </div>
-    </div>
-
-    <div class="newsletter bg-primary py-5">
-        <div class="container">
-            <div class="row align-items-center">
-                <form class="d-flex col-md-6" action="/search" method="post">
-                    <input type="text" id="keyword" name="keyword" class="form-control" placeholder="Search">
-                    <input type="submit" value="Search" class="btn btn-white">
-                </form>
-            </div>
         </div>
     </div>
     <%- include footer.ejs %>
 </div>
 
-<script src="js/jquery-3.3.1.min.js"></script>
-<script src="js/jquery-migrate-3.0.1.min.js"></script>
-<script src="js/jquery-ui.js"></script>
-<script src="js/popper.min.js"></script>
-<script src="js/bootstrap.min.js"></script>
-<script src="js/owl.carousel.min.js"></script>
-<script src="js/jquery.stellar.min.js"></script>
-<script src="js/jquery.countdown.min.js"></script>
-<script src="js/jquery.magnific-popup.min.js"></script>
-<script src="js/bootstrap-datepicker.min.js"></script>
-<script src="js/aos.js"></script>
-<script src="js/rangeslider.min.js"></script>
-
-<script src="js/main.js"></script>
+<%- include script.ejs %>
 
 </body>
 </html>

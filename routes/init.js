@@ -19,11 +19,11 @@ function initRouter(app) {
     app.get('/index', index);
     app.get('/login', login);
     app.get('/signup', signup);
+    app.get('/tasks/search', tasks_search);
     app.get('/tasks', tasks)
 
     /* POST */
     app.post('/receive_signup', receive_signup);
-    app.post('/search', search)
 }
 
 function index(req, res, next) {
@@ -36,28 +36,54 @@ function index(req, res, next) {
     })
 }
 
-function search(req, res, next) {
-    var keyword = "%" + req.body.keyword + "%";
+function tasks_search(req, res, next) {
+    var keyword = "%" + req.query.keyword + "%";
     console.log(keyword);
     pool.query(sql_query.query.search, [keyword], (err, data) => {
         if(err) {
             console.log("Error encountered when searching");
             index(req, res, next);
         } else {
-            res.render('tasks', { title: "Search Results", tasks: data.rows });
+            show(res, data);
         }
     });
 }
 
 function tasks(req, res, next) {
-    pool.query(sql_query.query.search, [keyword], (err, data) => {
+    var type = req.query.type === "" ? sql_query.query.get_task_type : req.query.type;
+    var region = req.query.region === "" ? sql_query.query.get_region : req.query.region;
+    var typePlaceholder = req.query.type === "" ? "Type" : req.query.type;
+    var regionPlaceholder = req.query.region === "" ? "Region" : req.query.region;
+    console.log(type + "-" + region);
+    pool.query(sql_query.query.search, ["%%"], (err, data) => {
         if(err) {
             console.log("Error encountered when searching");
-            console.log(err);
             index(req, res, next);
         } else {
-            console.log("returned");
-            res.render('tasks', { title: "Search Results", tasks: data.rows });
+            pool.query(sql_query.query.filter, [type, region], (err, data) => {
+                if(err) {
+                    console.log("Error encountered when filtering");
+                    index(req, res, next);
+                } else {
+                    show(res, data, typePlaceholder, regionPlaceholder);
+                }
+            });
+        }
+    });
+}
+
+function show(res, data1, selectedType, selectedRegion) {
+    pool.query(sql_query.query.get_task_type, (err, data2) => {
+        if(err) {
+            console.log("Error encountered when reading classifications");
+        } else {
+            pool.query(sql_query.query.get_region, (err, data3) => {
+                if(err) {
+                    console.log("Error encountered when reading regions");
+                } else {
+                    res.render('tasks', { title: "Search Results", tasks: data1.rows, type: selectedType, region: selectedRegion, types: data2.rows, regions: data3.rows });
+                }
+            });
         }
     });
 }
