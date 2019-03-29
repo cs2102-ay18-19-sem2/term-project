@@ -19,13 +19,47 @@ function initRouter(app) {
     app.get('/index', index);
     app.get('/login', login);
     app.get('/signup', signup);
+    app.get('/tasks', tasks)
 
     /* POST */
     app.post('/receive_signup', receive_signup);
+    app.post('/search', search)
 }
 
 function index(req, res, next) {
-	res.render('index', { title: 'HomePage' });
+    pool.query(sql_query.query.get_task_type, (err, data) => {
+        if(err) {
+            console.log("Error encountered when reading classifications");
+        } else {
+            res.render('index', { title: "HomePage", types: data.rows });
+        }
+    })
+}
+
+function search(req, res, next) {
+    var keyword = "%" + req.body.keyword + "%";
+    console.log(keyword);
+    pool.query(sql_query.query.search, [keyword], (err, data) => {
+        if(err) {
+            console.log("Error encountered when searching");
+            index(req, res, next);
+        } else {
+            res.render('tasks', { title: "Search Results", tasks: data.rows });
+        }
+    });
+}
+
+function tasks(req, res, next) {
+    pool.query(sql_query.query.search, [keyword], (err, data) => {
+        if(err) {
+            console.log("Error encountered when searching");
+            console.log(err);
+            index(req, res, next);
+        } else {
+            console.log("returned");
+            res.render('tasks', { title: "Search Results", tasks: data.rows });
+        }
+    });
 }
 
 function login(req, res, next) {
