@@ -11,8 +11,10 @@ const pool = new Pool({
 const round = 10;
 const salt  = bcrypt.genSaltSync(round);
 
+const infinity = 2147483647;
+
 var ranges = ["≤1000", "1000-2000", "2000-3000", "≥3000"];
-var rangeNum = [[0, 1000], [1000, 2000], [2000, 3000], [3000, Infinity]]
+var rangeNum = [[0, 1000], [1000, 2000], [2000, 3000], [3000, infinity]];
 
 function initRouter(app) {
     console.log("connecting to the database: " + process.env.DATABASE_URL);
@@ -55,7 +57,7 @@ function tasks_search(req, res, next) {
 function tasks(req, res, next) {
     var type = req.query.type === "" ? sql_query.query.get_task_type : req.query.type;
     var region = req.query.region === "" ? sql_query.query.get_region : req.query.region;
-    var range = req.query.range === "" ? [-Infinity, Infinity] : rangeNum[ranges.indexOf(req.query.range)];
+    var range = req.query.range === "" ? [0, infinity] : rangeNum[ranges.indexOf(req.query.range)];
     var typePlaceholder = req.query.type === "" ? "Type" : req.query.type;
     var regionPlaceholder = req.query.region === "" ? "Region" : req.query.region;
     var rangePlaceholder = req.query.range === "" ? "Salary" : req.query.range;
