@@ -30,29 +30,46 @@
                     <thead>
                         <tr>
                             <form id="tableForm" action="/tasks" method="get">
-                            <th scope="col">
-                                <select id="type" name="type">
+                            <th scope="col" style="width:25%;">
+                                <select class="browser-default custom-select" id="type" name="type" onchange="this.form.submit()">
                                     <optgroup label="Type">
-                                        <option name="" value=""><%= type %></option>
                                         <% for (var i = 0; i < types.length; i++) { %>
-                                            <option name="tableType"><%= types[i].cname %></option>
+                                            <% if (types[i].cname == type) { %>
+                                                <option name="tableType" selected><%= types[i].cname %></option>
+                                            <% } else { %>
+                                                <option name="tableType"><%= types[i].cname %></option>
+                                            <% } %>
                                         <% } %>
                                     </optgroup>
                                 </select>
                             </th>
-                            <th scope="col">Date</th>
-                            <th scope="col">Salary</th>
-                            <th scope="col">
-                                <select data-style="btn-info" id="region" name="region">
+                            <th scope="col" style="width:25%;">Date</th>
+                            <th scope="col" style="width:25%;">
+                                <select class="browser-default custom-select" id="range" name="range" onchange="this.form.submit()">
+                                    <optgroup label="Salary">
+                                        <% for (var i = 0; i < ranges.length; i++) { %>
+                                            <% if (ranges[i] == range) { %>
+                                                <option name="tableType" selected><%= ranges[i] %></option>
+                                            <% } else { %>
+                                                <option name="tableType"><%= ranges[i] %></option>
+                                            <% } %>
+                                        <% } %>
+                                    </optgroup>
+                                </select>
+                            </th>
+                            <th scope="col" style="width:25%;">
+                                <select class="browser-default custom-select" id="region" name="region" onchange="this.form.submit()">
                                     <optgroup label="Region">
-                                        <option name="" value="">Region</option>
                                         <% for (var i = 0; i < regions.length; i++) { %>
-                                            <option name="tableType"><%= regions[i].rname %></option>
+                                            <% if (regions[i].rname == region) { %>
+                                                <option name="tableType" selected><%= regions[i].rname %></option>
+                                            <% } else { %>
+                                                <option name="tableType"><%= regions[i].rname %></option>
+                                            <% } %>
                                         <% } %>
                                     </optgroup>
                                 </select>
                             </th>
-                            <th><input type="submit" value="Filter" class="btn btn-white"></th>
                             </form>
                         </tr>
                     </thead>

@@ -11,6 +11,9 @@ const pool = new Pool({
 const round = 10;
 const salt  = bcrypt.genSaltSync(round);
 
+var ranges = ["≤1000", "1000-2000", "2000-3000", "≥3000"];
+var rangeNum = [[0, 1000], [1000, 2000], [2000, 3000], [3000, Infinity]]
+
 function initRouter(app) {
     console.log("connecting to the database: " + process.env.DATABASE_URL);
 
@@ -52,27 +55,29 @@ function tasks_search(req, res, next) {
 function tasks(req, res, next) {
     var type = req.query.type === "" ? sql_query.query.get_task_type : req.query.type;
     var region = req.query.region === "" ? sql_query.query.get_region : req.query.region;
+    var range = req.query.range === "" ? [-Infinity, Infinity] : rangeNum[ranges.indexOf(req.query.range)];
     var typePlaceholder = req.query.type === "" ? "Type" : req.query.type;
     var regionPlaceholder = req.query.region === "" ? "Region" : req.query.region;
-    console.log(type + "-" + region);
+    var rangePlaceholder = req.query.range === "" ? "Salary" : req.query.range;
+    console.log(type + "-" + region + "-" + range);
     pool.query(sql_query.query.search, ["%%"], (err, data) => {
         if(err) {
             console.log("Error encountered when searching");
             index(req, res, next);
         } else {
-            pool.query(sql_query.query.filter, [type, region], (err, data) => {
+            pool.query(sql_query.query.filter, [type, region, range[0], range[1]], (err, data) => {
                 if(err) {
                     console.log("Error encountered when filtering");
                     index(req, res, next);
                 } else {
-                    show(res, data, typePlaceholder, regionPlaceholder);
+                    show(res, data, typePlaceholder, regionPlaceholder, rangePlaceholder);
                 }
             });
         }
     });
 }
 
-function show(res, data1, selectedType, selectedRegion) {
+function show(res, data1, selectedType, selectedRegion, selectedRange) {
     pool.query(sql_query.query.get_task_type, (err, data2) => {
         if(err) {
             console.log("Error encountered when reading classifications");
@@ -81,7 +86,9 @@ function show(res, data1, selectedType, selectedRegion) {
                 if(err) {
                     console.log("Error encountered when reading regions");
                 } else {
-                    res.render('tasks', { title: "Search Results", tasks: data1.rows, type: selectedType, region: selectedRegion, types: data2.rows, regions: data3.rows });
+                    res.render('tasks', { title: "Search Results", 
+                        tasks: data1.rows, type: selectedType, region: selectedRegion, range: selectedRange,
+                        types: data2.rows, regions: data3.rows, ranges: ranges });
                 }
             });
         }
