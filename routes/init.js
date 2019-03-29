@@ -59,10 +59,10 @@ function tasks_search(req, res, next) {
 }
 
 function tasks(req, res, next) {
-    var type = req.query.type === "" || typeof req.query.type === "undefined" ? sql_query.query.get_task_type : req.query.type;
-    var region = req.query.region === "" || typeof req.query.region === "undefined"  ? sql_query.query.get_region : req.query.region;
-    var date = req.query.date === "" || typeof req.query.date === "undefined"  ? sql_query.query.get_all_date : getDate(req.query.date);
-    var range = req.query.range === "" || typeof req.query.range === "undefined"  ? [0, infinity] : rangeNum[ranges.indexOf(req.query.range)];
+    var type = isEmpty(req.query.type, "Type") ? sql_query.query.get_task_type : "VALUES ('" + req.query.type + "')";
+    var region = isEmpty(req.query.region, "Region") ? sql_query.query.get_region : "VALUES ('" + req.query.region + "')";
+    var date = isEmpty(req.query.date, "Date") ? getDate(new Date()) : getDate(req.query.date);
+    var range = isEmpty(req.query.range, "Salary") ? [0, infinity] : rangeNum[ranges.indexOf(req.query.range)];
     console.log("tasks: " + type + "-" + region + "-" + range + "-" + date);
     pool.query(sql_query.query.search, ["%%"], (err, data) => {
         if(err) {
@@ -81,20 +81,26 @@ function tasks(req, res, next) {
     });
 }
 
+function isEmpty(input, placeHolder) {
+    return input === "" || input === placeHolder || typeof input === "undefined";
+}
+
 function getDate(choice) {
-    var resultDate = new Date();
+    var currentDate = new Date();
+    var resultDate = currentDate;
+    console.log(currentDate);
     switch (choice) {
     case dateRanges[0]:
-        resultDate = new Date(resultDate.setDate(resultDate.getDate()-3));
+        resultDate = new Date(resultDate.setDate(currentDate.getDate()-3));
         break;
     case dateRanges[1]:
-        resultDate = new Date(resultDate.setDate(resultDate.getDate()-7));
+        resultDate = new Date(resultDate.setDate(currentDate.getDate()-7));
         break;
     case dateRanges[2]:
-        resultDate = new Date(resultDate.setDate(resultDate.getDate()-30));
+        resultDate = new Date(resultDate.setDate(currentDate.getDate()-30));
         break;
     }
-    return resultDate.getUTCFullYear() + "-" + resultDate.getUTCMonth() + "-" + resultDate.getUTCDate();
+    return resultDate.getUTCFullYear() + "-" + (resultDate.getUTCMonth() + 1) + "-" + resultDate.getUTCDate();
 }
 
 function show(res, data1, selectedType, selectedRegion, selectedDate, selectedRange) {
