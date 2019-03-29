@@ -2,13 +2,6 @@ var express = require('express');
 var router = express.Router();
 
 const { Pool } = require('pg')
-const pool = new Pool({
-  user: 'ysq',
-  host: 'localhost',
-  database: 'postgres',
-  password: '',
-  port: 5432,
-})
 
 /* SQL Query */
 var sql_query = 'INSERT INTO student_info VALUES';

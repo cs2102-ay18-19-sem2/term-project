@@ -15,7 +15,8 @@ function initRouter(app) {
     console.log("connecting to the database: " + process.env.DATABASE_URL);
 
 	/* GET */
-	app.get('/', homepage);
+    app.get('/', index);
+    app.get('/index', index);
     app.get('/login', login);
     app.get('/signup', signup);
 
@@ -23,8 +24,8 @@ function initRouter(app) {
     app.post('/receive_signup', receive_signup);
 }
 
-function homepage(req, res, next) {
-	res.render('homepage', { title: 'HomePage' });
+function index(req, res, next) {
+	res.render('index', { title: 'HomePage' });
 }
 
 function login(req, res, next) {
