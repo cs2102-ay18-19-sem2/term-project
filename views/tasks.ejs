@@ -49,14 +49,26 @@
                     <h2 class="font-weight-light text-primary pb-3">List of Tasks ...</h2>
                 </div>
             </div>
-            <div class="row align-items-center">
-                <% for(var i=0; i < tasks.length ; i++) { %>
-                    <% var taskTitle = tasks[i].title %>
-                    <p class="text-white"><%= taskTitle %></p>
-                    &nbsp;
-                <% } %>
-            </div>
-
+            <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Title</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Salary</th>
+                            <th scope="col">Region</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% for(var i=0; i < tasks.length; i++) { %>
+                            <tr>
+                            <td><%= tasks[i].title %></td>
+                            <td><%= tasks[i].task %></td>
+                            <td><%= tasks[i].salary %></td>
+                            <td><%= tasks[i].rname %></td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+            </table>
         </div>
     </div>
 
