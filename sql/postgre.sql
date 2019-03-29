@@ -8,7 +8,7 @@ CREATE TABLE regions (
 
 CREATE TABLE specializations (
   sname   VARCHAR(74) PRIMARY KEY,
-  details VARCHAR(100)
+  details VARCHAR(100),
   check (sname <> 'OTHER' OR details IS NOT NULL)
 );
 
@@ -49,13 +49,13 @@ CREATE TABLE specializes (
 
 CREATE TABLE tasks(
   tid INTEGER PRIMARY KEY,
-  title       VARCHAR(74) UNIQUE,
+  title       VARCHAR(74),
   sname       VARCHAR(74) DEFAULT 'Unassigned' REFERENCES states,
   rname       VARCHAR(74) DEFAULT 'All' REFERENCES regions,
   cname       VARCHAR(74) DEFAULT 'All' REFERENCES classifications,
   finder_id   INTEGER REFERENCES users(aid) NOT NULL,
   salary      INTEGER NOT NULL,
-  task    	  DATE NOT NULL,
+  task_date   DATE NOT NULL,
   description VARCHAR(200),
   tasker_id   INTEGER REFERENCES users(aid)
   check (tasker_id <> finder_id)
@@ -90,6 +90,7 @@ INSERT INTO regions (rname) VALUES ('Malaysia');
 INSERT INTO regions (rname) VALUES ('Bishan');
 INSERT INTO regions (rname) VALUES ('Holland Village');
 INSERT INTO regions (rname) VALUES ('Yishun');
+INSERT INTO regions (rname) VALUES ('Other');
 
 INSERT INTO specializations (sname) VALUES ('Mandarin');
 INSERT INTO specializations (sname) VALUES ('Highschool Mathemetics');
@@ -110,3 +111,4 @@ INSERT INTO classifications (cname) VALUES ('Horticulture');
 INSERT INTO classifications (cname) VALUES ('Lifting');
 INSERT INTO classifications (cname) VALUES ('Pets Caring');
 INSERT INTO classifications (cname) VALUES ('Electrical');
+INSERT INTO classifications (cname) VALUES ('Other');

@@ -19,11 +19,13 @@ function initRouter(app) {
     app.get('/index', index);
     app.get('/login', login);
     app.get('/signup', signup);
-    app.get('/tasks', tasks)
+    app.get('/tasks', tasks);
+		app.get('/post', post);
 
     /* POST */
     app.post('/receive_signup', receive_signup);
     app.post('/search', search)
+		app.post('/receive_post', receive_post);
 }
 
 function index(req, res, next) {
@@ -101,6 +103,60 @@ function receive_signup(req, res, next) {
             }
         }
     });
+
+}
+
+function post(req, res, next) {
+    pool.query(sql_query.query.get_task_type, (err, data1) => {
+        if(err) {
+            console.log("Error encountered when reading classifications");
+        } else {
+          pool.query(sql_query.query.get_region_name, (err, data2) => {
+						if (err){
+							console.log("Error encountered when reading regions");
+						} else {
+							res.render('post', { title:"Post New Task", types: data1.rows, regions:data2.rows });
+						}
+					})
+        }
+    })
+}
+
+function receive_post(req, res, next) {
+	//add new task into the database
+	var tid;
+	pool.query(sql_query.query.get_task_num, (err, data) => {
+		if(err){
+			console.log("cannot read task number");
+			res.redirect('/');
+		} else {
+			tid = parseInt(data.rows[0].num, 10) + 1;
+			var title = req.body.title;
+			var rname = req.body.region;
+			var cname = req.body.type;
+			var finder_id = 1; //to be updated with the user id from the session
+			var salary = parseInt(req.body.salary);
+			var desc = req.body.desc;
+			var date = new Date(req.body.date);
+
+			var today = new Date()
+
+			if (date < today) {
+				console.error("This date has already passed.");
+				post(req, res, next);
+			} else {
+				var datestring = date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
+				pool.query(sql_query.query.add_task, [tid, title, rname, cname, finder_id, salary, datestring, desc], (err, data) => {
+					if(err) {
+						console.error("Cannot add the task");
+						res.redirect('/');
+					} else {
+						res.redirect('/');
+					}
+				});
+			}
+		}
+	})
 
 }
 
