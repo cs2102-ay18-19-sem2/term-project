@@ -43,7 +43,19 @@
                                     </optgroup>
                                 </select>
                             </th>
-                            <th scope="col" style="width:25%;">Date</th>
+                            <th scope="col" style="width:25%;">
+                                <select class="browser-default custom-select" id="date" name="date" onchange="this.form.submit()">
+                                    <optgroup label="Date">
+                                        <% for (var i = 0; i < dates.length; i++) { %>
+                                            <% if (dates[i] == taskDate) { %>
+                                                <option name="tableType" selected><%= dates[i] %></option>
+                                            <% } else { %>
+                                                <option name="tableType"><%= dates[i] %></option>
+                                            <% } %>
+                                        <% } %>
+                                    </optgroup>
+                                </select>
+                            </th>
                             <th scope="col" style="width:25%;">
                                 <select class="browser-default custom-select" id="range" name="range" onchange="this.form.submit()">
                                     <optgroup label="Salary">
@@ -87,9 +99,29 @@
                                 <div class = "card">
                                     <h5 class="card-title">A0000002B</h5>
                                     <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
+                                    <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
+                                    <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
+                                    <div style="display: flex;">
+                                        <button class="col-md-6 btn-outline-primary">View Details</button>
+                                        <button class="col-md-6 btn-primary">Bid</button>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
+                        <tr>
+                            <td colspan="4">
+                                <div class = "card">
+                                    <h5 class="card-title">A0000002B</h5>
+                                    <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
+                                    <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
+                                    <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
+                                    <div style="display: flex;">
+                                        <button class="col-md-6 btn-outline-primary">View Details</button>
+                                        <button class="col-md-6 btn-primary">Bid</button>
+                                    </div>
+                                </div>
+                            </td>
+                            </tr>
                     </tbody>
             </table>
         </div>
