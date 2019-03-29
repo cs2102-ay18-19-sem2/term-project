@@ -16,6 +16,8 @@ const infinity = 2147483647;
 var ranges = ["≤1000", "1000-2000", "2000-3000", "≥3000"];
 var rangeNum = [[0, 1000], [1000, 2000], [2000, 3000], [3000, infinity]];
 
+var dateRanges = ["last 3 days", "last one week", "last one month(30 days)"];
+
 function initRouter(app) {
     console.log("connecting to the database: " + process.env.DATABASE_URL);
 
@@ -55,31 +57,50 @@ function tasks_search(req, res, next) {
 }
 
 function tasks(req, res, next) {
-    var type = req.query.type === "" ? sql_query.query.get_task_type : req.query.type;
-    var region = req.query.region === "" ? sql_query.query.get_region : req.query.region;
-    var range = req.query.range === "" ? [0, infinity] : rangeNum[ranges.indexOf(req.query.range)];
-    var typePlaceholder = req.query.type === "" ? "Type" : req.query.type;
-    var regionPlaceholder = req.query.region === "" ? "Region" : req.query.region;
-    var rangePlaceholder = req.query.range === "" ? "Salary" : req.query.range;
-    console.log(type + "-" + region + "-" + range);
+    var type = req.query.type === "" || typeof req.query.type === "undefined" ? sql_query.query.get_task_type : req.query.type;
+    var region = req.query.region === "" || typeof req.query.region === "undefined"  ? sql_query.query.get_region : req.query.region;
+    var date = req.query.date === "" || typeof req.query.date === "undefined"  ? sql_query.query.get_all_date : getDate(req.query.date);
+    var range = req.query.range === "" || typeof req.query.range === "undefined"  ? [0, infinity] : rangeNum[ranges.indexOf(req.query.range)];
+    console.log("tasks: " + type + "-" + region + "-" + range + "-" + date);
     pool.query(sql_query.query.search, ["%%"], (err, data) => {
         if(err) {
             console.log("Error encountered when searching");
             index(req, res, next);
         } else {
-            pool.query(sql_query.query.filter, [type, region, range[0], range[1]], (err, data) => {
+            pool.query(sql_query.query.filter, [type, region, date, range[0], range[1]], (err, data) => {
                 if(err) {
                     console.log("Error encountered when filtering");
                     index(req, res, next);
                 } else {
-                    show(res, data, typePlaceholder, regionPlaceholder, rangePlaceholder);
+                    show(res, data, req.query.type , req.query.region, req.query.date, req.query.range);
                 }
             });
         }
     });
 }
 
-function show(res, data1, selectedType, selectedRegion, selectedRange) {
+function getDate(choice) {
+    var resultDate = new Date();
+    switch (choice) {
+    case dateRanges[0]:
+        resultDate = new Date(resultDate.setDate(resultDate.getDate()-3));
+        break;
+    case dateRanges[1]:
+        resultDate = new Date(resultDate.setDate(resultDate.getDate()-7));
+        break;
+    case dateRanges[2]:
+        resultDate = new Date(resultDate.setDate(resultDate.getDate()-30));
+        break;
+    }
+    return resultDate.getUTCFullYear() + "-" + resultDate.getUTCMonth() + "-" + resultDate.getUTCDate();
+}
+
+function show(res, data1, selectedType, selectedRegion, selectedDate, selectedRange) {
+    var selectedType = selectedType === "" || typeof selectedType === "undefined" ? "Type" : selectedType;
+    var selectedRegion = selectedRegion === "" || typeof selectedRegion === "undefined" ? "Region" : selectedRegion;
+    var selectedDate = selectedDate === "" || typeof selectedDate === "undefined" ? "Date" : selectedDate;
+    var selectedRange = selectedRange === "" || typeof selectedRange === "undefined" ? "Salary" : selectedRange;
+    console.log("show: " + selectedType + "-" + selectedRegion + "-" + selectedDate + "-" + selectedRange);
     pool.query(sql_query.query.get_task_type, (err, data2) => {
         if(err) {
             console.log("Error encountered when reading classifications");
@@ -89,8 +110,8 @@ function show(res, data1, selectedType, selectedRegion, selectedRange) {
                     console.log("Error encountered when reading regions");
                 } else {
                     res.render('tasks', { title: "Search Results", 
-                        tasks: data1.rows, type: selectedType, region: selectedRegion, range: selectedRange,
-                        types: data2.rows, regions: data3.rows, ranges: ranges });
+                        tasks: data1.rows, type: selectedType, region: selectedRegion, taskDate: selectedDate, range: selectedRange,
+                        types: data2.rows, regions: data3.rows, dates: dateRanges, ranges: ranges });
                 }
             });
         }
