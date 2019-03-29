@@ -17,11 +17,14 @@ function initRouter(app) {
 	/* GET */
     app.get('/', index);
     app.get('/index', index);
-    app.get('/login', login);
     app.get('/signup', signup);
+    app.get('/login', login);
 
     /* POST */
     app.post('/receive_signup', receive_signup);
+
+    /* LOGIN */
+
 }
 
 function index(req, res, next) {
@@ -33,7 +36,9 @@ function login(req, res, next) {
 }
 
 function signup(req, res, next) {
-    res.render('signup', { title: 'SignUp' });
+    pool.query(sql_query.query.get_regions, (err, data) => {
+        res.render('signup', { title: 'SignUp' , regionData: data.rows});
+    });
 }
 
 function receive_signup(req, res, next) {
@@ -42,11 +47,13 @@ function receive_signup(req, res, next) {
     pool.query(sql_query.query.get_user_num, (err, data) => {
         if(err){
             console.log("cannot read the number");
-            res.redirect('/login');
+            res.redirect('/');
         }else{
             aid = parseInt(data.rows[0].num, 10) + 1;
             var email = req.body.email;
             var username = req.body.username;
+            var region = req.body.region;
+            console.log(region);
             var password = req.body.password;
             var password_confirm = req.body.password_confirm;
 
@@ -57,13 +64,20 @@ function receive_signup(req, res, next) {
                 signup(req, res, next);
             } else {
                 pool.query(sql_query.query.add_account, [aid, email, username, password], (err, data) => {
-                                if(err) {
-                                	console.error("Cannot add the user");
-                                	res.redirect('/');
-                                } else {
-                                	res.redirect('/login');
-                                }
-                            });
+                    if(err) {
+                        console.error("Cannot add the account");
+                        res.redirect('/');
+                    } else {
+                        pool.query(sql_query.query.add_user, [aid, region], (err, data) => {
+                            if(err) {
+                                console.error("Cannot add the user");
+                                res.redirect('/');
+                            } else {
+                                res.redirect('/login');
+                            }
+                        });
+                    }
+                });
             }
         }
     });

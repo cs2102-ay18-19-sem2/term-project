@@ -66,6 +66,17 @@
 
                         <div class="row form-group">
                             <div class="col-md-12">
+                                <label class="text-black" for="region">Regions</label>
+                                <select type="region" id="region" name="region">
+                                    <% for(var i=0; i < regionData.length; i++) { %>
+                                    <option><%= regionData[i].region_name%></option>
+                                    <% } %>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <div class="col-md-12">
                                 <label class="text-black" for="subject">Password</label>
                                 <input type="password" id="subject" name= "password" class="form-control">
                             </div>

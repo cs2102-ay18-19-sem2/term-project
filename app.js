@@ -13,12 +13,14 @@ const passport = require('passport')
 
 const app = express();
 
+
 // Body Parser Config
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
 }));
 
+// Authentication setup
 require('dotenv').config();
 
 // View Engine setup
