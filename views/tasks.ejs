@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include head.ejs %>
+<body>
+
+<div class="site-wrap">
+
+    <div class="site-mobile-menu">
+        <div class="site-mobile-menu-header">
+            <div class="site-mobile-menu-close mt-3">
+                <span class="icon-close2 js-menu-toggle"></span>
+            </div>
+        </div>
+        <div class="site-mobile-menu-body"></div>
+    </div>
+
+    <%- include navbar.ejs %>
+
+    <%- include('title.ejs', {title: "Tasks"}) %>
+
+    <div class="site-section"  data-aos="fade">
+        <div class="container">
+
+            <div class="row mb-5">
+                <div class="text-left border-primary">
+                    <h2 class="font-weight-light text-primary pb-3">List of Tasks ...</h2>
+                </div>
+            </div>
+            <table class="table">
+                    <thead>
+                        <tr>
+                            <form id="tableForm" action="/tasks" method="get">
+                            <th scope="col" style="width:25%;">
+                                <select class="browser-default custom-select" id="type" name="type" onchange="this.form.submit()">
+                                    <optgroup label="Type">
+                                        <% for (var i = 0; i < types.length; i++) { %>
+                                            <% if (types[i].cname == type) { %>
+                                                <option name="tableType" selected><%= types[i].cname %></option>
+                                            <% } else { %>
+                                                <option name="tableType"><%= types[i].cname %></option>
+                                            <% } %>
+                                        <% } %>
+                                    </optgroup>
+                                </select>
+                            </th>
+                            <th scope="col" style="width:25%;">
+                                <select class="browser-default custom-select" id="date" name="date" onchange="this.form.submit()">
+                                    <optgroup label="Date">
+                                        <% for (var i = 0; i < dates.length; i++) { %>
+                                            <% if (dates[i] == taskDate) { %>
+                                                <option name="tableType" selected><%= dates[i] %></option>
+                                            <% } else { %>
+                                                <option name="tableType"><%= dates[i] %></option>
+                                            <% } %>
+                                        <% } %>
+                                    </optgroup>
+                                </select>
+                            </th>
+                            <th scope="col" style="width:25%;">
+                                <select class="browser-default custom-select" id="range" name="range" onchange="this.form.submit()">
+                                    <optgroup label="Salary">
+                                        <% for (var i = 0; i < ranges.length; i++) { %>
+                                            <% if (ranges[i] == range) { %>
+                                                <option name="tableType" selected><%= ranges[i] %></option>
+                                            <% } else { %>
+                                                <option name="tableType"><%= ranges[i] %></option>
+                                            <% } %>
+                                        <% } %>
+                                    </optgroup>
+                                </select>
+                            </th>
+                            <th scope="col" style="width:25%;">
+                                <select class="browser-default custom-select" id="region" name="region" onchange="this.form.submit()">
+                                    <optgroup label="Region">
+                                        <% for (var i = 0; i < regions.length; i++) { %>
+                                            <% if (regions[i].rname == region) { %>
+                                                <option name="tableType" selected><%= regions[i].rname %></option>
+                                            <% } else { %>
+                                                <option name="tableType"><%= regions[i].rname %></option>
+                                            <% } %>
+                                        <% } %>
+                                    </optgroup>
+                                </select>
+                            </th>
+                            </form>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% for(var i=0; i < tasks.length; i++) { %>
+                            <tr>
+                            <p class = "title"><%= tasks[i].title %></p>
+                            <%= tasks[i].task_date %>
+                            <%= tasks[i].salary %>
+                            <%= tasks[i].rname %>
+                            </tr>
+                        <% } %>
+                        <tr>
+                            <td colspan="4">
+                                <div class = "card">
+                                    <h5 class="card-title">A0000002B</h5>
+                                    <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
+                                    <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
+                                    <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
+                                    <div style="display: flex;">
+                                        <button class="col-md-6 btn-outline-primary">View Details</button>
+                                        <button class="col-md-6 btn-primary">Bid</button>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="4">
+                                <div class = "card">
+                                    <h5 class="card-title">A0000002B</h5>
+                                    <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
+                                    <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
+                                    <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
+                                    <div style="display: flex;">
+                                        <button class="col-md-6 btn-outline-primary">View Details</button>
+                                        <button class="col-md-6 btn-primary">Bid</button>
+                                    </div>
+                                </div>
+                            </td>
+                            </tr>
+                    </tbody>
+            </table>
+        </div>
+    </div>
+    <%- include footer.ejs %>
+</div>
+
+<%- include script.ejs %>
+
+</body>
+</html>

@@ -1,29 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <title>Task Sourcing Homepage</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <link href="https://fonts.googleapis.com/css?family=Nanum+Gothic:400,700,800" rel="stylesheet">
-    <link rel="stylesheet" href="/fonts/icomoon/style.css">
-
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/magnific-popup.css">
-    <link rel="stylesheet" href="css/jquery-ui.css">
-    <link rel="stylesheet" href="css/owl.carousel.min.css">
-    <link rel="stylesheet" href="css/owl.theme.default.min.css">
-
-    <link rel="stylesheet" href="css/bootstrap-datepicker.css">
-
-    <link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
-
-    <link rel="stylesheet" href="css/aos.css">
-    <link rel="stylesheet" href="css/rangeslider.css">
-
-    <link rel="stylesheet" href="css/style.css">
-
-</head>
+<%- include head.ejs %>
 <body>
 
 <div class="site-wrap">
@@ -52,8 +29,8 @@
 
                     <div class="row justify-content-center mt-5">
                         <div class="col-md-8 text-center">
-                            <h1>About Us</h1>
-                            <p class="mb-0">A World Class Classified Company</p>
+                            <h1><%= title %></h1>
+                            <p class="mb-0">Find help or do a task blah blah</p>
                         </div>
                     </div>
 
@@ -66,130 +43,45 @@
     <div class="site-section"  data-aos="fade">
         <div class="container">
 
-
             <div class="row mb-5">
-                <div class="col-md-4 ml-auto">
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam eveniet laudantium dignissimos atque labore excepturi perspiciatis ut fugit eius itaque iste quibusdam dolore consectetur reprehenderit. Illum molestiae nemo culpa optio.</p>
+                <div class="text-left border-primary">
+                    <h2 class="font-weight-light text-primary pb-3">Classification of Tasks ...</h2>
                 </div>
-                <div class="col-md-4">
-                    <p>Similique neque facere cum! Et esse natus qui fugiat temporibus voluptate debitis similique eos illum pariatur suscipit placeat omnis perferendis ab enim quis eligendi minima explicabo aperiam. Eaque minus itaque?</p>
-                </div>
+                <button class="btn btn-secondary ml-auto" type="button" id="button-addon2">
+                        <a class="text-white" href="/post">Post New Task</a>
+                </button>
             </div>
-
-            <div class="row mb-5">
-                <div class="col-md-4 text-left border-primary">
-                    <h2 class="font-weight-light text-primary pb-3">Our Team</h2>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6 col-lg-3 mb-4 mb-lg-0">
-                    <img src="images/person_1.jpg" alt="Image" class="img-fluid mb-3">
-                    <h3 class="h4">Susan Horton</h3>
-                    <p class="caption mb-3 text-primary">Founder</p>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Laborum facilis, sint libero commodi tenetur ducimus accusantium inventore.</p>
-                </div>
-                <div class="col-md-6 col-lg-3 mb-4 mb-lg-0">
-                    <img src="images/person_2.jpg" alt="Image" class="img-fluid mb-3">
-                    <h3 class="h4">Jonathan Kennedy</h3>
-                    <p class="caption mb-3 text-primary">Founder</p>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Laboriosam voluptas autem qui alias officia eligendi, nam in.</p>
-                </div>
-                <div class="col-md-6 col-lg-3 mb-4 mb-lg-0">
-                    <img src="images/person_3.jpg" alt="Image" class="img-fluid mb-3">
-                    <h3 class="h4">Gordon Meyer</h3>
-                    <p class="caption mb-3 text-primary">Lead Developer</p>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Tempore animi quam, est vero. Omnis sunt, totam qui!</p>
-                </div>
-                <div class="col-md-6 col-lg-3 mb-4 mb-lg-0">
-                    <img src="images/person_4.jpg" alt="Image" class="img-fluid mb-3">
-                    <h3 class="h4">Doug Hale Kennedy</h3>
-                    <p class="caption mb-3 text-primary">ProjectManager</p>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Vitae exercitationem voluptatum, laboriosam unde ipsam modi iusto, numquam?</p>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-
-    <div class="site-section">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <img src="images/hero_2.jpg" alt="Image" class="img-fluid rounded">
-                </div>
-                <div class="col-md-5 ml-auto">
-                    <h2 class="text-primary mb-3">Why Us</h2>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam voluptates a explicabo delectus sed labore dolor enim optio odio at!</p>
-                    <p class="mb-4">Adipisci dolore reprehenderit est et assumenda veritatis, ex voluptate odio consequuntur quo ipsa accusamus dicta laborum exercitationem aspernatur reiciendis perspiciatis!</p>
-
-                    <ul class="ul-check list-unstyled primary">
-                        <li>Adipisci dolore reprehenderit</li>
-                        <li>Accusamus dicta laborum</li>
-                        <li>Delectus sed labore</li>
-                    </ul>
-                </div>
+            <div class = "row align-items-center"></div>
+                <% for(var i=0; i < types.length ; i++) { %>
+                    <% var type = types[i].cname %>
+                    <% if(i % 2 == 0) { %>
+                        <button class="btn btn-outline-primary btn-lg col-md-3 ml-auto" type="button" id="button-addon2">
+                            <a href="/tasks"><%= type %></a>
+                        </button>
+                    <% } else { %>
+                        <button class="btn btn-primary btn-lg col-md-3 ml-auto" type="button" id="button-addon2">
+                            <a class="text-white" href="/tasks"><%= type %></a>
+                        </button>
+                    <% } %>
+                    &nbsp;
+                <% } %>
             </div>
         </div>
     </div>
-
-    <div class="site-section">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-6 order-md-2">
-                    <img src="images/hero_1.jpg" alt="Image" class="img-fluid rounded">
-                </div>
-                <div class="col-md-5 mr-auto order-md-1">
-                    <h2 class="text-primary mb-3">Customer Centered Co.</h2>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam voluptates a explicabo delectus sed labore dolor enim optio odio at!</p>
-
-                    <ul class="ul-check list-unstyled primary">
-                        <li>Adipisci dolore reprehenderit</li>
-                        <li>Accusamus dicta laborum</li>
-                        <li>Delectus sed labore</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
 
     <div class="newsletter bg-primary py-5">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h2>Newsletter</h2>
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
-                </div>
-                <div class="col-md-6">
-
-                    <form class="d-flex">
-                        <input type="text" class="form-control" placeholder="Email">
-                        <input type="submit" value="Subscribe" class="btn btn-white">
-                    </form>
-                </div>
+                <form class="d-flex col-md-6" action="/tasks/search" method="get">
+                    <input type="text" id="keyword" name="keyword" value="" class="form-control" placeholder="Search">
+                    <input type="submit" value="Search" class="btn btn-white">
+                </form>
             </div>
         </div>
     </div>
-
-
     <%- include footer.ejs %>
 </div>
 
-<script src="js/jquery-3.3.1.min.js"></script>
-<script src="js/jquery-migrate-3.0.1.min.js"></script>
-<script src="js/jquery-ui.js"></script>
-<script src="js/popper.min.js"></script>
-<script src="js/bootstrap.min.js"></script>
-<script src="js/owl.carousel.min.js"></script>
-<script src="js/jquery.stellar.min.js"></script>
-<script src="js/jquery.countdown.min.js"></script>
-<script src="js/jquery.magnific-popup.min.js"></script>
-<script src="js/bootstrap-datepicker.min.js"></script>
-<script src="js/aos.js"></script>
-<script src="js/rangeslider.min.js"></script>
-
-<script src="js/main.js"></script>
-
+<%- include script.ejs %>
 </body>
 </html>
