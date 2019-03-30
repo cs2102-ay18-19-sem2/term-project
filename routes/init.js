@@ -154,7 +154,7 @@ function login(req, res, next) {
 }
 
 function signup(req, res, next) {
-    pool.query(sql_query.query.get_regions, (err, data) => {
+    pool.query(sql_query.query.get_region, (err, data) => {
         res.render('signup', { title: 'SignUp' , regionData: data.rows, auth: false});
     });
 }
