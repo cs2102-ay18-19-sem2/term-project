@@ -20,10 +20,56 @@ function initRouter(app) {
     app.get('/login', login);
     app.get('/signup', signup);
     app.get('/tasks', tasks)
+    app.get('/admin_users', admin_users);
+    app.get('/profile', profile);
 
     /* POST */
+    app.post('/update_info', update_info);
     app.post('/receive_signup', receive_signup);
     app.post('/search', search)
+}
+
+/* Basic Info used for profile. */
+function basic(req, res, page, other) {
+  var info = {
+    page: page,
+    rname: req.body.rname,
+    gender : req.body.gender,
+  };
+  if(other) {
+    for(var fld in other) {
+      info[fld] = other[fld];
+    }
+  }
+  res.render(page, info);
+}
+
+function query(req, fld) {
+  return req.query[fld] ? req.query[fld] : '';
+}
+function msg(req, fld, pass, fail) {
+  var info = query(req, fld);
+  return info ? (info=='pass' ? pass : fail) : '';
+}
+
+/* User can view and update his own profile page. */
+function profile(req, res, next) {
+  basic(req, res, 'profile', { info_msg: msg(req, 'info', 'Information updated'
+        + ' successfully', 'Error in updating information'),
+    pass_msg: msg(req, 'pass', 'Password updated successfully', 'Error in updating password'), auth: true });
+
+}
+
+/* Admin can view all the users. */
+function admin_users(req, res, next) {
+    pool.query(sql_query.query.admin_view_users, (err, data) => {
+        if (err) {
+            console.log("Error encountered when admin trying to view all"
+                + " users.");
+        } else {
+            res.render('admin_users', {title: "admin_users", types: data.rows });
+      }
+    })
 }
 
 function index(req, res, next) {
@@ -68,6 +114,22 @@ function login(req, res, next) {
 
 function signup(req, res, next) {
     res.render('signup', { title: 'SignUp' });
+}
+
+// POST
+function update_info(req, res, next) {
+  var aid = req.body.rname;
+  var rname  = req.body.rname;
+  var gender = req.body.gender;
+  pool.query(sql_query.query.update_info, [aid, rname, gender], (err, data) => {
+    console.log("---aid: " + aid +" ---rname: " + rname + " ---gender: " + gender);
+    if(err) {
+      console.error("Error in update info");
+      res.redirect('/profile');
+    } else {
+      res.redirect('/profile');
+}
+});
 }
 
 function receive_signup(req, res, next) {

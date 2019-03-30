@@ -1,5 +1,3 @@
-CREATE TYPE gender AS ENUM ('MALE', 'FEMALE');
-CREATE TYPE education AS ENUM ('other', 'high school', 'college', 'postgraduate');
 CREATE TYPE role AS ENUM ('finder','tasker');
 
 CREATE TABLE regions (
@@ -30,7 +28,9 @@ CREATE TABLE accounts(
 CREATE TABLE users(
   aid 		INTEGER,
   rname		VARCHAR(74),
-  score     INTEGER,
+  score   INTEGER,
+  gender  ENUM ('MALE', 'FEMALE'),
+  education ENUM ('other', 'high school', 'college', 'postgraduate'),
   PRIMARY KEY (aid),
   FOREIGN KEY (aid)   REFERENCES accounts,
   FOREIGN KEY (rname) REFERENCES regions
@@ -43,7 +43,7 @@ CREATE TABLE admins(
 
 CREATE TABLE specializes (
   aid		   INTEGER     REFERENCES users,
-  sname		   VARCHAR(74) REFERENCES specializations,
+  sname		 VARCHAR(74) REFERENCES specializations,
   PRIMARY KEY  (aid, sname)
 );
 
