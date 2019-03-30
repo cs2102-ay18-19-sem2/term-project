@@ -3,6 +3,7 @@ const sql = {}
 sql.query = {
     //Getinfo
     get_user_num: "SELECT COUNT(*) AS num FROM accounts",
+    emailpass: 'SELECT username, email, password FROM accounts WHERE email=$1',
     get_task_type: "SELECT cname FROM classifications",
     get_region: "SELECT rname FROM regions",
     get_all_date: "SELECT task_date FROM tasks",
@@ -15,7 +16,8 @@ sql.query = {
 
     //Insertion
 	add_account: 'INSERT INTO accounts (aid, email, username, password) VALUES ($1, $2, $3, $4)',
-  add_task: 'INSERT INTO tasks (tid, title, rname, cname, finder_id, salary, post_date , task_date, description) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)'
+    add_user: 'INSERT INTO users (aid, rname, score) VALUES ($1, $2, 5)',
+    add_task: 'INSERT INTO tasks (tid, title, rname, cname, finder_id, salary, post_date , task_date, description) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)'
 }
 
 module.exports = sql

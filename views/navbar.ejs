@@ -24,8 +24,19 @@
                         <li><a href="/blog">Blog</a></li>
                         <li><a href="/contact">Contact</a></li>
 
-                        <li class="ml-xl-3 login"><a href="/login"><span class="border-left pl-xl-4"></span>Log In</a></li>
+                        <li class="ml-xl-3 login">
+                            <% if(!auth){ %>
+                            <a href="/login"><span class="border-left pl-xl-4"></span>Log In</a>
+                            <% } else{%>
+                            <a href="/logout"><span class="border-left pl-xl-4"></span>Log Out</a>
+                            <% } %>
+                        </li>
+
+                        <% if(!auth){ %>
                         <li class="active"><a href="/signup">Register</a></li>
+                        <% } else{ %>
+                        <li class="active"><a href="/profile?user=<%=user%>">My Profile</a></li>
+                        <% } %>
 
                         <li><a href="#" class="cta"><span class="bg-primary text-white rounded">+ Post an Ad</span></a></li>
                     </ul>

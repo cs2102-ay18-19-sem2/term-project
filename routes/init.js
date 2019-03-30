@@ -15,7 +15,6 @@ const infinity = 2147483647;
 
 var ranges = ["≤1000", "1000-2000", "2000-3000", "≥3000"];
 var rangeNum = [[0, 1000], [1000, 2000], [2000, 3000], [3000, infinity]];
-
 var dateRanges = ["last 3 days", "last one week", "last one month(30 days)"];
 
 function initRouter(app) {
@@ -23,16 +22,40 @@ function initRouter(app) {
 
 	/* GET */
     app.get('/', index);
-    app.get('/index', index);
-    app.get('/login', login);
     app.get('/signup', signup);
+    app.get('/login', login);
     app.get('/tasks/search', tasks_search);
     app.get('/tasks', tasks)
-		app.get('/post', post);
+    app.get('/post', post);
 
-    /* POST */
+    /* Protected GET */
+    app.get('/profile', passport.authMiddleware(), profile);
+
+    /* Post Tasks */
+    app.post('/receive_post', receive_post);
+
+    /* Sign Up */
     app.post('/receive_signup', receive_signup);
-		app.post('/receive_post', receive_post);
+
+    /* Login */
+    app.post('/receive_login', receive_login);
+
+    /* Logout */
+    app.get('/logout', passport.authMiddleware(), logout);
+
+}
+
+function basic(req, res, page, other) {
+	var info = {
+		page: page,
+		user: req.user.username
+	};
+	if(other) {
+		for(var fld in other) {
+			info[fld] = other[fld];
+		}
+	}
+	res.render(page, info);
 }
 
 function index(req, res, next) {
@@ -40,7 +63,13 @@ function index(req, res, next) {
         if(err) {
             console.log("Error encountered when reading classifications");
         } else {
-            res.render('index', { title: "HomePage", types: data.rows });
+            if(!req.isAuthenticated()) {
+                console.log("not authenticated yet.");
+            	res.render('index', { title: 'HomePage' , page: '', auth: false, types: data.rows});
+            } else {
+            	console.log(req.user.username + " has logged in!");
+            	basic(req, res, 'index', { title: 'Homepage', page: '', auth: true, types: data.rows});
+            }
         }
     })
 }
@@ -121,11 +150,13 @@ function show(res, data1, selectedType, selectedRegion, selectedDate, selectedRa
 }
 
 function login(req, res, next) {
-    res.render('login', { title: 'LogIn' });
+    res.render('login', { title: 'LogIn', auth: false});
 }
 
 function signup(req, res, next) {
-    res.render('signup', { title: 'SignUp' });
+    pool.query(sql_query.query.get_region, (err, data) => {
+        res.render('signup', { title: 'SignUp' , regionData: data.rows, auth: false});
+    });
 }
 
 function receive_signup(req, res, next) {
@@ -134,11 +165,12 @@ function receive_signup(req, res, next) {
     pool.query(sql_query.query.get_user_num, (err, data) => {
         if(err){
             console.log("cannot read the number");
-            res.redirect('/login');
+            res.redirect('/');
         }else{
-            aid = parseInt(data.rows[0].num, 10) + 1;
+            aid = parseInt(data.rows[0].num, 10);
             var email = req.body.email;
             var username = req.body.username;
+            var region = req.body.region;
             var password = req.body.password;
             var password_confirm = req.body.password_confirm;
 
@@ -148,18 +180,56 @@ function receive_signup(req, res, next) {
                 console.error("passwords not match");
                 signup(req, res, next);
             } else {
+                password = bcrypt.hashSync(password, salt);
                 pool.query(sql_query.query.add_account, [aid, email, username, password], (err, data) => {
-                                if(err) {
-                                	console.error("Cannot add the user");
-                                	res.redirect('/');
-                                } else {
-                                	res.redirect('/login');
-                                }
-                            });
+                    if(err) {
+                        console.error("Cannot add the account");
+                        res.redirect('/');
+                    } else {
+                        pool.query(sql_query.query.add_user, [aid, region], (err, data) => {
+                            if(err) {
+                                console.error("Cannot add the user");
+                                res.redirect('/');
+                            } else {
+                                res.redirect('/login');
+                            }
+                        });
+                    }
+                });
             }
         }
     });
 
+}
+
+
+function receive_login(req, res, next){
+    passport.authenticate('local', function(err, user, info) {
+        if (err) {
+            return next(err);
+        }
+
+        if (!user) {
+            return res.redirect('/login');
+        }
+
+        req.logIn(user, function(err) {
+            if (err) {
+                return next(err);
+            }
+            return res.redirect('/?user=' + user.username);
+        });
+    })(req, res, next);
+}
+
+function profile(req, res, next){
+    res.render('profile', {user: req.user.username, auth: true});
+}
+
+function logout(req, res, next){
+    req.session.destroy()
+    req.logout()
+    res.redirect('/')
 }
 
 function post(req, res, next) {
