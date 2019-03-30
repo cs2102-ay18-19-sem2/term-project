@@ -19,20 +19,17 @@ function initRouter(app) {
     app.get('/signup', signup);
     app.get('/login', login);
 
-    /* POST */
+    /* Protected GET */
+    app.get('/profile', passport.authMiddleware(), profile);
+
+    /* Sign Up */
     app.post('/receive_signup', receive_signup);
 
     /* Login*/
-    app.post('/receive_login', function(req, res, next) {
-      passport.authenticate('local', function(err, user, info) {
-        if (err) { return next(err); }
-        if (!user) { return res.redirect('/login'); }
-        req.logIn(user, function(err) {
-          if (err) { return next(err); }
-          return res.redirect('/?user=' + user.username);
-        });
-      })(req, res, next);
-    });
+    app.post('/receive_login', receive_login);
+
+    /*Logout*/
+    app.get('/logout', passport.authMiddleware(), logout);
 
 }
 
@@ -59,18 +56,13 @@ function index(req, res, next) {
 	}
 }
 
-/*
-function dashboard(req, res, next) {
-    basic(req, res, 'profile', {});
-}*/
-
 function login(req, res, next) {
-    res.render('login', { title: 'LogIn' });
+    res.render('login', { title: 'LogIn', auth: false});
 }
 
 function signup(req, res, next) {
     pool.query(sql_query.query.get_regions, (err, data) => {
-        res.render('signup', { title: 'SignUp' , regionData: data.rows});
+        res.render('signup', { title: 'SignUp' , regionData: data.rows, auth: false});
     });
 }
 
@@ -82,11 +74,10 @@ function receive_signup(req, res, next) {
             console.log("cannot read the number");
             res.redirect('/');
         }else{
-            aid = parseInt(data.rows[0].num, 10) + 1;
+            aid = parseInt(data.rows[0].num, 10);
             var email = req.body.email;
             var username = req.body.username;
             var region = req.body.region;
-            console.log(region);
             var password = req.body.password;
             var password_confirm = req.body.password_confirm;
 
@@ -116,6 +107,35 @@ function receive_signup(req, res, next) {
         }
     });
 
+}
+
+function receive_login(req, res, next){
+    passport.authenticate('local', function(err, user, info) {
+        if (err) {
+            return next(err);
+        }
+
+        if (!user) {
+            return res.redirect('/login');
+        }
+
+        req.logIn(user, function(err) {
+            if (err) {
+                return next(err);
+            }
+            return res.redirect('/?user=' + user.username);
+        });
+    })(req, res, next);
+}
+
+function profile(req, res, next){
+    res.render('profile', {user: req.user.username, auth: true});
+}
+
+function logout(req, res, next){
+    req.session.destroy()
+    req.logout()
+    res.redirect('/')
 }
 
 module.exports = initRouter;

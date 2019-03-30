@@ -37,7 +37,7 @@
         <div class="site-mobile-menu-body"></div>
     </div>
 
-    <%- include navbar.ejs %>
+    <%- include('navbar.ejs', {auth: auth}) %>
  
     <%- include('title.ejs', {title: "Register"}) %>
 
