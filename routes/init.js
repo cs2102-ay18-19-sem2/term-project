@@ -16,20 +16,53 @@ function initRouter(app) {
 
 	/* GET */
     app.get('/', index);
-    app.get('/index', index);
     app.get('/signup', signup);
     app.get('/login', login);
 
     /* POST */
     app.post('/receive_signup', receive_signup);
 
-    /* LOGIN */
+    /* Login*/
+    app.post('/receive_login', function(req, res, next) {
+      passport.authenticate('local', function(err, user, info) {
+        if (err) { return next(err); }
+        if (!user) { return res.redirect('/login'); }
+        req.logIn(user, function(err) {
+          if (err) { return next(err); }
+          return res.redirect('/?user=' + user.username);
+        });
+      })(req, res, next);
+    });
 
+}
+
+function basic(req, res, page, other) {
+	var info = {
+		page: page,
+		user: req.user.username
+	};
+	if(other) {
+		for(var fld in other) {
+			info[fld] = other[fld];
+		}
+	}
+	res.render(page, info);
 }
 
 function index(req, res, next) {
-	res.render('index', { title: 'HomePage' });
+    if(!req.isAuthenticated()) {
+        console.log("not authenticated yet.");
+	    res.render('index', { title: 'HomePage' , page: '', auth: false });
+	} else {
+	    console.log(req.user.username + " has logged in!");
+	    basic(req, res, 'index', { page: '', auth: true });
+	}
 }
+
+/*
+function dashboard(req, res, next) {
+    basic(req, res, 'profile', {});
+}*/
 
 function login(req, res, next) {
     res.render('login', { title: 'LogIn' });
@@ -63,6 +96,7 @@ function receive_signup(req, res, next) {
                 console.error("passwords not match");
                 signup(req, res, next);
             } else {
+                password = bcrypt.hashSync(password, salt);
                 pool.query(sql_query.query.add_account, [aid, email, username, password], (err, data) => {
                     if(err) {
                         console.error("Cannot add the account");

@@ -20,8 +20,16 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
 }));
 
-// Authentication setup
+// Authentication Setup
 require('dotenv').config();
+require('./auth').init(app);
+app.use(session({
+  secret: process.env.SECRET,
+  resave: true,
+  saveUninitialized: true
+}))
+app.use(passport.initialize())
+app.use(passport.session())
 
 // View Engine setup
 app.set('views', path.join(__dirname, 'views'));
