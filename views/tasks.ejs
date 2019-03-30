@@ -33,6 +33,7 @@
                             <th scope="col" style="width:25%;">
                                 <select class="browser-default custom-select" id="type" name="type" onchange="this.form.submit()">
                                     <optgroup label="Type">
+                                        <option name="tableType">Type</option>
                                         <% for (var i = 0; i < types.length; i++) { %>
                                             <% if (types[i].cname == type) { %>
                                                 <option name="tableType" selected><%= types[i].cname %></option>
@@ -46,6 +47,7 @@
                             <th scope="col" style="width:25%;">
                                 <select class="browser-default custom-select" id="date" name="date" onchange="this.form.submit()">
                                     <optgroup label="Date">
+                                        <option name="tableType">Date</option>
                                         <% for (var i = 0; i < dates.length; i++) { %>
                                             <% if (dates[i] == taskDate) { %>
                                                 <option name="tableType" selected><%= dates[i] %></option>
@@ -59,6 +61,7 @@
                             <th scope="col" style="width:25%;">
                                 <select class="browser-default custom-select" id="range" name="range" onchange="this.form.submit()">
                                     <optgroup label="Salary">
+                                        <option name="tableType">Salary</option>
                                         <% for (var i = 0; i < ranges.length; i++) { %>
                                             <% if (ranges[i] == range) { %>
                                                 <option name="tableType" selected><%= ranges[i] %></option>
@@ -72,6 +75,7 @@
                             <th scope="col" style="width:25%;">
                                 <select class="browser-default custom-select" id="region" name="region" onchange="this.form.submit()">
                                     <optgroup label="Region">
+                                        <option name="tableType">Region</option>
                                         <% for (var i = 0; i < regions.length; i++) { %>
                                             <% if (regions[i].rname == region) { %>
                                                 <option name="tableType" selected><%= regions[i].rname %></option>
@@ -101,10 +105,16 @@
                                     <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
                                     <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
                                     <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-                                    <div style="display: flex;">
-                                        <button class="col-md-6 btn-outline-primary">View Details</button>
-                                        <button class="col-md-6 btn-primary">Bid</button>
-                                    </div>
+                                    <form action="/details">
+                                        <div style="display: flex;">
+                                            <button class="col-md-6 btn-outline-primary" id="tid" name="tid" value="1" onclick="this.form.submit()">
+                                                View Details
+                                            </button>
+                                            <button class="col-md-6 btn-primary" id="tid" name="tid" value="1" onclick="this.form.submit()">
+                                                Bid
+                                            </button>
+                                        </div>
+                                    </form>
                                 </div>
                             </td>
                         </tr>
