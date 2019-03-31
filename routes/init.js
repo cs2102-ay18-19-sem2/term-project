@@ -50,6 +50,7 @@ function initRouter(app) {
 function basic(req, res, page, other) {
   var info = {
     page: page,
+    user: req.user.username,
     rname: req.body.rname,
     gender : req.body.gender,
   };
@@ -179,7 +180,7 @@ function show(res, data1, selectedType, selectedRegion, selectedDate, selectedRa
                 } else {
                     res.render('tasks', { title: "Search Results",
                         tasks: data1.rows, type: selectedType, region: selectedRegion, taskDate: selectedDate, range: selectedRange,
-                        types: data2.rows, regions: data3.rows, dates: dateRanges, ranges: ranges });
+                        types: data2.rows, regions: data3.rows, dates: dateRanges, ranges: ranges, auth:false });
                 }
             });
         }
