@@ -144,22 +144,25 @@ function tasks_search(req, res, next) {
 }
 
 function tasks(req, res, next) {
-    var type = isEmpty(req.query.type, "Type") ? sql_query.query.get_task_type : "VALUES ('" + req.query.type + "')";
-    var region = isEmpty(req.query.region, "Region") ? sql_query.query.get_region : "VALUES ('" + req.query.region + "')";
+    var all_types = 'false';
+    var all_regions = 'false';
+    var type = isEmpty(req.query.type, "Type") ? all_types = 'true' : req.query.type;
+    var region = isEmpty(req.query.region, "Region") ? all_regions = 'true' : req.query.region;
     var date = isEmpty(req.query.date, "Date") ? getDate(new Date()) : getDate(req.query.date);
     var range = isEmpty(req.query.range, "Salary") ? [0, infinity] : rangeNum[ranges.indexOf(req.query.range)];
     console.log("tasks: " + type + "-" + region + "-" + range + "-" + date);
+    console.log(sql_query.query.filter, [type, region, date, range[0], range[1]]);
     pool.query(sql_query.query.search, ["%%"], (err, data) => {
         if(err) {
             console.log("Error encountered when searching");
             index(req, res, next);
         } else {
-            pool.query(sql_query.query.filter, [type, region, date, range[0], range[1]], (err, data) => {
+            pool.query(sql_query.query.filter, [range[0], range[1], date, region, type, all_regions, all_types], (err, data) => {
                 if(err) {
                     console.log("Error encountered when filtering");
                     index(req, res, next);
                 } else {
-                    show(res, data, req.query.type , req.query.region, req.query.date, req.query.range, req.isAuthenticated());
+                    show(res, data, type, region, date, range, req.isAuthenticated());
                 }
             });
         }
@@ -189,10 +192,6 @@ function getDate(choice) {
 }
 
 function show(res, data1, selectedType, selectedRegion, selectedDate, selectedRange, isAuth) {
-    var selectedType = selectedType === "" || typeof selectedType === "undefined" ? "Type" : selectedType;
-    var selectedRegion = selectedRegion === "" || typeof selectedRegion === "undefined" ? "Region" : selectedRegion;
-    var selectedDate = selectedDate === "" || typeof selectedDate === "undefined" ? "Date" : selectedDate;
-    var selectedRange = selectedRange === "" || typeof selectedRange === "undefined" ? "Salary" : selectedRange;
     console.log("show: " + selectedType + "-" + selectedRegion + "-" + selectedDate + "-" + selectedRange);
     pool.query(sql_query.query.get_task_type, (err, data2) => {
         if(err) {
@@ -202,6 +201,9 @@ function show(res, data1, selectedType, selectedRegion, selectedDate, selectedRa
                 if(err) {
                     console.log("Error encountered when reading regions");
                 } else {
+                    console.log(data1.rows);
+                    console.log(data2.rows);
+                    console.log(data3.rows);
                     res.render('tasks', { title: "Search Results", auth: isAuth,
                         tasks: data1.rows, type: selectedType, region: selectedRegion, taskDate: selectedDate, range: selectedRange,
                         types: data2.rows, regions: data3.rows, dates: dateRanges, ranges: ranges, auth:false });
@@ -384,7 +386,6 @@ function receive_post(req, res, next) {
 			}
 		}
 	})
-
 }
 
 module.exports = initRouter;

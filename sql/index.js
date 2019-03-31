@@ -12,7 +12,7 @@ sql.query = {
     get_task_num: "SELECT COUNT(*) AS num FROM tasks",
     get_bidder_for_task: `SELECT A.aid as bidder_id, A.username as bidder_name, B.salary as salary \
     FROM (accounts NATURAL JOIN users) as A JOIN bids B ON (A.aid = B.tasker_id) WHERE B.tid = $1 `,
-    filter: "SELECT * FROM tasks T WHERE T.cname IN ($1) AND T.rname IN ($2) AND T.task_date >= $3 AND T.salary >= $4 AND T.salary <= $5",
+    filter: "SELECT * FROM tasks T WHERE T.salary >= $1 AND T.salary <= $2 AND T.task_date >= $3 AND ($6 = 'true' OR T.rname = $4) AND ($7 = 'true' OR T.cname = $5)",
     admin_view_users: "SELECT * FROM users",
     get_profile: "SELECT * FROM users",
     get_detail: "SELECT * FROM tasks T where T.tid == $1",
