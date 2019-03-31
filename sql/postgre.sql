@@ -1,4 +1,4 @@
-CREATE TYPE gender_class AS ENUM('Female', 'Male');
+CREATE TYPE gender_class AS ENUM('Female', 'Male', 'Others');
 CREATE TYPE education_level AS ENUM ('other', 'high school', 'college',
 'postgraduate');
 CREATE TYPE role AS ENUM ('finder','tasker');

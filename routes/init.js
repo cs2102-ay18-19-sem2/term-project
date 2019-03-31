@@ -17,6 +17,11 @@ var ranges = ["≤1000", "1000-2000", "2000-3000", "≥3000"];
 var rangeNum = [[0, 1000], [1000, 2000], [2000, 3000], [3000, infinity]];
 var dateRanges = ["last 3 days", "last one week", "last one month(30 days)"];
 
+var gender_class = ["Female", "Male", "Others"];
+var education_level = ['High School', 'College', 'Postgraduate', 'Other'];
+var regions = ['Kent Ridge', 'Buona Vista', 'Bugis', 'Marina Bay', 'Orchard',
+  'Jurong East', 'Changi Airport', 'Malaysia', 'Bishan', 'Holland Village', 'Yishun', 'Other'];
+
 function initRouter(app) {
     console.log("connecting to the database: " + process.env.DATABASE_URL);
 
@@ -46,28 +51,19 @@ function initRouter(app) {
 
 }
 
-/* Basic Info used for profile. */
+/* Basic Info used for profile.*/
 function basic(req, res, page, other) {
   var info = {
     page: page,
     user: req.user.username,
-    rname: req.body.rname,
-    gender : req.body.gender,
   };
   if(other) {
     for(var fld in other) {
       info[fld] = other[fld];
     }
   }
-  res.render(page, info);
-}
 
-function query(req, fld) {
-  return req.query[fld] ? req.query[fld] : '';
-}
-function msg(req, fld, pass, fail) {
-  var info = query(req, fld);
-  return info ? (info=='pass' ? pass : fail) : '';
+  res.render(page, info);
 }
 
 /*
@@ -77,11 +73,31 @@ function profile(req, res, next){
 */
 /* User can view and update his own profile page. */
 function profile(req, res, next) {
-  console.log("i am here");
-  basic(req, res, 'profile', { info_msg: msg(req, 'info', 'Information updated'
-        + ' successfully', 'Error in updating information'),
-    pass_msg: msg(req, 'pass', 'Password updated successfully', 'Error in'
-        + ' updating password'), auth: true });
+    pool.query(sql_query.query.get_user_info, [req.user.username], (err, data) => {
+        if (err) {
+            console.log("cannot load profile");
+        } else {
+            var info = {
+                user: req.user.username,
+                user_info: data.rows[0],
+                education_level: education_level,
+                regionData: regions,
+                gender_class: gender_class,
+                info_msg: msg(req, 'info', 'Information updated successfully', 'Error in updating information'),
+                pass_msg: msg(req, 'pass', 'Password updated successfully', 'Error in updating password'),
+                auth:true,
+            };
+            res.render('profile', info);
+      }
+    })
+}
+
+function query(req, fld) {
+  return req.query[fld] ? req.query[fld] : '';
+}
+function msg(req, fld, pass, fail) {
+  var info = query(req, fld);
+  return info ? (info=='pass' ? pass : fail) : '';
 }
 
 /* Admin can view all the users. */
@@ -205,10 +221,11 @@ function signup(req, res, next) {
 
 // POST
 function update_info(req, res, next) {
-  var aid = req.body.rname;
-  var rname  = req.body.rname;
+  var aid = req.user.aid;
   var gender = req.body.gender;
-  pool.query(sql_query.query.update_info, [aid, rname, gender], (err, data) => {
+  var rname  = req.body.rname;
+  var education = req.body.education;
+  pool.query(sql_query.query.update_info, [aid, gender, rname, education], (err, data) => {
     console.log("---aid: " + aid +" ---rname: " + rname + " ---gender: " + gender);
     if(err) {
       console.error("Error in update info");
