@@ -50,6 +50,7 @@ function initRouter(app) {
 function basic(req, res, page, other) {
   var info = {
     page: page,
+    user: req.user.username,
     rname: req.body.rname,
     gender : req.body.gender,
   };
@@ -84,7 +85,7 @@ function admin_users(req, res, next) {
             console.log("Error encountered when admin trying to view all"
                 + " users.");
         } else {
-            res.render('admin_users', {title: "admin_users", types: data.rows });
+            res.render('admin_users', {title: "admin_users", types: data.rows, auth: true });
       }
     })
 }
@@ -134,7 +135,7 @@ function tasks(req, res, next) {
                     console.log("Error encountered when filtering");
                     index(req, res, next);
                 } else {
-                    show(res, data, req.query.type , req.query.region, req.query.date, req.query.range);
+                    show(res, data, req.query.type , req.query.region, req.query.date, req.query.range, req.isAuthenticated());
                 }
             });
         }
@@ -163,7 +164,7 @@ function getDate(choice) {
     return resultDate.getUTCFullYear() + "-" + (resultDate.getUTCMonth() + 1) + "-" + resultDate.getUTCDate();
 }
 
-function show(res, data1, selectedType, selectedRegion, selectedDate, selectedRange) {
+function show(res, data1, selectedType, selectedRegion, selectedDate, selectedRange, isAuth) {
     var selectedType = selectedType === "" || typeof selectedType === "undefined" ? "Type" : selectedType;
     var selectedRegion = selectedRegion === "" || typeof selectedRegion === "undefined" ? "Region" : selectedRegion;
     var selectedDate = selectedDate === "" || typeof selectedDate === "undefined" ? "Date" : selectedDate;
@@ -177,7 +178,7 @@ function show(res, data1, selectedType, selectedRegion, selectedDate, selectedRa
                 if(err) {
                     console.log("Error encountered when reading regions");
                 } else {
-                    res.render('tasks', { title: "Search Results",
+                    res.render('tasks', { title: "Search Results", auth: isAuth,
                         tasks: data1.rows, type: selectedType, region: selectedRegion, taskDate: selectedDate, range: selectedRange,
                         types: data2.rows, regions: data3.rows, dates: dateRanges, ranges: ranges });
                 }

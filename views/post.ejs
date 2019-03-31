@@ -36,7 +36,7 @@
           <div class="site-mobile-menu-body"></div>
       </div>
 
-      <%- include navbar.ejs %>
+      <%- include('navbar.ejs', {auth: auth}) %>
 
       <%- include('title.ejs', {title: "Post New Task"}) %>
       <div class="site-section bg-light">
