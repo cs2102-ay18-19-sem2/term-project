@@ -70,12 +70,18 @@ function msg(req, fld, pass, fail) {
   return info ? (info=='pass' ? pass : fail) : '';
 }
 
+/*
+function profile(req, res, next){
+  res.render('profile', {user: req.user.username, auth: true});
+}
+*/
 /* User can view and update his own profile page. */
 function profile(req, res, next) {
+  console.log("i am here");
   basic(req, res, 'profile', { info_msg: msg(req, 'info', 'Information updated'
         + ' successfully', 'Error in updating information'),
-    pass_msg: msg(req, 'pass', 'Password updated successfully', 'Error in updating password'), auth: true });
-
+    pass_msg: msg(req, 'pass', 'Password updated successfully', 'Error in'
+        + ' updating password'), auth: true });
 }
 
 /* Admin can view all the users. */
@@ -97,7 +103,7 @@ function index(req, res, next) {
         } else {
             if(!req.isAuthenticated()) {
                 console.log("not authenticated yet.");
-            	res.render('index', { title: 'HomePage' , page: '', auth: false, types: data.rows});
+            	res.render('index', { title: 'Homepage' , page: '', auth: false, types: data.rows});
             } else {
             	console.log(req.user.username + " has logged in!");
             	basic(req, res, 'index', { title: 'Homepage', page: '', auth: true, types: data.rows});
@@ -274,10 +280,6 @@ function receive_login(req, res, next){
             return res.redirect('/?user=' + user.username);
         });
     })(req, res, next);
-}
-
-function profile(req, res, next){
-    res.render('profile', {user: req.user.username, auth: true});
 }
 
 function logout(req, res, next){

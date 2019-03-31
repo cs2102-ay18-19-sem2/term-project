@@ -14,7 +14,6 @@ sql.query = {
     FROM (accounts NATURAL JOIN users) as A JOIN bids B ON (A.aid = B.tasker_id) WHERE B.tid = $1 `,
     filter: "SELECT * FROM tasks T WHERE T.cname IN ($1) AND T.rname IN ($2) AND T.task_date >= $3 AND T.salary >= $4 AND T.salary <= $5",
     admin_view_users: "SELECT * FROM users",
-    get_profile: "SELECT * FROM users",
 
     // Update
     update_info: 'UPDATE users SET rname=$2, gender=$3 WHERE aid=$1',
