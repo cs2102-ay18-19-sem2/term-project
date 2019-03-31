@@ -11,3 +11,11 @@ package-lock.json
 .idea/workspace.xml
 .env
 term-project.iml
+.env
+.idea/checkstyle-idea.xml
+.idea/encodings.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/term-project.iml
+.idea/vcs.xml
+.idea/workspace.xml
