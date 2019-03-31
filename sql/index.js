@@ -3,7 +3,7 @@ const sql = {}
 sql.query = {
     // Get Info
     get_user_num: "SELECT COUNT(*) AS num FROM accounts",
-    emailpass: 'SELECT username, email, password FROM accounts WHERE email=$1',
+    emailpass: 'SELECT aid, username, email, password FROM accounts WHERE email=$1',
     get_task_type: "SELECT cname FROM classifications",
     get_region: "SELECT rname FROM regions",
     get_all_date: "SELECT task_date FROM tasks",

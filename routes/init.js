@@ -32,17 +32,19 @@ function initRouter(app) {
     app.get('/login', login);
     app.get('/tasks/search', tasks_search);
     app.get('/tasks', tasks)
+<<<<<<< HEAD
     app.get('/post', post);
     app.get('/details', details)
+=======
+>>>>>>> 3896ac63ebdd895473230ab92804f2aa20c4641f
 
     /* Protected GET */
+    app.get('/post', passport.authMiddleware(), post);
     app.get('/profile', passport.authMiddleware(), profile);
-    app.get('/admin_users', admin_users);
-
-    /* Post Tasks */
-    app.post('/receive_post', receive_post);
+    app.get('/admin_users', passport.authMiddleware(), admin_users);
 
     /* PROTECTED POST */
+    app.post('/receive_post', passport.authMiddleware(), receive_post);
     app.post('/update_info', passport.authMiddleware(), update_info);
 
     /* Sign Up */
@@ -80,7 +82,6 @@ function profile(req, res, next) {
             console.log("cannot load profile");
         } else {
             var info = {
-                user_id: req.user.aid,
                 user_info: data.rows[0],
                 education_level: education_level,
                 regionData: regions,
@@ -89,7 +90,7 @@ function profile(req, res, next) {
                 pass_msg: msg(req, 'pass', 'Password updated successfully', 'Error in updating password'),
                 auth:true,
             };
-            res.render('profile', info);
+            basic(req, res, 'profile', info);
       }
     })
 }
@@ -109,7 +110,11 @@ function admin_users(req, res, next) {
             console.log("Error encountered when admin trying to view all"
                 + " users.");
         } else {
+<<<<<<< HEAD
             res.render('admin_users', {title: "admin_users", types: data.rows, auth: true });
+=======
+            basic(req, res, 'admin_users', {title: "admin_users", types: data.rows, auth: true });
+>>>>>>> 3896ac63ebdd895473230ab92804f2aa20c4641f
       }
     })
 }
@@ -138,7 +143,7 @@ function tasks_search(req, res, next) {
             console.log("Error encountered when searching");
             index(req, res, next);
         } else {
-            show(res, data);
+            show(req, res, data);
         }
     });
 }
@@ -162,7 +167,11 @@ function tasks(req, res, next) {
                     console.log("Error encountered when filtering");
                     index(req, res, next);
                 } else {
+<<<<<<< HEAD
                     show(res, data, type, region, date, range, req.isAuthenticated());
+=======
+                    show(req, res, data);
+>>>>>>> 3896ac63ebdd895473230ab92804f2aa20c4641f
                 }
             });
         }
@@ -191,7 +200,15 @@ function getDate(choice) {
     return resultDate.getUTCFullYear() + "-" + (resultDate.getUTCMonth() + 1) + "-" + resultDate.getUTCDate();
 }
 
+<<<<<<< HEAD
 function show(res, data1, selectedType, selectedRegion, selectedDate, selectedRange, isAuth) {
+=======
+function show(req, res, data1) {
+    var selectedType = isEmpty(req.query.type, "Type") ? sql_query.query.get_task_type : "VALUES ('" + req.query.type + "')";
+    var selectedRegion = isEmpty(req.query.region, "Region") ? sql_query.query.get_region : "VALUES ('" + req.query.region + "')";
+    var selectedDate = isEmpty(req.query.date, "Date") ? getDate(new Date()) : getDate(req.query.date);
+    var selectedRange = isEmpty(req.query.range, "Salary") ? [0, infinity] : rangeNum[ranges.indexOf(req.query.range)];
+>>>>>>> 3896ac63ebdd895473230ab92804f2aa20c4641f
     console.log("show: " + selectedType + "-" + selectedRegion + "-" + selectedDate + "-" + selectedRange);
     pool.query(sql_query.query.get_task_type, (err, data2) => {
         if(err) {
@@ -201,12 +218,33 @@ function show(res, data1, selectedType, selectedRegion, selectedDate, selectedRa
                 if(err) {
                     console.log("Error encountered when reading regions");
                 } else {
+<<<<<<< HEAD
                     console.log(data1.rows);
                     console.log(data2.rows);
                     console.log(data3.rows);
                     res.render('tasks', { title: "Search Results", auth: isAuth,
                         tasks: data1.rows, type: selectedType, region: selectedRegion, taskDate: selectedDate, range: selectedRange,
                         types: data2.rows, regions: data3.rows, dates: dateRanges, ranges: ranges, auth:false });
+=======
+                    var isAuth = req.isAuthenticated();
+                    var info = {
+                        tasks: data1.rows,
+                        type: selectedType,
+                        region: selectedRegion,
+                        taskDate: selectedDate,
+                        range: selectedRange,
+                        types: data2.rows,
+                        regions: data3.rows,
+                        dates: dateRanges,
+                        ranges: ranges,
+                        auth: isAuth
+                    };
+                    if (isAuth) {
+                        basic(req, res, 'tasks', info);
+                    } else {
+                        res.render('tasks', info);
+                    }
+>>>>>>> 3896ac63ebdd895473230ab92804f2aa20c4641f
                 }
             });
         }
@@ -242,9 +280,9 @@ function update_acc_info(req, res, next) {
         console.log("---username: " + aid +" ---rname: " + rname + " ---gender: " + gender);
         if(err) {
             console.error("Error in update info");
-            res.redirect('/profile');
+            res.redirect('/profile?user=' + aid);
         } else {
-            res.redirect('/profile');
+            res.redirect('/profile?user=' + aid);
         }
     });
 }
@@ -323,6 +361,7 @@ function receive_login(req, res, next){
             if (err) {
                 return next(err);
             }
+            console.log(user);
             return res.redirect('/?user=' + user.aid);
         });
     })(req, res, next);
@@ -343,7 +382,11 @@ function post(req, res, next) {
 						if (err){
 							console.log("Error encountered when reading regions");
 						} else {
+<<<<<<< HEAD
 							res.render('post', { title:"Post New Task", types: data1.rows, regions:data2.rows, auth: req.isAuthenticated() });
+=======
+						    basic(req, res, 'post', { title:"Post New Task", types: data1.rows, regions:data2.rows, auth: true});
+>>>>>>> 3896ac63ebdd895473230ab92804f2aa20c4641f
 						}
 					})
         }

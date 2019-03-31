@@ -36,7 +36,11 @@
           <div class="site-mobile-menu-body"></div>
       </div>
 
-      <%- include('navbar.ejs', {auth: auth}) %>
+      <% if(!auth) { %>
+        <%- include('navbar.ejs', {auth: auth}); %>
+      <% } else { %>
+        <%- include('navbar.ejs', {user: user, auth: auth}); %>
+      <% } %>
 
       <%- include('title.ejs', {title: "Post New Task"}) %>
       <div class="site-section bg-light">
