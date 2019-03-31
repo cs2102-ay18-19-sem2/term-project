@@ -17,6 +17,11 @@ var ranges = ["≤1000", "1000-2000", "2000-3000", "≥3000"];
 var rangeNum = [[0, 1000], [1000, 2000], [2000, 3000], [3000, infinity]];
 var dateRanges = ["last 3 days", "last one week", "last one month(30 days)"];
 
+var gender_class = ["Female", "Male", "Others"];
+var education_level = ['High School', 'College', 'Postgraduate', 'Other'];
+var regions = ['Kent Ridge', 'Buona Vista', 'Bugis', 'Marina Bay', 'Orchard',
+  'Jurong East', 'Changi Airport', 'Malaysia', 'Bishan', 'Holland Village', 'Yishun', 'Other'];
+
 function initRouter(app) {
     console.log("connecting to the database: " + process.env.DATABASE_URL);
 
@@ -35,6 +40,9 @@ function initRouter(app) {
     /* Post Tasks */
     app.post('/receive_post', receive_post);
 
+    /* PROTECTED POST */
+    app.post('/update_info', passport.authMiddleware(), update_info);
+
     /* Sign Up */
     app.post('/receive_signup', receive_signup);
 
@@ -46,19 +54,45 @@ function initRouter(app) {
 
 }
 
-/* Basic Info used for profile. */
+/* Basic Info used for profile.*/
 function basic(req, res, page, other) {
   var info = {
     page: page,
-    rname: req.body.rname,
-    gender : req.body.gender,
+    user: req.user.username,
   };
   if(other) {
     for(var fld in other) {
       info[fld] = other[fld];
     }
   }
+
   res.render(page, info);
+}
+
+/*
+function profile(req, res, next){
+  res.render('profile', {user: req.user.username, auth: true});
+}
+*/
+/* User can view and update his own profile page. */
+function profile(req, res, next) {
+    pool.query(sql_query.query.get_user_info, [req.user.username], (err, data) => {
+        if (err) {
+            console.log("cannot load profile");
+        } else {
+            var info = {
+                user: req.user.username,
+                user_info: data.rows[0],
+                education_level: education_level,
+                regionData: regions,
+                gender_class: gender_class,
+                info_msg: msg(req, 'info', 'Information updated successfully', 'Error in updating information'),
+                pass_msg: msg(req, 'pass', 'Password updated successfully', 'Error in updating password'),
+                auth:true,
+            };
+            res.render('profile', info);
+      }
+    })
 }
 
 function query(req, fld) {
@@ -67,14 +101,6 @@ function query(req, fld) {
 function msg(req, fld, pass, fail) {
   var info = query(req, fld);
   return info ? (info=='pass' ? pass : fail) : '';
-}
-
-/* User can view and update his own profile page. */
-function profile(req, res, next) {
-  basic(req, res, 'profile', { info_msg: msg(req, 'info', 'Information updated'
-        + ' successfully', 'Error in updating information'),
-    pass_msg: msg(req, 'pass', 'Password updated successfully', 'Error in updating password'), auth: true });
-
 }
 
 /* Admin can view all the users. */
@@ -96,7 +122,7 @@ function index(req, res, next) {
         } else {
             if(!req.isAuthenticated()) {
                 console.log("not authenticated yet.");
-            	res.render('index', { title: 'HomePage' , page: '', auth: false, types: data.rows});
+            	res.render('index', { title: 'Homepage' , page: '', auth: false, types: data.rows});
             } else {
             	console.log(req.user.username + " has logged in!");
             	basic(req, res, 'index', { title: 'Homepage', page: '', auth: true, types: data.rows});
@@ -179,7 +205,7 @@ function show(res, data1, selectedType, selectedRegion, selectedDate, selectedRa
                 } else {
                     res.render('tasks', { title: "Search Results",
                         tasks: data1.rows, type: selectedType, region: selectedRegion, taskDate: selectedDate, range: selectedRange,
-                        types: data2.rows, regions: data3.rows, dates: dateRanges, ranges: ranges });
+                        types: data2.rows, regions: data3.rows, dates: dateRanges, ranges: ranges, auth:false });
                 }
             });
         }
@@ -197,12 +223,28 @@ function signup(req, res, next) {
 }
 
 // POST
+function update_acc_info(req, res, next) {
+    var username = req.user.username;
+    var newname = req.body.name;
+    var email = req.body.email;
+    pool.query(sql_query.query.update_info, [username, gender, rname, education], (err, data) => {
+        console.log("---username: " + aid +" ---rname: " + rname + " ---gender: " + gender);
+        if(err) {
+            console.error("Error in update info");
+            res.redirect('/profile');
+        } else {
+            res.redirect('/profile');
+        }
+    });
+}
+
 function update_info(req, res, next) {
-  var aid = req.body.rname;
-  var rname  = req.body.rname;
+  var username = req.user.username;
   var gender = req.body.gender;
-  pool.query(sql_query.query.update_info, [aid, rname, gender], (err, data) => {
-    console.log("---aid: " + aid +" ---rname: " + rname + " ---gender: " + gender);
+  var rname  = req.body.rname;
+  var education = req.body.education;
+  pool.query(sql_query.query.update_info, [username, gender, rname, education], (err, data) => {
+    console.log("---username: " + aid +" ---rname: " + rname + " ---gender: " + gender);
     if(err) {
       console.error("Error in update info");
       res.redirect('/profile');
@@ -273,10 +315,6 @@ function receive_login(req, res, next){
             return res.redirect('/?user=' + user.username);
         });
     })(req, res, next);
-}
-
-function profile(req, res, next){
-    res.render('profile', {user: req.user.username, auth: true});
 }
 
 function logout(req, res, next){
