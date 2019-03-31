@@ -37,9 +37,13 @@
     <div class="site-mobile-menu-body"></div>
   </div>
 
-  <%- include('navbar.ejs', {auth: auth}) %>
+  <% if(!auth) { %>
+    <%- include('navbar.ejs', {auth: auth}); %>
+  <% } else { %>
+    <%- include('navbar.ejs', {user: user, auth: auth}); %>
+  <% } %>
 
-  <%- include('title.ejs', {title: "Profile"}) %>
+  <%- include('title.ejs', {title: "My Profile"}) %>
 
   <div class="site-section"  data-aos="fade">
     <div class="container">
@@ -53,29 +57,63 @@
       <div class="card mb-3">
         <div class="card-header">
           <i class="fas fa-address-card"></i> &nbsp; Basic Information
-
         </div>
+
         <form method="post" action="/update_info">
           <div class="card-body">
             <div class="form-group row">
-              <label for="firstname" class="col-sm-2
+              <label for="name" class="col-sm-2
               col-form-label"><b>Name:</b></label>
               <div class="col-sm-4">
                 <input type="text" required="required" class="form-control"
                        id="rname" placeholder="Name"
-                       name="rname" value="Ninomiya Kazunari">
+                       name="rname" value="<%= user %>">
               </div>
 
-              <label for="lastname" class="col-sm-2
+              <label for="gender" class="col-sm-2
               col-form-label"><b>Gender:</b></label>
               <div class="col-sm-4">
-                <input type="text" required="required" class="form-control"
-                       id="gender" placeholder="Enter Female or Male"
-                       name="gender" value="Male">
+                <select type="gender" required="required"
+                        class="form-control" id="gender"
+                        name="gender">
+                  <% for(var i=0; i < gender_class.length; i++) { %>
+                    <option><%= gender_class[i] %></option>
+                  <% } %>
+                </select>
               </div>
+
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="form-group row">
+              <label for="region" class="col-sm-2
+              col-form-label"><b>Region:</b></label>
+              <div class="col-sm-4">
+                <select type="region" required="required"
+                        class="form-control" id="region"
+                        name="region">
+                  <% for(var i=0; i < regionData.length; i++) { %>
+                    <option><%= regionData[i] %></option>
+                  <% } %>
+                </select>
+              </div>
+
+              <label for="gender" class="col-sm-2
+              col-form-label"><b>Education:</b></label>
+              <div class="col-sm-4">
+                <select type="education" required="required"
+                        class="form-control" id="education"
+                        name="education">
+                  <% for(var i=0; i < education_level.length; i++) { %>
+                    <option><%= education_level[i] %></option>
+                  <% } %>
+                </select>
+              </div>
+
               <div class="card-footer small text-muted"><button type="submit" class="btn btn-secondary">Update Info</button> &nbsp;&nbsp;&nbsp; <span class="badge badge-pill badge-info"><%= info_msg %></span></div>
             </div>
           </div>
+
       </div>
 
       </form>

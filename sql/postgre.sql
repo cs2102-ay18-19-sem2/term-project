@@ -1,3 +1,6 @@
+CREATE TYPE gender_class AS ENUM('Female', 'Male', 'Others');
+CREATE TYPE education_level AS ENUM ('other', 'high school', 'college',
+'postgraduate');
 CREATE TYPE role AS ENUM ('finder','tasker');
 
 CREATE TABLE regions (
@@ -29,8 +32,8 @@ CREATE TABLE users(
   aid 		INTEGER,
   rname		VARCHAR(74),
   score   INTEGER,
-  gender  ENUM ('MALE', 'FEMALE'),
-  education ENUM ('other', 'high school', 'college', 'postgraduate'),
+  gender  gender_class,
+  education education_level,
   PRIMARY KEY (aid),
   FOREIGN KEY (aid)   REFERENCES accounts,
   FOREIGN KEY (rname) REFERENCES regions

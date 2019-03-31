@@ -16,9 +16,10 @@ sql.query = {
     admin_view_users: "SELECT * FROM users",
     get_profile: "SELECT * FROM users",
     get_detail: "SELECT * FROM tasks T where T.tid == $1",
+    get_user_info: "SELECT * FROM users WHERE aid= (SELECT aid FROM accounts WHERE username=$1)",
 
     // Update
-    update_info: 'UPDATE users SET rname=$2, gender=$3 WHERE aid=$1',
+    update_info: 'UPDATE users SET gender=$2, rname=$3, education=$4 WHERE aid=(SELECT aid FROM accounts WHERE username=$1)',
     update_pass: 'UPDATE username_password SET password=$2 WHERE username=$1',
 
     //Insertion

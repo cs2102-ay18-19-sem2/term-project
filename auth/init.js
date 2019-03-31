@@ -24,9 +24,10 @@ function findUser (email, callback) {
 			return callback(null)
 		} else if(data.rows.length == 1) {
 			return callback(null, {
-				username: data.rows[0].username,
-				email   : data.rows[0].email,
-				passwordHash: data.rows[0].password
+			    aid: data.rows[0].aid,
+			    username: data.rows[0].username,
+                email   : data.rows[0].email,
+                passwordHash: data.rows[0].password
 			});
 		} else {
 			console.error("More than one user?");
