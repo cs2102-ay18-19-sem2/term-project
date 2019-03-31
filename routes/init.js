@@ -17,6 +17,11 @@ var ranges = ["≤1000", "1000-2000", "2000-3000", "≥3000"];
 var rangeNum = [[0, 1000], [1000, 2000], [2000, 3000], [3000, infinity]];
 var dateRanges = ["last 3 days", "last one week", "last one month(30 days)"];
 
+var gender_class = ["Female", "Male", "Others"];
+var education_level = ['High School', 'College', 'Postgraduate', 'Other'];
+var regions = ['Kent Ridge', 'Buona Vista', 'Bugis', 'Marina Bay', 'Orchard',
+  'Jurong East', 'Changi Airport', 'Malaysia', 'Bishan', 'Holland Village', 'Yishun', 'Other'];
+
 function initRouter(app) {
     console.log("connecting to the database: " + process.env.DATABASE_URL);
 
@@ -30,9 +35,13 @@ function initRouter(app) {
 
     /* Protected GET */
     app.get('/profile', passport.authMiddleware(), profile);
+    app.get('/admin_users', admin_users);
 
     /* Post Tasks */
     app.post('/receive_post', receive_post);
+
+    /* PROTECTED POST */
+    app.post('/update_info', passport.authMiddleware(), update_info);
 
     /* Sign Up */
     app.post('/receive_signup', receive_signup);
@@ -45,17 +54,65 @@ function initRouter(app) {
 
 }
 
+/* Basic Info used for profile.*/
 function basic(req, res, page, other) {
-	var info = {
-		page: page,
-		user: req.user.username
-	};
-	if(other) {
-		for(var fld in other) {
-			info[fld] = other[fld];
-		}
-	}
-	res.render(page, info);
+  var info = {
+    page: page,
+    user: req.user.username,
+  };
+  if(other) {
+    for(var fld in other) {
+      info[fld] = other[fld];
+    }
+  }
+
+  res.render(page, info);
+}
+
+/*
+function profile(req, res, next){
+  res.render('profile', {user: req.user.username, auth: true});
+}
+*/
+/* User can view and update his own profile page. */
+function profile(req, res, next) {
+    pool.query(sql_query.query.get_user_info, [req.user.username], (err, data) => {
+        if (err) {
+            console.log("cannot load profile");
+        } else {
+            var info = {
+                user: req.user.username,
+                user_info: data.rows[0],
+                education_level: education_level,
+                regionData: regions,
+                gender_class: gender_class,
+                info_msg: msg(req, 'info', 'Information updated successfully', 'Error in updating information'),
+                pass_msg: msg(req, 'pass', 'Password updated successfully', 'Error in updating password'),
+                auth:true,
+            };
+            res.render('profile', info);
+      }
+    })
+}
+
+function query(req, fld) {
+  return req.query[fld] ? req.query[fld] : '';
+}
+function msg(req, fld, pass, fail) {
+  var info = query(req, fld);
+  return info ? (info=='pass' ? pass : fail) : '';
+}
+
+/* Admin can view all the users. */
+function admin_users(req, res, next) {
+    pool.query(sql_query.query.admin_view_users, (err, data) => {
+        if (err) {
+            console.log("Error encountered when admin trying to view all"
+                + " users.");
+        } else {
+            res.render('admin_users', {title: "admin_users", types: data.rows });
+      }
+    })
 }
 
 function index(req, res, next) {
@@ -65,7 +122,7 @@ function index(req, res, next) {
         } else {
             if(!req.isAuthenticated()) {
                 console.log("not authenticated yet.");
-            	res.render('index', { title: 'HomePage' , page: '', auth: false, types: data.rows});
+            	res.render('index', { title: 'Homepage' , page: '', auth: false, types: data.rows});
             } else {
             	console.log(req.user.username + " has logged in!");
             	basic(req, res, 'index', { title: 'Homepage', page: '', auth: true, types: data.rows});
@@ -88,10 +145,10 @@ function tasks_search(req, res, next) {
 }
 
 function tasks(req, res, next) {
-    var type = req.query.type === "" || typeof req.query.type === "undefined" ? sql_query.query.get_task_type : req.query.type;
-    var region = req.query.region === "" || typeof req.query.region === "undefined"  ? sql_query.query.get_region : req.query.region;
-    var date = req.query.date === "" || typeof req.query.date === "undefined"  ? sql_query.query.get_all_date : getDate(req.query.date);
-    var range = req.query.range === "" || typeof req.query.range === "undefined"  ? [0, infinity] : rangeNum[ranges.indexOf(req.query.range)];
+    var type = isEmpty(req.query.type, "Type") ? sql_query.query.get_task_type : "VALUES ('" + req.query.type + "')";
+    var region = isEmpty(req.query.region, "Region") ? sql_query.query.get_region : "VALUES ('" + req.query.region + "')";
+    var date = isEmpty(req.query.date, "Date") ? getDate(new Date()) : getDate(req.query.date);
+    var range = isEmpty(req.query.range, "Salary") ? [0, infinity] : rangeNum[ranges.indexOf(req.query.range)];
     console.log("tasks: " + type + "-" + region + "-" + range + "-" + date);
     pool.query(sql_query.query.search, ["%%"], (err, data) => {
         if(err) {
@@ -110,20 +167,26 @@ function tasks(req, res, next) {
     });
 }
 
+function isEmpty(input, placeHolder) {
+    return input === "" || input === placeHolder || typeof input === "undefined";
+}
+
 function getDate(choice) {
-    var resultDate = new Date();
+    var currentDate = new Date();
+    var resultDate = currentDate;
+    console.log(currentDate);
     switch (choice) {
     case dateRanges[0]:
-        resultDate = new Date(resultDate.setDate(resultDate.getDate()-3));
+        resultDate = new Date(resultDate.setDate(currentDate.getDate()-3));
         break;
     case dateRanges[1]:
-        resultDate = new Date(resultDate.setDate(resultDate.getDate()-7));
+        resultDate = new Date(resultDate.setDate(currentDate.getDate()-7));
         break;
     case dateRanges[2]:
-        resultDate = new Date(resultDate.setDate(resultDate.getDate()-30));
+        resultDate = new Date(resultDate.setDate(currentDate.getDate()-30));
         break;
     }
-    return resultDate.getUTCFullYear() + "-" + resultDate.getUTCMonth() + "-" + resultDate.getUTCDate();
+    return resultDate.getUTCFullYear() + "-" + (resultDate.getUTCMonth() + 1) + "-" + resultDate.getUTCDate();
 }
 
 function show(res, data1, selectedType, selectedRegion, selectedDate, selectedRange) {
@@ -140,9 +203,9 @@ function show(res, data1, selectedType, selectedRegion, selectedDate, selectedRa
                 if(err) {
                     console.log("Error encountered when reading regions");
                 } else {
-                    res.render('tasks', { title: "Search Results", 
+                    res.render('tasks', { title: "Search Results",
                         tasks: data1.rows, type: selectedType, region: selectedRegion, taskDate: selectedDate, range: selectedRange,
-                        types: data2.rows, regions: data3.rows, dates: dateRanges, ranges: ranges });
+                        types: data2.rows, regions: data3.rows, dates: dateRanges, ranges: ranges, auth:false });
                 }
             });
         }
@@ -157,6 +220,38 @@ function signup(req, res, next) {
     pool.query(sql_query.query.get_region, (err, data) => {
         res.render('signup', { title: 'SignUp' , regionData: data.rows, auth: false});
     });
+}
+
+// POST
+function update_acc_info(req, res, next) {
+    var username = req.user.username;
+    var newname = req.body.name;
+    var email = req.body.email;
+    pool.query(sql_query.query.update_info, [username, gender, rname, education], (err, data) => {
+        console.log("---username: " + aid +" ---rname: " + rname + " ---gender: " + gender);
+        if(err) {
+            console.error("Error in update info");
+            res.redirect('/profile');
+        } else {
+            res.redirect('/profile');
+        }
+    });
+}
+
+function update_info(req, res, next) {
+  var username = req.user.username;
+  var gender = req.body.gender;
+  var rname  = req.body.rname;
+  var education = req.body.education;
+  pool.query(sql_query.query.update_info, [username, gender, rname, education], (err, data) => {
+    console.log("---username: " + aid +" ---rname: " + rname + " ---gender: " + gender);
+    if(err) {
+      console.error("Error in update info");
+      res.redirect('/profile');
+    } else {
+      res.redirect('/profile');
+}
+});
 }
 
 function receive_signup(req, res, next) {
@@ -220,10 +315,6 @@ function receive_login(req, res, next){
             return res.redirect('/?user=' + user.username);
         });
     })(req, res, next);
-}
-
-function profile(req, res, next){
-    res.render('profile', {user: req.user.username, auth: true});
 }
 
 function logout(req, res, next){
