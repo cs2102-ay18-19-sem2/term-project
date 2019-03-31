@@ -40,6 +40,9 @@ function initRouter(app) {
     /* Post Tasks */
     app.post('/receive_post', receive_post);
 
+    /* PROTECTED POST */
+    app.post('/update_info', passport.authMiddleware(), update_info);
+
     /* Sign Up */
     app.post('/receive_signup', receive_signup);
 
@@ -220,13 +223,28 @@ function signup(req, res, next) {
 }
 
 // POST
+function update_acc_info(req, res, next) {
+    var username = req.user.username;
+    var newname = req.body.name;
+    var email = req.body.email;
+    pool.query(sql_query.query.update_info, [username, gender, rname, education], (err, data) => {
+        console.log("---username: " + aid +" ---rname: " + rname + " ---gender: " + gender);
+        if(err) {
+            console.error("Error in update info");
+            res.redirect('/profile');
+        } else {
+            res.redirect('/profile');
+        }
+    });
+}
+
 function update_info(req, res, next) {
-  var aid = req.user.aid;
+  var username = req.user.username;
   var gender = req.body.gender;
   var rname  = req.body.rname;
   var education = req.body.education;
-  pool.query(sql_query.query.update_info, [aid, gender, rname, education], (err, data) => {
-    console.log("---aid: " + aid +" ---rname: " + rname + " ---gender: " + gender);
+  pool.query(sql_query.query.update_info, [username, gender, rname, education], (err, data) => {
+    console.log("---username: " + aid +" ---rname: " + rname + " ---gender: " + gender);
     if(err) {
       console.error("Error in update info");
       res.redirect('/profile');
