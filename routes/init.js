@@ -58,7 +58,7 @@ function initRouter(app) {
 function basic(req, res, page, other) {
   var info = {
     page: page,
-    user: req.user.username,
+    user: req.user.aid,
   };
   if(other) {
     for(var fld in other) {
@@ -69,11 +69,6 @@ function basic(req, res, page, other) {
   res.render(page, info);
 }
 
-/*
-function profile(req, res, next){
-  res.render('profile', {user: req.user.username, auth: true});
-}
-*/
 /* User can view and update his own profile page. */
 function profile(req, res, next) {
     pool.query(sql_query.query.get_user_info, [req.user.username], (err, data) => {
@@ -81,7 +76,7 @@ function profile(req, res, next) {
             console.log("cannot load profile");
         } else {
             var info = {
-                user: req.user.username,
+                user_id: req.user.aid,
                 user_info: data.rows[0],
                 education_level: education_level,
                 regionData: regions,
@@ -124,7 +119,7 @@ function index(req, res, next) {
                 console.log("not authenticated yet.");
             	res.render('index', { title: 'Homepage' , page: '', auth: false, types: data.rows});
             } else {
-            	console.log(req.user.username + " has logged in!");
+            	console.log(req.user.aid + " has logged in!");
             	basic(req, res, 'index', { title: 'Homepage', page: '', auth: true, types: data.rows});
             }
         }
@@ -312,7 +307,7 @@ function receive_login(req, res, next){
             if (err) {
                 return next(err);
             }
-            return res.redirect('/?user=' + user.username);
+            return res.redirect('/?user=' + user.aid);
         });
     })(req, res, next);
 }
