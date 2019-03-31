@@ -15,6 +15,7 @@ sql.query = {
     filter: "SELECT * FROM tasks T WHERE T.cname IN ($1) AND T.rname IN ($2) AND T.task_date >= $3 AND T.salary >= $4 AND T.salary <= $5",
     admin_view_users: "SELECT * FROM users",
     get_profile: "SELECT * FROM users",
+    get_detail: "SELECT * FROM tasks T where T.tid == $1",
 
     // Update
     update_info: 'UPDATE users SET rname=$2, gender=$3 WHERE aid=$1',

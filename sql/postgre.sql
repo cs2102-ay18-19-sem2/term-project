@@ -92,6 +92,7 @@ INSERT INTO regions (rname) VALUES ('Bishan');
 INSERT INTO regions (rname) VALUES ('Holland Village');
 INSERT INTO regions (rname) VALUES ('Yishun');
 INSERT INTO regions (rname) VALUES ('Other');
+INSERT INTO regions (rname) VALUES ('All');
 
 INSERT INTO specializations (sname) VALUES ('Mandarin');
 INSERT INTO specializations (sname) VALUES ('Highschool Mathemetics');

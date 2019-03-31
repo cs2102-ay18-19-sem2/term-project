@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include head.ejs %>
+<body>
+
+<div class="site-wrap">
+
+    <div class="site-mobile-menu">
+        <div class="site-mobile-menu-header">
+            <div class="site-mobile-menu-close mt-3">
+                <span class="icon-close2 js-menu-toggle"></span>
+            </div>
+        </div>
+        <div class="site-mobile-menu-body"></div>
+    </div>
+
+    <%- include('navbar.ejs', {auth: auth}) %>
+
+    <%- include('title.ejs', {title: <%= title %>}) %>
+
+    <div class="site-section"  data-aos="fade">
+        <div class="container">
+
+            <table class="table">
+                <tr>
+                    <th>Status</th>
+                    <td><%= task.sname %></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <%- include footer.ejs %>
+</div>
+
+<%- include script.ejs %>
+
+</body>
+</html>

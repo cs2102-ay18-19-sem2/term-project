@@ -22,11 +22,13 @@ function initRouter(app) {
 
 	/* GET */
     app.get('/', index);
+    app.get('/index', index);
     app.get('/signup', signup);
     app.get('/login', login);
     app.get('/tasks/search', tasks_search);
     app.get('/tasks', tasks)
     app.get('/post', post);
+    app.get('/details', details)
 
     /* Protected GET */
     app.get('/profile', passport.authMiddleware(), profile);
@@ -187,6 +189,16 @@ function show(res, data1, selectedType, selectedRegion, selectedDate, selectedRa
     });
 }
 
+function details(req, res, next) {
+    pool.query.sql_query.get_detail, (err, data) => {
+        if (err) {
+            console.log("Error encountered when requesing task detail.")
+        } else {
+            res.render('details', {title: "Task Details", auth: isAuth, task: data.rows})
+        }
+    }
+}
+
 function login(req, res, next) {
     res.render('login', { title: 'LogIn', auth: false});
 }
@@ -295,7 +307,7 @@ function post(req, res, next) {
 						if (err){
 							console.log("Error encountered when reading regions");
 						} else {
-							res.render('post', { title:"Post New Task", types: data1.rows, regions:data2.rows });
+							res.render('post', { title:"Post New Task", types: data1.rows, regions:data2.rows, auth: req.isAuthenticated() });
 						}
 					})
         }
