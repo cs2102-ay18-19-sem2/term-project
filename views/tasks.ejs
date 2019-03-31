@@ -101,7 +101,7 @@
                                         <p class="card-text">Region: <%= tasks[i].rname %></p>
                                         <form action="/details">
                                             <div style="display: flex;">
-                                                <button class="col-md-12 btn-outline-primary" id="tid" name="tid" value="1" onclick="this.form.submit()">
+                                                <button class="col-md-12 btn-outline-primary" id="tid" name="tid" value="<%=i%>" onclick="this.form.submit()">
                                                     View Details
                                                 </button>
                                             </div>
@@ -109,37 +109,6 @@
                                 </td>
                             </tr>
                         <% } %>
-                        <tr>
-                            <td colspan="4">
-                                <div class = "card">
-                                    <h5 class="card-title">A0000002B</h5>
-                                    <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-                                    <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-                                    <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-                                    <form action="/details">
-                                        <div style="display: flex;">
-                                            <button class="col-md-6 btn-outline-primary" id="tid" name="tid" value="1" onclick="this.form.submit()">
-                                                View Details
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="4">
-                                <div class = "card">
-                                    <h5 class="card-title">A0000002B</h5>
-                                    <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-                                    <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-                                    <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-                                    <div style="display: flex;">
-                                        <button class="col-md-6 btn-outline-primary">View Details</button>
-                                        <button class="col-md-6 btn-primary">Bid</button>
-                                    </div>
-                                </div>
-                            </td>
-                            </tr>
                     </tbody>
             </table>
         </div>

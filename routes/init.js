@@ -53,6 +53,8 @@ function initRouter(app) {
     /* Logout */
     app.get('/logout', passport.authMiddleware(), logout);
 
+    /* Post */
+    app.post('/details/bid', bid)
 }
 
 /* Basic Info used for profile.*/
@@ -160,7 +162,8 @@ function tasks(req, res, next) {
                     console.log("Error encountered when filtering");
                     index(req, res, next);
                 } else {
-                    show(req, res, data);             }
+                    show(req, res, data);             
+                }
             });
         }
     });
@@ -227,13 +230,15 @@ function show(req, res, data1) {
 }
 
 function details(req, res, next) {
-    pool.query.sql_query.get_detail, (err, data) => {
+    pool.query(sql_query.query.get_detail, [req.query.tid] , (err, data) => {
+        console.log(sql_query.query.get_detail, req.query.tid);
         if (err) {
+            console.log(err);
             console.log("Error encountered when requesing task detail.")
         } else {
-            res.render('details', {title: "Task Details", auth: isAuth, task: data.rows})
+            basic(req, res, 'details', {title: "Task Details", auth: req.isAuthenticated(), task: data.rows})
         }
-    }
+    });
 }
 
 function login(req, res, next) {
@@ -247,6 +252,19 @@ function signup(req, res, next) {
 }
 
 // POST
+function bid(req, res, next) {
+    var bid = Number(req.body.bid);
+    var tid = Number(req.body.tid);
+    var tasker = req.user.aid;
+    pool.query(sql_query.query.insert_bid, [tid, tasker, bid], (err, data) => {
+        if (err) {
+            console.log("Error in insert bid");
+        } else {
+            res.redirect('/details?tid=' + tid);
+        }
+    });
+}
+
 function update_acc_info(req, res, next) {
     var username = req.user.username;
     var newname = req.body.name;

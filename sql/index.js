@@ -15,7 +15,10 @@ sql.query = {
     filter: "SELECT * FROM tasks T WHERE T.salary >= $1 AND T.salary <= $2 AND T.task_date >= $3 AND ($6 = 'true' OR T.rname = $4) AND ($7 = 'true' OR T.cname = $5)",
     admin_view_users: "SELECT * FROM users",
     get_profile: "SELECT * FROM users",
-    get_detail: "SELECT * FROM tasks T where T.tid == $1",
+    get_detail: "SELECT * \
+     FROM tasks T LEFT OUTER JOIN \
+    (SELECT B.tid AS btid, MAX(B.salary) AS best_bid FROM bids B GROUP BY B.tid) AS B \
+    ON T.tid = B.btid WHERE T.tid = $1",
     get_user_info: "SELECT * FROM users WHERE aid= (SELECT aid FROM accounts WHERE username=$1)",
 
     // Update
@@ -23,10 +26,11 @@ sql.query = {
     update_pass: 'UPDATE username_password SET password=$2 WHERE username=$1',
 
     //Insertion
-	  add_account: 'INSERT INTO accounts (aid, email, username, password)'
+	add_account: 'INSERT INTO accounts (aid, email, username, password)'
        + ' VALUES ($1, $2, $3, $4)',
     add_user: 'INSERT INTO users (aid, rname, score) VALUES ($1, $2, 5)',
-    add_task: 'INSERT INTO tasks (tid, title, rname, cname, finder_id, salary, post_date , task_date, description) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)'
+    add_task: 'INSERT INTO tasks (tid, title, rname, cname, finder_id, salary, post_date , task_date, description) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
+    insert_bid: 'INSERT INTO bids (tid, tasker_id, salary) VALUES ($1, $2, $3)'
 }
 
 module.exports = sql
