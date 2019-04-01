@@ -262,9 +262,11 @@ function update_acc_info(req, res, next) {
 
         if(err) {
             console.error("Error in update info");
+
             res.redirect('/profile?user=' + aid + "?info=fail");
         } else {
             res.redirect('/profile?user=' + aid + "?info=pass");
+
         }
     });
 }
@@ -358,7 +360,6 @@ function receive_login(req, res, next){
             if (err) {
                 return next(err);
             }
-
             console.log(user);
             pool.query(sql_query.query.check_if_admin, [user.aid], (err, data) => {
               if (typeof data === undefined) {
