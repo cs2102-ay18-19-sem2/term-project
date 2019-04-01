@@ -113,3 +113,8 @@ INSERT INTO classifications (cname) VALUES ('Lifting');
 INSERT INTO classifications (cname) VALUES ('Pets Caring');
 INSERT INTO classifications (cname) VALUES ('Electrical');
 INSERT INTO classifications (cname) VALUES ('Other');
+
+INSERT INTO accounts (aid, email, username, password) VALUES (0,
+'admin2102@gmail.com', 'admin2102', '$2b$10$M/lrxu2.2oqy3N6nalCgmOEd6Gwhn6VWqnNJE61pU3GBL8xK4F/h2');
+
+INSERT INTO admins (aid) VALUES (0);
