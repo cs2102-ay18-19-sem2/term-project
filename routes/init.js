@@ -41,6 +41,7 @@ function initRouter(app) {
     app.post('/receive_post', passport.authMiddleware(), receive_post);
     app.post('/update_acc_info', passport.authMiddleware(), update_acc_info);
     app.post('/update_user_info', passport.authMiddleware(), update_user_info);
+    app.post('/update_pass', passport.authMiddleware(), update_pass);
 
     /* Sign Up */
     app.post('/receive_signup', receive_signup);
@@ -258,12 +259,26 @@ function update_user_info(req, res, next) {
     console.log(err);
     if(err) {
       console.error("Error in update user info");
-      res.redirect('/profile?user='+aid);
+      res.redirect('/profile?user=' + aid + "?info=fail");
     } else {
-      res.redirect('/profile?user='+aid);
+      res.redirect('/profile?user=' + aid + "?info=pass");
 }
 });
 }
+
+function update_pass(req, res, next) {
+  var aid = req.user.aid;
+  var password = bcrypt.hashSync(req.body.password, salt);
+  pool.query(sql_query.query.update_pass, [aid, password], (err, data) => {
+    if(err) {
+      console.error("Error in update pass");
+      res.redirect('/profile?user=' + aid + "?pass=fail");
+    } else {
+      res.redirect('/login?pass=pass');
+}
+});
+}
+
 
 function receive_signup(req, res, next) {
     //add sign up information into the database

@@ -19,7 +19,8 @@ sql.query = {
     // Update
     update_acc_info: 'UPDATE accounts SET username=$2 WHERE aid=$1',
     update_user_info: 'UPDATE users SET gender=$2, rname=$3, education=$4 WHERE aid=$1',
-    update_pass: 'UPDATE username_password SET password=$2 WHERE username=$1',
+    update_pass: 'UPDATE accounts SET password=$2 WHERE aid=$1',
+
 
     //Insertion
 	  add_account: 'INSERT INTO accounts (aid, email, username, password)'
