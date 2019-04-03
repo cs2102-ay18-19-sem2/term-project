@@ -60,9 +60,12 @@ CREATE TABLE tasks(
   salary      INTEGER NOT NULL,
   post_date   DATE NOT NULL,
   task_date   DATE NOT NULL,
+  start_time  TIME NOT NULL,
+  end_time    TIME NOT NULL,
   description VARCHAR(200),
-  tasker_id   INTEGER REFERENCES users(aid)
-  check (tasker_id <> finder_id)
+  tasker_id   INTEGER REFERENCES users(aid),
+  check (tasker_id <> finder_id),
+  check (start_time < end_time)
 );
 
 CREATE TABLE bids (
