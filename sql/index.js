@@ -2,6 +2,7 @@ const sql = {}
 
 sql.query = {
     // Get Info
+    check_if_admin: "SELECT aid FROM admins WHERE aid=$1",
     get_user_num: "SELECT COUNT(*) AS num FROM accounts",
     emailpass: 'SELECT aid, username, email, password FROM accounts WHERE email=$1',
     get_task_type: "SELECT cname FROM classifications",
@@ -14,11 +15,14 @@ sql.query = {
     FROM (accounts NATURAL JOIN users) as A JOIN bids B ON (A.aid = B.tasker_id) WHERE B.tid = $1 `,
     filter: "SELECT * FROM tasks T WHERE T.cname IN ($1) AND T.rname IN ($2) AND T.task_date >= $3 AND T.salary >= $4 AND T.salary <= $5",
     admin_view_users: "SELECT * FROM users",
-    get_user_info: "SELECT * FROM users WHERE aid= (SELECT aid FROM accounts WHERE username=$1)",
+    admin_view_tasks: "SELECT * FROM tasks",
+    get_user_info: "SELECT * FROM users WHERE aid=$1",
 
     // Update
-    update_info: 'UPDATE users SET gender=$2, rname=$3, education=$4 WHERE aid=(SELECT aid FROM accounts WHERE username=$1)',
-    update_pass: 'UPDATE username_password SET password=$2 WHERE username=$1',
+    update_acc_info: 'UPDATE accounts SET username=$2 WHERE aid=$1',
+    update_user_info: 'UPDATE users SET gender=$2, rname=$3, education=$4 WHERE aid=$1',
+    update_pass: 'UPDATE accounts SET password=$2 WHERE aid=$1',
+
 
     //Insertion
 	  add_account: 'INSERT INTO accounts (aid, email, username, password)'
