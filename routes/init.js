@@ -390,7 +390,7 @@ function post(req, res, next) {
 						if (err){
 							console.log("Error encountered when reading regions");
 						} else {
-						    basic(req, res, 'post', { title:"Post New Task", types: data1.rows, regions:data2.rows, auth: true});
+								basic(req, res, 'post', { title:"Post New Task", types: data1.rows, regions:data2.rows, auth: true});
 						}
 					})
         }
@@ -409,23 +409,24 @@ function receive_post(req, res, next) {
 			var title = req.body.title;
 			var rname = req.body.region;
 			var cname = req.body.type;
-			var finder_id = 1; //to be updated with the user id from the session
+			var finder_id = req.user.aid; //to be updated with the user id from the session
 			var salary = parseInt(req.body.salary);
 			var desc = req.body.desc;
 			var date = new Date(req.body.date);
+			var start_time = req.body.start_hour + ":" + req.body.start_minute;
+			var end_time = req.body.end_hour + ":" + req.body.end_minute;
 
 			var today = new Date()
 			var today_date = today.getUTCFullYear() + "-" + (today.getUTCMonth() + 1) + "-" + today.getUTCDate();
 
 			if (date < today) {
 				console.error("This date has already passed.");
-				post(req, res, next);
 			} else {
 				var datestring = date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
-				pool.query(sql_query.query.add_task, [tid, title, rname, cname, finder_id, salary, today_date, datestring, desc], (err, data) => {
+				pool.query(sql_query.query.add_task, [tid, title, rname, cname, finder_id, salary, today_date, datestring,start_time, end_time, desc], (err, data) => {
 					if(err) {
 						console.error("Cannot add the task");
-						res.redirect('/');
+						res.redirect('/post');
 					} else {
 						res.redirect('/');
 					}
