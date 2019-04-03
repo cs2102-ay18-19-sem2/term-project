@@ -27,10 +27,13 @@ function initRouter(app) {
 
 	/* GET */
     app.get('/', index);
+    app.get('/index', index);
     app.get('/signup', signup);
     app.get('/login', login);
     app.get('/tasks/search', tasks_search);
     app.get('/tasks', tasks)
+    app.get('/post', post);
+    app.get('/details', details)
 
     /* Protected GET */
     app.get('/post', passport.authMiddleware(), post);
@@ -54,6 +57,8 @@ function initRouter(app) {
     /* Logout */
     app.get('/logout', passport.authMiddleware(), logout);
 
+    /* Post */
+    app.post('/details/bid', bid)
 }
 
 function admin(req,res, next) {
@@ -64,6 +69,8 @@ function admin(req,res, next) {
 function basic(req, res, page, other) {
   var info = {
     page: page,
+    rname: req.body.rname,
+    gender : req.body.gender,
     user: req.user.aid,
   };
   if(other) {
@@ -162,22 +169,25 @@ function tasks_search(req, res, next) {
 }
 
 function tasks(req, res, next) {
-    var type = isEmpty(req.query.type, "Type") ? sql_query.query.get_task_type : "VALUES ('" + req.query.type + "')";
-    var region = isEmpty(req.query.region, "Region") ? sql_query.query.get_region : "VALUES ('" + req.query.region + "')";
+    var all_types = 'false';
+    var all_regions = 'false';
+    var type = isEmpty(req.query.type, "Type") ? all_types = 'true' : req.query.type;
+    var region = isEmpty(req.query.region, "Region") ? all_regions = 'true' : req.query.region;
     var date = isEmpty(req.query.date, "Date") ? getDate(new Date()) : getDate(req.query.date);
     var range = isEmpty(req.query.range, "Salary") ? [0, infinity] : rangeNum[ranges.indexOf(req.query.range)];
     console.log("tasks: " + type + "-" + region + "-" + range + "-" + date);
+    console.log(sql_query.query.filter, [type, region, date, range[0], range[1]]);
     pool.query(sql_query.query.search, ["%%"], (err, data) => {
         if(err) {
             console.log("Error encountered when searching");
             index(req, res, next);
         } else {
-            pool.query(sql_query.query.filter, [type, region, date, range[0], range[1]], (err, data) => {
+            pool.query(sql_query.query.filter, [range[0], range[1], date, region, type, all_regions, all_types], (err, data) => {
                 if(err) {
                     console.log("Error encountered when filtering");
                     index(req, res, next);
                 } else {
-                    show(req, res, data);
+                    show(req, res, data);             
                 }
             });
         }
@@ -207,10 +217,10 @@ function getDate(choice) {
 }
 
 function show(req, res, data1) {
-    var selectedType = isEmpty(req.query.type, "Type") ? sql_query.query.get_task_type : "VALUES ('" + req.query.type + "')";
-    var selectedRegion = isEmpty(req.query.region, "Region") ? sql_query.query.get_region : "VALUES ('" + req.query.region + "')";
-    var selectedDate = isEmpty(req.query.date, "Date") ? getDate(new Date()) : getDate(req.query.date);
-    var selectedRange = isEmpty(req.query.range, "Salary") ? [0, infinity] : rangeNum[ranges.indexOf(req.query.range)];
+    var selectedType = isEmpty(req.query.type, "Type") ? "Type" : req.query.type;
+    var selectedRegion = isEmpty(req.query.region, "Region") ? "Region" : req.query.region;
+    var selectedDate = isEmpty(req.query.date, "Date") ? "Date" : req.query.date;
+    var selectedRange = isEmpty(req.query.range, "Salary") ? "Salary" : ranges[ranges.indexOf(req.query.range)];
     console.log("show: " + selectedType + "-" + selectedRegion + "-" + selectedDate + "-" + selectedRange);
     pool.query(sql_query.query.get_task_type, (err, data2) => {
         if(err) {
@@ -244,6 +254,18 @@ function show(req, res, data1) {
     });
 }
 
+function details(req, res, next) {
+    pool.query(sql_query.query.get_detail, [req.query.tid] , (err, data) => {
+        console.log(sql_query.query.get_detail, req.query.tid);
+        if (err) {
+            console.log(err);
+            console.log("Error encountered when requesing task detail.")
+        } else {
+            basic(req, res, 'details', {title: "Task Details", auth: req.isAuthenticated(), task: data.rows})
+        }
+    });
+}
+
 function login(req, res, next) {
     res.render('login', { title: 'LogIn', auth: false});
 }
@@ -255,6 +277,19 @@ function signup(req, res, next) {
 }
 
 // POST
+function bid(req, res, next) {
+    var bid = Number(req.body.bid);
+    var tid = Number(req.body.tid);
+    var tasker = req.user.aid;
+    pool.query(sql_query.query.insert_bid, [tid, tasker, bid], (err, data) => {
+        if (err) {
+            console.log("Error in insert bid");
+        } else {
+            res.redirect('/details?tid=' + tid);
+        }
+    });
+}
+
 function update_acc_info(req, res, next) {
     var aid = req.user.aid;
     var newname = req.body.username;
@@ -434,7 +469,6 @@ function receive_post(req, res, next) {
 			}
 		}
 	})
-
 }
 
 module.exports = initRouter;

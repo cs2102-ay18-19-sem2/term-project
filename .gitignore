@@ -9,4 +9,3 @@ package-lock.json
 .idea/term-project.iml
 .idea/vcs.xml
 .idea/workspace.xml
-.env
