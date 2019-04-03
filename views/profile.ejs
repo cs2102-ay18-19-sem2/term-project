@@ -56,22 +56,55 @@
 
       <div class="card mb-3">
         <div class="card-header">
-          <i class="fas fa-address-card"></i> &nbsp; Basic Information
+          <i class="fas fa-address-card"></i> &nbsp; Account Details
         </div>
 
-        <form method="post" action="/update_info">
+        <form method="post" action="/update_acc_info">
           <div class="card-body">
             <div class="form-group row">
-              <label for="name" class="col-sm-2
+              <label for="username" class="col-sm-2
               col-form-label"><b>Name:</b></label>
               <div class="col-sm-4">
                 <input type="text" required="required" class="form-control"
-                       id="rname" placeholder="Name"
-                       name="rname" value="<%= user %>">
+                       id="username" placeholder="username"
+                       name="username" value="<%= acc_username %>">
               </div>
 
+              <label for="email" class="col-sm-2
+              col-form-label"><b>Email:</b></label>
+              <div class="col-sm-4">
+                 <%= acc_email %>
+              </div>
+
+            </div>
+          </div>
+
+
+              <div class="card-footer small text-muted"><button type="submit"
+                                                                class="btn
+                                                                btn-secondary">Update Account Info</button> &nbsp;&nbsp;&nbsp;
+                <span class="badge badge-pill badge-info"><%= info_msg %></span>
+              </div>
+        </form>
+      </div>
+    </div>
+
+  <div class="container">
+      <div class="card mb-3">
+        <div class="card-header">
+          <i class="fas fa-address-card"></i> &nbsp; User Details
+        </div>
+
+        <form method="post" action="/update_user_info">
+
+          <div class="card-body">
+
+            <div class="form-group row">
               <label for="gender" class="col-sm-2
               col-form-label"><b>Gender:</b></label>
+              <div class="col-sm-4">
+                <%= user_info.gender %>
+              </div>
               <div class="col-sm-4">
                 <select type="gender" required="required"
                         class="form-control" id="gender"
@@ -81,25 +114,31 @@
                   <% } %>
                 </select>
               </div>
-
             </div>
-          </div>
-          <div class="card-body">
+
             <div class="form-group row">
               <label for="region" class="col-sm-2
               col-form-label"><b>Region:</b></label>
               <div class="col-sm-4">
+                <%= user_info.rname %>
+              </div>
+              <div class="col-sm-4">
                 <select type="region" required="required"
                         class="form-control" id="region"
-                        name="region">
+                        name="rname">
                   <% for(var i=0; i < regionData.length; i++) { %>
                     <option><%= regionData[i] %></option>
                   <% } %>
                 </select>
               </div>
+            </div>
 
-              <label for="gender" class="col-sm-2
+            <div class="form-group row">
+              <label for="education" class="col-sm-2
               col-form-label"><b>Education:</b></label>
+              <div class="col-sm-4">
+                <%= user_info.education %>
+              </div>
               <div class="col-sm-4">
                 <select type="education" required="required"
                         class="form-control" id="education"
@@ -109,20 +148,40 @@
                   <% } %>
                 </select>
               </div>
-
-              <div class="card-footer small text-muted"><button type="submit" class="btn btn-secondary">Update Info</button> &nbsp;&nbsp;&nbsp; <span class="badge badge-pill badge-info"><%= info_msg %></span></div>
             </div>
           </div>
 
+              <div class="card-footer small text-muted"><button type="submit"
+                                                                class="btn
+                                                                btn-secondary">Update User Info</button> &nbsp;&nbsp;&nbsp;
+                <span class="badge badge-pill badge-info"><%= info_msg %></span>
+            </div>
+          </form>
       </div>
+  </div>
 
+    <div class="container">
+    <div class="card mb-3">
+      <div class="card-header">
+        <i class="fas fa-key"></i> &nbsp; Privacy Information:
+      </div>
+      <form method="post" action="/update_pass">
+        <div class="card-body">
+          <div class="form-group row">
+            <label for="password" class="col-sm-2 col-form-label"><b>Password:</b></label>
+            <div class="col-sm-10">
+              <input type="password" required="required" class="form-control" id="password" placeholder="Your new password" name="password" />
+            </div>
+          </div>
+        </div>
+        <div class="card-footer small text-muted"><button type="submit" class="btn btn-secondary">Update Password</button> &nbsp;&nbsp;&nbsp; <span class="badge badge-pill badge-info"><%= pass_msg %></span></div>
       </form>
     </div>
-
   </div>
-</div>
+ </div>
+
+
 <%- include footer.ejs %>
-</div>
 
 <script src="js/jquery-3.3.1.min.js"></script>
 <script src="js/jquery-migrate-3.0.1.min.js"></script>
