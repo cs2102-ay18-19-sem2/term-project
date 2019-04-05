@@ -440,7 +440,7 @@ function receive_post(req, res, next) {
 			console.log("cannot read task number");
 			res.redirect('/');
 		} else {
-			tid = parseInt(data.rows[0].num, 10) + 1;
+			tid = parseInt(data.rows[0].num, 10);
 			var title = req.body.title;
 			var rname = req.body.region;
 			var cname = req.body.type;

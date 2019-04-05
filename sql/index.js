@@ -34,7 +34,7 @@ sql.query = {
 	add_account: 'INSERT INTO accounts (aid, email, username, password)'
        + ' VALUES ($1, $2, $3, $4)',
     add_user: 'INSERT INTO users (aid, rname, score) VALUES ($1, $2, 5)',
-    insert_bid: 'INSERT INTO bids (tid, tasker_id, salary) VALUES ($1, $2, $3)'
+    insert_bid: 'INSERT INTO bids (tid, tasker_id, salary) VALUES ($1, $2, $3)',
     add_task: 'INSERT INTO tasks (tid, title, rname, cname, finder_id, salary, post_date , task_date, start_time, end_time, description) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)'
 }
 
