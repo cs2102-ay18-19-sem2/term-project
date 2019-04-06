@@ -26,8 +26,8 @@
         <div class="container">
 
             <%- include('details_table.ejs', {task: task, formatted_task_date: formatted_task_date})%>
-            <div class="row justify-content-center">
-                <% if (1 == 1) { %>
+            <% if (section == 1) { %>
+                <div class="row justify-content-center">
                     <form action="/details/bid" class="p-5 bg-white" method="post">
                         <input type="hidden" id="tid" name="tid" value="<%=task[0].tid%>" class="form-control">
                         <div class="row form-group">
@@ -42,11 +42,52 @@
                             </div>
                         </div>
                     </form>
+                </div>
+            <% } else if (section == 2) { %>
+                <% if (bidders.length == 0) { %>
+                    <label class="text-black">No bidders available</label>
                 <% } else { %>
-                    <form action="/" class="p-5 bg-white" method="post"></form>
-                    </form>
+                    <label class="text-black"> Bidders</label>
                 <% } %>
-            </div>
+                <table class="table" style="width:100%">
+                    <tbody>
+                        <% for(var i=0; i < bidders.length; i++) { %>
+                            <tr>
+                                <td colspan="4">
+                                  <div class = "card">
+                                    <h5 class="card-title"><%= bidders[i].bidder_name %></h5>
+                                    <p class="card-text">Salary: <%= bidders[i].salary%></p>
+                                    <form action="/details/select_bid" method="post">
+                                        <input type="hidden" id="salary" name="salary" value="<%=bidders[i].salary%>" class="form-control">
+                                        <input type="hidden" id="tid" name="tid" value="<%=bidders[i].tid%>" class="form-control">
+                                        <input type="hidden" id="bidder_id" name="bidder_id" value="<%=bidders[i].bidder_id%>" class="form-control">
+                                        <div style="display: flex;">
+                                            <button class="col-md-12 btn-outline-primary" onclick="this.form.submit()">
+                                              Select Bidder
+                                            </button>
+                                        </div>
+                                    </form>
+                                  </div>
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+                <form action="details/system_select" method="post">
+                    <input type="hidden" id="tid" name="tid" value="<%=task[0].tid%>" class="form-control">
+                    <input type="hidden" id="date" name="date" value="<%=task[0].task_date%>" class="form-control">
+                    <button class="col-md-12 btn-outline-primary" onclick="this.form.submit()">
+                      Help Select Tasker
+                    </button>
+                </form>
+            <% } else if (section == 3) {%>
+                <label class="text-black">Assigned Tasker:</label>
+                <div class = "card">
+                  <h5 class="card-title"><%= bidder[0].username %></h5>
+                  <p class="card-text">Salary: <%= bidder[0].salary%></p>
+              </div>
+            <% } else { %>
+            <% } %>
         </div>
     </div>
     <%- include footer.ejs %>
