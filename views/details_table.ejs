@@ -1,0 +1,38 @@
+<table class="table" style="width:100%">
+    <tr>
+        <th>Finder</th>
+        <td><%= task[0].username %></td>
+    </tr>
+    <tr>
+        <th>Status</th>
+        <td><%= task[0].sname %></td>
+    </tr>
+    <tr>
+        <th>Region</th>
+        <td><%= task[0].rname %></td>
+    </tr>
+    <tr>
+        <th>Salary</th>
+        <td><%= task[0].salary %></td>
+    </tr>
+    <tr>
+        <th>Task Date</th>
+        <td><%= formatted_task_date[0] %></td>
+    </tr>
+    <tr>
+        <th>Start Time</th>
+        <td><%= task[0].start_time %></td>
+    </tr>
+    <tr>
+        <th>End Time</th>
+        <td><%= task[0].end_time %></td>
+    </tr>
+    <tr>
+        <th>Description</th>
+        <td><%= task[0].description %></td>
+    </tr>
+    <tr>
+        <th>Current Lowest Bid</th>
+        <td><%= task[0].best_bid == null ? "NULL" : task[0].best_bid %></td>
+    </tr>
+</table>
