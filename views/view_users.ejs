@@ -28,95 +28,24 @@
         </div>
       </div>
       <table class="table">
-        <thead>
-        <tr>
-          <form id="tableForm" action="/view_users" method="get">
-            <th scope="col" style="width:25%;">
-              <select class="browser-default custom-select" id="type" name="type" onchange="this.form.submit()">
-                <optgroup label="Type">
-                  <option name="tableType">Type</option>
-                  <% for (var i = 0; i < types.length; i++) { %>
-
-                      <option name="tableType"><%= types[i].cname %></option>
-
-                  <% } %>
-                </optgroup>
-              </select>
-            </th>
-            <th scope="col" style="width:25%;">
-              <select class="browser-default custom-select" id="date" name="date" onchange="this.form.submit()">
-                <optgroup label="Date">
-                  <option name="tableType">Date</option>
-                  <% for (var i = 0; i < dates.length; i++) { %>
-
-                      <option name="tableType"><%= dates[i] %></option>
-
-                  <% } %>
-                </optgroup>
-              </select>
-            </th>
-            <th scope="col" style="width:25%;">
-              <select class="browser-default custom-select" id="range" name="range" onchange="this.form.submit()">
-                <optgroup label="Salary">
-                  <option name="tableType">Salary</option>
-                  <% for (var i = 0; i < ranges.length; i++) { %>
-                      <option name="tableType"><%= ranges[i] %></option>
-
-                  <% } %>
-                </optgroup>
-              </select>
-            </th>
-            <th scope="col" style="width:25%;">
-              <select class="browser-default custom-select" id="region" name="region" onchange="this.form.submit()">
-                <optgroup label="Region">
-                  <option name="tableType">Region</option>
-                  <% for (var i = 0; i < regions.length; i++) { %>
-
-                      <option name="tableType"><%= regions[i].rname %></option>
-
-                  <% } %>
-                </optgroup>
-              </select>
-            </th>
-          </form>
-        </tr>
-        </thead>
         <tbody>
-
+        <% for(var i=0; i < users_list.length; i++) { %>
         <tr>
           <td colspan="4">
-            <div class = "card">
-              <h5 class="card-title">A0000002B</h5>
-              <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-              <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-              <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-              <form action="/details">
+            <div class="card">
+              <h5 class="card-title"><%= users_list[i].username %></h5>
+              <p class="card-text">Region: <%= users_list[i].rname %></p>
+              <p class="card-text">Score: <%= users_list[i].score %></p>
+              <form action="/view_user_details">
                 <div style="display: flex;">
-                  <button class="col-md-6 btn-outline-primary" id="tid" name="tid" value="1" onclick="this.form.submit()">
+                  <button class="col-md-12 btn-outline-primary" id="aid" name="aid" value="<%=i+1%>" onclick="this.form.submit()">
                     View Details
-                  </button>
-                  <button class="col-md-6 btn-primary" id="tid" name="tid" value="1" onclick="this.form.submit()">
-                    Delete
                   </button>
                 </div>
               </form>
-            </div>
           </td>
         </tr>
-        <tr>
-          <td colspan="4">
-            <div class = "card">
-              <h5 class="card-title">A0000002B</h5>
-              <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-              <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-              <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-              <div style="display: flex;">
-                <button class="col-md-6 btn-outline-primary">View Details</button>
-                <button class="col-md-6 btn-primary">Delete</button>
-              </div>
-            </div>
-          </td>
-        </tr>
+        <% } %>
         </tbody>
       </table>
     </div>

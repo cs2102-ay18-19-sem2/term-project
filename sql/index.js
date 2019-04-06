@@ -21,13 +21,16 @@ sql.query = {
     filter: "SELECT * FROM tasks T WHERE T.salary >= $1 AND T.salary <= $2 AND T.task_date >= $3 AND T.post_date <= $4 AND ($7 = 'true' OR T.rname = $5) AND ($8 = 'true' OR T.cname = $6)",
     admin_view_users: "SELECT * FROM users",
     get_profile: "SELECT * FROM users",
-    get_detail: "SELECT * \
+    get_detail: `SELECT * \
     FROM tasks T LEFT OUTER JOIN \
     (SELECT B.tid AS btid, MIN(B.salary) AS best_bid FROM bids B GROUP BY B.tid) AS B ON T.tid = B.btid \
     LEFT OUTER JOIN accounts U ON U.aid = T.finder_id \
-    WHERE T.tid = $1",
+    WHERE T.tid = $1`,
     get_user_info: "SELECT * FROM users WHERE aid= (SELECT aid FROM accounts WHERE username=$1)",
     admin_view_tasks: "SELECT * FROM tasks",
+    admin_view_users: "SELECT accounts.username as username, users.rname as rname, users.score as score FROM accounts NATURAL JOIN users",
+    admin_get_user_details: "SELECT accounts.username as username, users.gender as gender, users.education as education, users.rname as rname, accounts.email as email, users.score as score FROM accounts NATURAL JOIN users WHERE aid = $1",
+    admin_get_user_tasks: "SELECT tasks.title as title FROM tasks JOIN users ON tasks.tasker_id = users.aid WHERE users.aid = $1",
     get_user_info: "SELECT * FROM users WHERE aid=$1",
 
     // Update

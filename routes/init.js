@@ -41,14 +41,16 @@ function initRouter(app) {
     app.get('/post', passport.authMiddleware(), post);
     app.get('/profile', passport.authMiddleware(), profile);
     app.get('/view_users', passport.authMiddleware(), view_users);
-    app.get('/view_tasks', passport.antiMiddleware(), view_tasks);
-    app.get('/admin', passport.antiMiddleware(), admin);
+    app.get('/view_tasks', passport.authMiddleware(), view_tasks);
+    app.get('/admin', passport.authMiddleware(), admin);
 
     /* PROTECTED POST */
     app.post('/receive_post', passport.authMiddleware(), receive_post);
     app.post('/update_acc_info', passport.authMiddleware(), update_acc_info);
     app.post('/update_user_info', passport.authMiddleware(), update_user_info);
     app.post('/update_pass', passport.authMiddleware(), update_pass);
+    app.get('/view_user_details', passport.authMiddleware(), view_user_details);
+
 
     /* Sign Up */
     app.post('/receive_signup', receive_signup);
@@ -124,9 +126,21 @@ function view_users(req, res, next) {
             console.log("Error encountered when admin trying to view all"
                 + " users.");
         } else {
-            basic(req, res, 'view_users', {title: "Users", page: '', types: data.rows,
-            regions: regions, dates: date_last_ranges, ranges: ranges, auth: true });
+            basic(req, res, 'view_users', {title: "Users", page: '', users_list: data.rows, auth: true});
       }
+    });
+}
+
+function view_user_details(req, res, next) {
+    pool.query(sql_query.query.admin_get_user_details, [req.query.aid] , (err, data1) => {
+        pool.query(sql_query.query.admin_get_user_tasks, [req.query.aid], (err, data2) => {
+            if (err) {
+                        console.log(err);
+                        console.log("Error encountered when requesting task detail.")
+                    } else {
+                        basic(req, res, 'view_user_details', {title: "Task Details", auth: true, user: data1.rows, tasks: data2.rows})
+                    }
+        })
     });
 }
 
@@ -137,8 +151,7 @@ function view_tasks(req, res, next) {
       console.log("Error encountered when admin trying to view all"
           + " users.");
     } else {
-      basic(req, res, 'view_tasks', {title: "Tasks", page: '', types: data.rows,
-      regions: regions, dates: date_last_ranges, ranges: ranges, auth: true });
+      basic(req, res, 'view_tasks', {title: "Tasks", page: '', tasks_list: data.rows, auth: true });
     }
   });
 }
@@ -556,7 +569,8 @@ function receive_login(req, res, next){
             }
             console.log(user);
             pool.query(sql_query.query.check_if_admin, [user.aid], (err, data) => {
-              if (typeof data === undefined) {
+              console.log(data)
+              if (data.rows.length == 0) {
                 console.log("You are not admin.");
                 return res.redirect('/?user=' + user.aid);
               } else {
