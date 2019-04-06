@@ -42,12 +42,14 @@ function initRouter(app) {
     app.get('/view_users', passport.authMiddleware(), view_users);
     app.get('/view_tasks', passport.antiMiddleware(), view_tasks);
     app.get('/admin', passport.antiMiddleware(), admin);
+	app.get('/task', passport.authMiddleware(), view_bidders);
 
     /* PROTECTED POST */
     app.post('/receive_post', passport.authMiddleware(), receive_post);
     app.post('/update_acc_info', passport.authMiddleware(), update_acc_info);
     app.post('/update_user_info', passport.authMiddleware(), update_user_info);
     app.post('/update_pass', passport.authMiddleware(), update_pass);
+	app.post('/task/select_bid', passport.authMiddleware(), select_bid);
 
     /* Sign Up */
     app.post('/receive_signup', receive_signup);
@@ -177,7 +179,7 @@ function tasks(req, res, next) {
     var task_date = isEmpty(req.query.task_date, "Task Date") ? getDate(new Date()) : getDate(req.query.date);
     var post_date = isEmpty(req.query.post_date, "Post Date") ? getDate(new Date()) : getDate(req.query.date);
     var range = isEmpty(req.query.range, "Salary") ? [0, infinity] : rangeNum[ranges.indexOf(req.query.range)];
-    
+
     pool.query(sql_query.query.search, ["%%"], (err, data) => {
         if(err) {
             console.log("Error encountered when searching");
@@ -227,7 +229,7 @@ function show(req, res, data1) {
     var selectedPostDate = isEmpty(req.query.date, "Post Date") ? "Post Date" : req.query.date;
     var selectedTaskDate = isEmpty(req.query.date, "Task Date") ? "Task Date" : req.query.date;
     var selectedRange = isEmpty(req.query.range, "Salary") ? "Salary" : ranges[ranges.indexOf(req.query.range)];
-    
+
     pool.query(sql_query.query.get_task_type, (err, data2) => {
         if(err) {
             console.log("Error encountered when reading classifications");
@@ -275,7 +277,29 @@ function details(req, res, next) {
             console.log("Error encountered when requesing task detail.")
         } else {
             var format_task_date = data.rows.map((row) => getFormattedDate(row.task_date))
-            basic(req, res, 'details', {title: "Task Details", auth: req.isAuthenticated(), task: data.rows, formatted_task_date: format_task_date})
+			if (req.user.aid != data.rows[0].finder_id) {
+            	basic(req, res, 'details', {
+					title: "Task Details",
+					auth: req.isAuthenticated(),
+					task: data.rows, formatted_task_date: format_task_date,
+					section: 1
+				})
+			} else if (req.user.aid == data.rows[0].finder_id && data.rows[0].sname == 'Unassigned') {
+				pool.query(sql_query.query.get_bidder_for_task, [req.query.tid], (err, data1) -> {
+					if (err) {
+						console.error("Cannot get bidders for the task.");
+					} else {
+						basic(req, res, 'details', {
+							title: "Task Details",
+							auth: req.isAuthenticated(),
+							task: data.rows,
+							formatted_task_date: format_task_date,
+							bidders: data1.rows,
+							section: 2
+						})
+					}
+				});
+			}
         }
     });
 }
@@ -300,11 +324,11 @@ function bid(req, res, next) {
         function abort(err) {
             if(err) {
                 client.query('ROLLBACK', function(err) { done(); });
-                return true; 
+                return true;
             }
             return false;
         }
-    
+
         client.query('BEGIN', (err, res1) => {
             if(abort(err)) {
                 console.log(err);
@@ -314,7 +338,7 @@ function bid(req, res, next) {
                 if(abort(err)) {
                     console.log(err);
                     return;
-                }; 
+                };
                 client.query(sql_query.query.insert_bid, [tid, tasker, bid], function(err, res3) {
                     if(abort(err)) {
                         console.log(err);
@@ -523,6 +547,23 @@ function receive_post(req, res, next) {
 			}
 		}
 	})
+}
+
+
+function select_bid(req,res,next) {
+	//select a bidder manually
+	var tid = Number(req.body.tid);
+	var tasker = Number(req.body.bidder_id);
+	var salary = Number(req.body.salary);
+	pool.query(sql_query.query.select_bid, [tid, tasker, salary], (err, data) -> {
+		if (err) {
+			console.log("cannot select bidder.");
+		} else {
+			var bid = Number(req.body.bid);
+			var tid = Number(req.body.tid);
+			var tasker = req.user.aid;
+		}
+	});
 }
 
 module.exports = initRouter;
