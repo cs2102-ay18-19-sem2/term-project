@@ -3,9 +3,6 @@ CREATE SCHEMA public;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO public;
 
-CREATE TYPE gender_class AS ENUM('Female', 'Male', 'Others');
-CREATE TYPE education_level AS ENUM ('other', 'high school', 'college',
-'postgraduate');
 CREATE TYPE role AS ENUM ('finder','tasker');
 
 CREATE TABLE regions (
@@ -37,8 +34,8 @@ CREATE TABLE users(
   aid 		INTEGER,
   rname		VARCHAR(74),
   score   INTEGER,
-  gender  gender_class,
-  education education_level,
+  gender  VARCHAR(74),
+  education VARCHAR(74),
   PRIMARY KEY (aid),
   FOREIGN KEY (aid)   REFERENCES accounts,
   FOREIGN KEY (rname) REFERENCES regions
@@ -65,9 +62,12 @@ CREATE TABLE tasks(
   salary      INTEGER NOT NULL,
   post_date   DATE NOT NULL,
   task_date   DATE NOT NULL,
+  start_time  TIME NOT NULL,
+  end_time    TIME NOT NULL,
   description VARCHAR(200),
-  tasker_id   INTEGER REFERENCES users(aid)
-  check (tasker_id <> finder_id)
+  tasker_id   INTEGER REFERENCES users(aid),
+  check (tasker_id <> finder_id),
+  check (start_time < end_time)
 );
 
 CREATE TABLE bids (
@@ -100,6 +100,7 @@ INSERT INTO regions (rname) VALUES ('Bishan');
 INSERT INTO regions (rname) VALUES ('Holland Village');
 INSERT INTO regions (rname) VALUES ('Yishun');
 INSERT INTO regions (rname) VALUES ('Other');
+INSERT INTO regions (rname) VALUES ('All');
 
 INSERT INTO specializations (sname) VALUES ('Mandarin');
 INSERT INTO specializations (sname) VALUES ('Highschool Mathemetics');
@@ -121,3 +122,8 @@ INSERT INTO classifications (cname) VALUES ('Lifting');
 INSERT INTO classifications (cname) VALUES ('Pets Caring');
 INSERT INTO classifications (cname) VALUES ('Electrical');
 INSERT INTO classifications (cname) VALUES ('Other');
+
+INSERT INTO accounts (aid, email, username, password) VALUES (0,
+'admin2102@gmail.com', 'admin2102', '$2b$10$M/lrxu2.2oqy3N6nalCgmOEd6Gwhn6VWqnNJE61pU3GBL8xK4F/h2');
+
+INSERT INTO admins (aid) VALUES (0);

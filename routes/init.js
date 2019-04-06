@@ -27,19 +27,26 @@ function initRouter(app) {
 
 	/* GET */
     app.get('/', index);
+    app.get('/index', index);
     app.get('/signup', signup);
     app.get('/login', login);
     app.get('/tasks/search', tasks_search);
     app.get('/tasks', tasks)
+    //app.get('/post', post); need to remove because can only post if authenticated
+    app.get('/details', details)
 
     /* Protected GET */
     app.get('/post', passport.authMiddleware(), post);
     app.get('/profile', passport.authMiddleware(), profile);
-    app.get('/admin_users', passport.authMiddleware(), admin_users);
+    app.get('/view_users', passport.authMiddleware(), view_users);
+    app.get('/view_tasks', passport.antiMiddleware(), view_tasks);
+    app.get('/admin', passport.antiMiddleware(), admin);
 
     /* PROTECTED POST */
     app.post('/receive_post', passport.authMiddleware(), receive_post);
-    app.post('/update_info', passport.authMiddleware(), update_info);
+    app.post('/update_acc_info', passport.authMiddleware(), update_acc_info);
+    app.post('/update_user_info', passport.authMiddleware(), update_user_info);
+    app.post('/update_pass', passport.authMiddleware(), update_pass);
 
     /* Sign Up */
     app.post('/receive_signup', receive_signup);
@@ -50,12 +57,20 @@ function initRouter(app) {
     /* Logout */
     app.get('/logout', passport.authMiddleware(), logout);
 
+    /* Post */
+    app.post('/details/bid', bid)
+}
+
+function admin(req,res, next) {
+  req.render('admin', { title: 'Welcome', auth: true });
 }
 
 /* Basic Info used for profile.*/
 function basic(req, res, page, other) {
   var info = {
     page: page,
+    rname: req.body.rname,
+    gender : req.body.gender,
     user: req.user.aid,
   };
   if(other) {
@@ -69,11 +84,13 @@ function basic(req, res, page, other) {
 
 /* User can view and update his own profile page. */
 function profile(req, res, next) {
-    pool.query(sql_query.query.get_user_info, [req.user.username], (err, data) => {
+    pool.query(sql_query.query.get_user_info, [req.user.aid], (err, data) => {
         if (err) {
             console.log("cannot load profile");
         } else {
             var info = {
+                acc_email: req.user.email,
+                acc_username: req.user.username,
                 user_info: data.rows[0],
                 education_level: education_level,
                 regionData: regions,
@@ -92,19 +109,34 @@ function query(req, fld) {
 }
 function msg(req, fld, pass, fail) {
   var info = query(req, fld);
+  console.log("info"+info);
   return info ? (info=='pass' ? pass : fail) : '';
 }
 
 /* Admin can view all the users. */
-function admin_users(req, res, next) {
+function view_users(req, res, next) {
     pool.query(sql_query.query.admin_view_users, (err, data) => {
         if (err) {
             console.log("Error encountered when admin trying to view all"
                 + " users.");
         } else {
-            basic(req, res, 'admin_users', {title: "admin_users", types: data.rows, auth: true });
+            basic(req, res, 'view_users', {title: "Users", page: '', types: data.rows,
+            regions: regions, dates: dateRanges, ranges: ranges, auth: true });
       }
-    })
+    });
+}
+
+/* Admin can view all the tasks. */
+function view_tasks(req, res, next) {
+  pool.query(sql_query.query.admin_view_tasks, (err, data) => {
+    if (err) {
+      console.log("Error encountered when admin trying to view all"
+          + " users.");
+    } else {
+      basic(req, res, 'view_tasks', {title: "Tasks", page: '', types: data.rows,
+      regions: regions, dates: dateRanges, ranges: ranges, auth: true });
+    }
+  });
 }
 
 function index(req, res, next) {
@@ -120,7 +152,7 @@ function index(req, res, next) {
             	basic(req, res, 'index', { title: 'Homepage', page: '', auth: true, types: data.rows});
             }
         }
-    })
+    });
 }
 
 function tasks_search(req, res, next) {
@@ -137,17 +169,20 @@ function tasks_search(req, res, next) {
 }
 
 function tasks(req, res, next) {
-    var type = isEmpty(req.query.type, "Type") ? sql_query.query.get_task_type : "VALUES ('" + req.query.type + "')";
-    var region = isEmpty(req.query.region, "Region") ? sql_query.query.get_region : "VALUES ('" + req.query.region + "')";
+    var all_types = 'false';
+    var all_regions = 'false';
+    var type = isEmpty(req.query.type, "Type") ? all_types = 'true' : req.query.type;
+    var region = isEmpty(req.query.region, "Region") ? all_regions = 'true' : req.query.region;
     var date = isEmpty(req.query.date, "Date") ? getDate(new Date()) : getDate(req.query.date);
     var range = isEmpty(req.query.range, "Salary") ? [0, infinity] : rangeNum[ranges.indexOf(req.query.range)];
     console.log("tasks: " + type + "-" + region + "-" + range + "-" + date);
+    console.log(sql_query.query.filter, [type, region, date, range[0], range[1]]);
     pool.query(sql_query.query.search, ["%%"], (err, data) => {
         if(err) {
             console.log("Error encountered when searching");
             index(req, res, next);
         } else {
-            pool.query(sql_query.query.filter, [type, region, date, range[0], range[1]], (err, data) => {
+            pool.query(sql_query.query.filter, [range[0], range[1], date, region, type, all_regions, all_types], (err, data) => {
                 if(err) {
                     console.log("Error encountered when filtering");
                     index(req, res, next);
@@ -182,10 +217,10 @@ function getDate(choice) {
 }
 
 function show(req, res, data1) {
-    var selectedType = isEmpty(req.query.type, "Type") ? sql_query.query.get_task_type : "VALUES ('" + req.query.type + "')";
-    var selectedRegion = isEmpty(req.query.region, "Region") ? sql_query.query.get_region : "VALUES ('" + req.query.region + "')";
-    var selectedDate = isEmpty(req.query.date, "Date") ? getDate(new Date()) : getDate(req.query.date);
-    var selectedRange = isEmpty(req.query.range, "Salary") ? [0, infinity] : rangeNum[ranges.indexOf(req.query.range)];
+    var selectedType = isEmpty(req.query.type, "Type") ? "Type" : req.query.type;
+    var selectedRegion = isEmpty(req.query.region, "Region") ? "Region" : req.query.region;
+    var selectedDate = isEmpty(req.query.date, "Date") ? "Date" : req.query.date;
+    var selectedRange = isEmpty(req.query.range, "Salary") ? "Salary" : ranges[ranges.indexOf(req.query.range)];
     console.log("show: " + selectedType + "-" + selectedRegion + "-" + selectedDate + "-" + selectedRange);
     pool.query(sql_query.query.get_task_type, (err, data2) => {
         if(err) {
@@ -219,6 +254,18 @@ function show(req, res, data1) {
     });
 }
 
+function details(req, res, next) {
+    pool.query(sql_query.query.get_detail, [req.query.tid] , (err, data) => {
+        console.log(sql_query.query.get_detail, req.query.tid);
+        if (err) {
+            console.log(err);
+            console.log("Error encountered when requesing task detail.")
+        } else {
+            basic(req, res, 'details', {title: "Task Details", auth: req.isAuthenticated(), task: data.rows})
+        }
+    });
+}
+
 function login(req, res, next) {
     res.render('login', { title: 'LogIn', auth: false});
 }
@@ -230,36 +277,65 @@ function signup(req, res, next) {
 }
 
 // POST
-function update_acc_info(req, res, next) {
-    var username = req.user.username;
-    var newname = req.body.name;
-    var email = req.body.email;
-    pool.query(sql_query.query.update_info, [username, gender, rname, education], (err, data) => {
-        console.log("---username: " + aid +" ---rname: " + rname + " ---gender: " + gender);
-        if(err) {
-            console.error("Error in update info");
-            res.redirect('/profile?user=' + aid);
+function bid(req, res, next) {
+    var bid = Number(req.body.bid);
+    var tid = Number(req.body.tid);
+    var tasker = req.user.aid;
+    pool.query(sql_query.query.insert_bid, [tid, tasker, bid], (err, data) => {
+        if (err) {
+            console.log("Error in insert bid");
         } else {
-            res.redirect('/profile?user=' + aid);
+            res.redirect('/details?tid=' + tid);
         }
     });
 }
 
-function update_info(req, res, next) {
-  var username = req.user.username;
+function update_acc_info(req, res, next) {
+    var aid = req.user.aid;
+    var newname = req.body.username;
+    pool.query(sql_query.query.update_acc_info, [aid, newname], (err, data) => {
+
+        if(err) {
+            console.error("Error in update info");
+
+            res.redirect('/profile?user=' + aid + "?info=fail");
+        } else {
+            res.redirect('/profile?user=' + aid + "?info=pass");
+
+        }
+    });
+}
+
+function update_user_info(req, res, next) {
+  var aid = req.user.aid;
   var gender = req.body.gender;
   var rname  = req.body.rname;
   var education = req.body.education;
-  pool.query(sql_query.query.update_info, [username, gender, rname, education], (err, data) => {
-    console.log("---username: " + aid +" ---rname: " + rname + " ---gender: " + gender);
+  console.log("aid:" + aid + " gender: " + gender + " rname: " + rname + " education: " + education);
+  pool.query(sql_query.query.update_user_info, [aid, gender, rname, education], (err, data) => {
+    console.log(err);
     if(err) {
-      console.error("Error in update info");
-      res.redirect('/profile');
+      console.error("Error in update user info");
+      res.redirect('/profile?user=' + aid + "?info=fail");
     } else {
-      res.redirect('/profile');
+      res.redirect('/profile?user=' + aid + "?info=pass");
 }
 });
 }
+
+function update_pass(req, res, next) {
+  var aid = req.user.aid;
+  var password = bcrypt.hashSync(req.body.password, salt);
+  pool.query(sql_query.query.update_pass, [aid, password], (err, data) => {
+    if(err) {
+      console.error("Error in update pass");
+      res.redirect('/profile?user=' + aid + "?pass=fail");
+    } else {
+      res.redirect('/login?pass=pass');
+}
+});
+}
+
 
 function receive_signup(req, res, next) {
     //add sign up information into the database
@@ -320,7 +396,16 @@ function receive_login(req, res, next){
                 return next(err);
             }
             console.log(user);
-            return res.redirect('/?user=' + user.aid);
+            pool.query(sql_query.query.check_if_admin, [user.aid], (err, data) => {
+              if (typeof data === undefined) {
+                console.log("You are not admin.");
+                return res.redirect('/?user=' + user.aid);
+              } else {
+                console.log("You are admin. Congrats.");
+                return basic(req, res, 'admin', { title:"Welcome", types: data, auth: true});
+              }
+            });
+
         });
     })(req, res, next);
 }
@@ -332,19 +417,28 @@ function logout(req, res, next){
 }
 
 function post(req, res, next) {
-    pool.query(sql_query.query.get_task_type, (err, data1) => {
-        if(err) {
-            console.log("Error encountered when reading classifications");
-        } else {
-          pool.query(sql_query.query.get_region_name, (err, data2) => {
-						if (err){
-							console.log("Error encountered when reading regions");
-						} else {
-						    basic(req, res, 'post', { title:"Post New Task", types: data1.rows, regions:data2.rows, auth: true});
-						}
-					})
-        }
-    })
+	pool.query(sql_query.query.get_task_type, (err, data1) => {
+		if(err) {
+			console.log("Error encountered when reading classifications");
+			res.redirect('/');
+		} else {
+			pool.query(sql_query.query.get_region, (err, data2) => {
+				if (err) {
+					console.log("Error encountered when reading regions");
+					res.redirect('/');
+				}else {
+					var page = {
+					title:"Post New Task",
+					types: data1.rows,
+					regionData:data2.rows,
+					auth: true,
+					info_msg: msg(req, 'info', "", "This task cannot be posted due to error in inputs")
+					}
+				basic(req, res, 'post', page);
+				}
+			})
+		}
+	})
 }
 
 function receive_post(req, res, next) {
@@ -355,27 +449,29 @@ function receive_post(req, res, next) {
 			console.log("cannot read task number");
 			res.redirect('/');
 		} else {
-			tid = parseInt(data.rows[0].num, 10) + 1;
+			tid = parseInt(data.rows[0].num, 10);
 			var title = req.body.title;
 			var rname = req.body.region;
 			var cname = req.body.type;
-			var finder_id = 1; //to be updated with the user id from the session
+			var finder_id = req.user.aid; //to be updated with the user id from the session
 			var salary = parseInt(req.body.salary);
 			var desc = req.body.desc;
 			var date = new Date(req.body.date);
+			var start_time = req.body.start_hour + ":" + req.body.start_minute;
+			var end_time = req.body.end_hour + ":" + req.body.end_minute;
 
 			var today = new Date()
 			var today_date = today.getUTCFullYear() + "-" + (today.getUTCMonth() + 1) + "-" + today.getUTCDate();
 
 			if (date < today) {
 				console.error("This date has already passed.");
-				post(req, res, next);
+				res.redirect('/post?info=fail');
 			} else {
 				var datestring = date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
-				pool.query(sql_query.query.add_task, [tid, title, rname, cname, finder_id, salary, today_date, datestring, desc], (err, data) => {
+				pool.query(sql_query.query.add_task, [tid, title, rname, cname, finder_id, salary, today_date, datestring,start_time, end_time, desc], (err, data) => {
 					if(err) {
 						console.error("Cannot add the task");
-						res.redirect('/');
+						res.redirect('/post?info=fail');
 					} else {
 						res.redirect('/');
 					}
@@ -383,7 +479,6 @@ function receive_post(req, res, next) {
 			}
 		}
 	})
-
 }
 
 module.exports = initRouter;

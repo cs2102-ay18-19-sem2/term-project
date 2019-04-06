@@ -37,41 +37,50 @@
     <div class="site-mobile-menu-body"></div>
   </div>
 
-  <%- include navbar.ejs %>
+  <%- include('navbar.ejs', {auth: auth}) %>
 
-  <%- include('title.ejs', {title: "Registered Users"}) %>
+  <%- include('title.ejs', {title: "Profile"}) %>
 
   <div class="site-section"  data-aos="fade">
     <div class="container">
 
       <div class="row mb-5">
         <div class="text-left border-primary">
-          <h2 class="font-weight-light text-primary pb-3">Viewing all
-            existing users.</h2>
+          <h2 class="font-weight-light text-primary pb-3">Basic Information</h2>
         </div>
       </div>
-      <table class="table">
-        <thead>
-        <tr>
-          <th scope="col">ID</th>
-          <th scope="col">Name</th>
-          <th scope="col">Score</th>
-          <th scope="col">Name</th>
-          <th scope="col">Score</th>
-        </tr>
-        </thead>
-        <tbody>
-        <% for(var i=0; i < 5; i++) { %>
-          <tr>
-            <td>nino</td>
-            <td>aiba</td>
-            <td>sho</td>
-            <td>jun</td>
-            <td>ono</td>
-          </tr>
-        <% } %>
-        </tbody>
-      </table>
+
+      <div class="card mb-3">
+        <div class="card-header">
+          <i class="fas fa-address-card"></i> &nbsp; Basic Information
+
+        </div>
+        <form method="post" action="/update_info">
+          <div class="card-body">
+            <div class="form-group row">
+              <label for="firstname" class="col-sm-2
+              col-form-label"><b>Name:</b></label>
+              <div class="col-sm-4">
+                <input type="text" required="required" class="form-control"
+                       id="rname" placeholder="Name"
+                       name="rname" value="Ninomiya Kazunari">
+              </div>
+
+                <label for="lastname" class="col-sm-2
+              col-form-label"><b>Gender:</b></label>
+                <div class="col-sm-4">
+                  <input type="text" required="required" class="form-control"
+                         id="gender" placeholder="Enter Female or Male"
+                         name="gender" value="Male">
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
     </div>
   </div>
   <%- include footer.ejs %>
@@ -93,4 +102,3 @@
 <script src="js/main.js"></script>
 
 </body>
-</html>
