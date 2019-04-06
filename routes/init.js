@@ -15,7 +15,8 @@ const infinity = 2147483647;
 
 var ranges = ["≤1000", "1000-2000", "2000-3000", "≥3000"];
 var rangeNum = [[0, 1000], [1000, 2000], [2000, 3000], [3000, infinity]];
-var dateRanges = ["last 3 days", "last one week", "last one month(30 days)"];
+var date_last_ranges = ["last 3 days", "last one week", "last one month(30 days)"];
+var date_next_ranges = ["next 3 days", "next one week", "next one month(30 days)"];
 
 var gender_class = ["Female", "Male", "Others"];
 var education_level = ['High School', 'College', 'Postgraduate', 'Other'];
@@ -121,7 +122,7 @@ function view_users(req, res, next) {
                 + " users.");
         } else {
             basic(req, res, 'view_users', {title: "Users", page: '', types: data.rows,
-            regions: regions, dates: dateRanges, ranges: ranges, auth: true });
+            regions: regions, dates: date_last_ranges, ranges: ranges, auth: true });
       }
     });
 }
@@ -134,7 +135,7 @@ function view_tasks(req, res, next) {
           + " users.");
     } else {
       basic(req, res, 'view_tasks', {title: "Tasks", page: '', types: data.rows,
-      regions: regions, dates: dateRanges, ranges: ranges, auth: true });
+      regions: regions, dates: date_last_ranges, ranges: ranges, auth: true });
     }
   });
 }
@@ -173,16 +174,16 @@ function tasks(req, res, next) {
     var all_regions = 'false';
     var type = isEmpty(req.query.type, "Type") ? all_types = 'true' : req.query.type;
     var region = isEmpty(req.query.region, "Region") ? all_regions = 'true' : req.query.region;
-    var date = isEmpty(req.query.date, "Date") ? getDate(new Date()) : getDate(req.query.date);
+    var task_date = isEmpty(req.query.task_date, "Task Date") ? getDate(new Date()) : getDate(req.query.date);
+    var post_date = isEmpty(req.query.post_date, "Post Date") ? getDate(new Date()) : getDate(req.query.date);
     var range = isEmpty(req.query.range, "Salary") ? [0, infinity] : rangeNum[ranges.indexOf(req.query.range)];
-    console.log("tasks: " + type + "-" + region + "-" + range + "-" + date);
-    console.log(sql_query.query.filter, [type, region, date, range[0], range[1]]);
+    
     pool.query(sql_query.query.search, ["%%"], (err, data) => {
         if(err) {
             console.log("Error encountered when searching");
             index(req, res, next);
         } else {
-            pool.query(sql_query.query.filter, [range[0], range[1], date, region, type, all_regions, all_types], (err, data) => {
+            pool.query(sql_query.query.filter, [range[0], range[1], task_date, post_date, region, type, all_regions, all_types], (err, data) => {
                 if(err) {
                     console.log("Error encountered when filtering");
                     index(req, res, next);
@@ -203,13 +204,13 @@ function getDate(choice) {
     var resultDate = currentDate;
     console.log(currentDate);
     switch (choice) {
-    case dateRanges[0]:
+    case date_last_ranges[0]:
         resultDate = new Date(resultDate.setDate(currentDate.getDate()-3));
         break;
-    case dateRanges[1]:
+    case date_last_ranges[1]:
         resultDate = new Date(resultDate.setDate(currentDate.getDate()-7));
         break;
-    case dateRanges[2]:
+    case date_last_ranges[2]:
         resultDate = new Date(resultDate.setDate(currentDate.getDate()-30));
         break;
     }
@@ -219,9 +220,10 @@ function getDate(choice) {
 function show(req, res, data1) {
     var selectedType = isEmpty(req.query.type, "Type") ? "Type" : req.query.type;
     var selectedRegion = isEmpty(req.query.region, "Region") ? "Region" : req.query.region;
-    var selectedDate = isEmpty(req.query.date, "Date") ? "Date" : req.query.date;
+    var selectedPostDate = isEmpty(req.query.date, "Post Date") ? "Post Date" : req.query.date;
+    var selectedTaskDate = isEmpty(req.query.date, "Task Date") ? "Task Date" : req.query.date;
     var selectedRange = isEmpty(req.query.range, "Salary") ? "Salary" : ranges[ranges.indexOf(req.query.range)];
-    console.log("show: " + selectedType + "-" + selectedRegion + "-" + selectedDate + "-" + selectedRange);
+    
     pool.query(sql_query.query.get_task_type, (err, data2) => {
         if(err) {
             console.log("Error encountered when reading classifications");
@@ -235,11 +237,13 @@ function show(req, res, data1) {
                         tasks: data1.rows,
                         type: selectedType,
                         region: selectedRegion,
-                        taskDate: selectedDate,
+                        postDate: selectedPostDate,
+                        taskDate: selectedTaskDate,
                         range: selectedRange,
                         types: data2.rows,
                         regions: data3.rows,
-                        dates: dateRanges,
+                        task_dates: date_next_ranges,
+                        post_dates: date_last_ranges,
                         ranges: ranges,
                         auth: isAuth
                     };
@@ -261,7 +265,15 @@ function details(req, res, next) {
             console.log(err);
             console.log("Error encountered when requesing task detail.")
         } else {
-            basic(req, res, 'details', {title: "Task Details", auth: req.isAuthenticated(), task: data.rows})
+            var format_task_date = data.rows.map($0.date.getUTCFullYear() + "-" + ($0.date.getUTCMonth() + 1) + "-" + $0.date.getUTCDate())
+            var format_start_time = data.rows.start_time;
+            var format_end_time = data.rows.end_time;
+            var formatted_info = {
+                task_date: format_task_date,
+                start_time: format_start_time,
+                end_time: format_end_time
+            };
+            basic(req, res, 'details', {title: "Task Details", auth: req.isAuthenticated(), task: data.rows, formatted_task: formatted_info})
         }
     });
 }

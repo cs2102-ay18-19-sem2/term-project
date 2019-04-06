@@ -45,14 +45,28 @@
                                 </select>
                             </th>
                             <th scope="col" style="width:25%;">
-                                <select class="browser-default custom-select" id="date" name="date" onchange="this.form.submit()">
+                                <select class="browser-default custom-select" id="task_date" name="task_date" onchange="this.form.submit()">
                                     <optgroup label="Date">
-                                        <option name="tableType">Date</option>
-                                        <% for (var i = 0; i < dates.length; i++) { %>
-                                            <% if (dates[i] == taskDate) { %>
-                                                <option name="tableType" selected><%= dates[i] %></option>
+                                        <option name="tableType">Task Date</option>
+                                        <% for (var i = 0; i < task_dates.length; i++) { %>
+                                            <% if (task_dates[i] == taskDate) { %>
+                                                <option name="tableType" selected><%= task_dates[i] %></option>
                                             <% } else { %>
-                                                <option name="tableType"><%= dates[i] %></option>
+                                                <option name="tableType"><%= task_dates[i] %></option>
+                                            <% } %>
+                                        <% } %>
+                                    </optgroup>
+                                </select>
+                            </th>
+                            <th scope="col" style="width:25%;">
+                                <select class="browser-default custom-select" id="post_date" name="post_date" onchange="this.form.submit()">
+                                    <optgroup label="Date">
+                                        <option name="tableType">Post Date</option>
+                                        <% for (var i = 0; i < post_dates.length; i++) { %>
+                                            <% if (post_dates[i] == postDate) { %>
+                                                <option name="tableType" selected><%= post_dates[i] %></option>
+                                            <% } else { %>
+                                                <option name="tableType"><%= post_dates[i] %></option>
                                             <% } %>
                                         <% } %>
                                     </optgroup>
@@ -96,7 +110,8 @@
                                     <div class="card">
                                         <h5 class="card-title"><%= tasks[i].title %></h5>
                                         <p class="card-text">Type: <%= tasks[i].cname %></p>
-                                        <p class="card-text">Date: <%= tasks[i].task_date.toString() %></p>
+                                        <p class="card-text">Task Date: <%= tasks[i].task_date.toString() %></p>
+                                        <p class="card-text">Post Date: <%= tasks[i].post_date.toString() %></p>
                                         <p class="card-text">Salary: <%= tasks[i].salary %></p>
                                         <p class="card-text">Region: <%= tasks[i].rname %></p>
                                         <form action="/details">
