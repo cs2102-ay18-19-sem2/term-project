@@ -32,9 +32,10 @@ function initRouter(app) {
     app.get('/signup', signup);
     app.get('/login', login);
     app.get('/tasks/search', tasks_search);
-    app.get('/tasks', tasks)
+    app.get('/tasks', tasks);
     //app.get('/post', post); need to remove because can only post if authenticated
-    app.get('/details', details)
+    app.get('/details', details);
+	app.get('/update_task', update_task);
 
     /* Protected GET */
     app.get('/post', passport.authMiddleware(), post);
@@ -267,6 +268,72 @@ function show(req, res, data1) {
             });
         }
     });
+}
+
+function update_task(req, res, next) {
+	var date = new Date();
+	var tid = Number(req.query.tid);
+
+	pool.connect((err, client, done) => {
+		function abort(err) {
+			if(err) {
+				client.query('ROLLBACK', function(err) { done(); });
+				return true;
+			}
+			return false;
+		}
+		client.query('BEGIN', (err, res1) => {
+			if(abort(err)) {
+                console.log(err);
+                return;
+            };
+            client.query(sql_query.query.get_task, [tid], (err, res2) => {
+				var task = res2.rows[0];
+				if (task.task_date >= date) {
+					client.query('ROLLBACK', function(err) {
+						console.log("Nothing to update.");
+						res.redirect('/details?tid=' + tid);
+					});
+					return;
+				} else {
+					if (task.sname == 'Unassigned') {
+						client.query(sql_query.query.select_fail, [tid], (err, res3) => {
+							if(abort(err)) {
+								console.log(err);
+								return;
+							};
+							client.query('COMMIT', function(err, res4) {
+								console.log("Task passed without being assigned.");
+								if(abort(err)) {
+									console.log(err);
+									return;
+								};
+								res.redirect('/details?tid=' + tid);
+								return;
+							});
+						});
+					}
+					client.query(sql_query.query.set_completed, [tid], (err, res3) => {
+						if(abort(err)) {
+							console.log(err);
+							return;
+						};
+						client.query('COMMIT', function(err, res4) {
+							console.log(5);
+							if(abort(err)) {
+								console.log(err);
+								return;
+							};
+							console.log("Task has been completed.");
+							res.redirect('/details?tid=' + tid);
+							return;
+						});
+					});
+				}
+			});
+		});
+	});
+
 }
 
 function details(req, res, next) {

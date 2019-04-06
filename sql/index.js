@@ -17,6 +17,7 @@ sql.query = {
     get_min_bidder_for_task: `SELECT * FROM bids B WHERE B.tid=$1 \
     AND B.salary = (SELECT MIN(B.salary) FROM bids B GROUP BY B.tid HAVING B.tid = $1)`,
     get_bidder_for_task: "SELECT * FROM accounts A JOIN tasks T on A.aid = T.tasker_id WHERE T.tid = $1",
+    get_task:"SELECT * FROM tasks WHERE tid=$1 ",
     filter: "SELECT * FROM tasks T WHERE T.salary >= $1 AND T.salary <= $2 AND T.task_date >= $3 AND T.post_date <= $4 AND ($7 = 'true' OR T.rname = $5) AND ($8 = 'true' OR T.cname = $6)",
     admin_view_users: "SELECT * FROM users",
     get_profile: "SELECT * FROM users",
@@ -35,6 +36,7 @@ sql.query = {
     update_pass: 'UPDATE accounts SET password=$2 WHERE aid=$1',
     select_bid: 'UPDATE tasks SET tasker_id=$2, sname =\'Ongoing\', salary=$3 WHERE tid=$1',
     select_failed: 'UPDATE tasks SET sname=\'Failed\' WHERE tid=$1 ',
+    set_completed: "UPDATE tasks SET sname=\'Completed\' WHERE tid =$1",
 
 
     //Insertion
