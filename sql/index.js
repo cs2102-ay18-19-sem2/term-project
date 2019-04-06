@@ -18,7 +18,7 @@ sql.query = {
     get_profile: "SELECT * FROM users",
     get_detail: "SELECT * \
     FROM tasks T LEFT OUTER JOIN \
-    (SELECT B.tid AS btid, MAX(B.salary) AS best_bid FROM bids B GROUP BY B.tid) AS B \
+    (SELECT B.tid AS btid, MIN(B.salary) AS best_bid FROM bids B GROUP BY B.tid) AS B \
     ON T.tid = B.btid WHERE T.tid = $1",
     get_user_info: "SELECT * FROM users WHERE aid= (SELECT aid FROM accounts WHERE username=$1)",
     admin_view_tasks: "SELECT * FROM tasks",
@@ -34,6 +34,7 @@ sql.query = {
 	add_account: 'INSERT INTO accounts (aid, email, username, password)'
        + ' VALUES ($1, $2, $3, $4)',
     add_user: 'INSERT INTO users (aid, rname, score) VALUES ($1, $2, 5)',
+    delete_bid: 'DELETE FROM bids WHERE tid = $1 AND tasker_id = $2',
     insert_bid: 'INSERT INTO bids (tid, tasker_id, salary) VALUES ($1, $2, $3)',
     add_task: 'INSERT INTO tasks (tid, title, rname, cname, finder_id, salary, post_date , task_date, start_time, end_time, description) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)'
 }

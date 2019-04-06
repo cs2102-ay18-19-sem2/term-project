@@ -295,12 +295,42 @@ function bid(req, res, next) {
     var bid = Number(req.body.bid);
     var tid = Number(req.body.tid);
     var tasker = req.user.aid;
-    pool.query(sql_query.query.insert_bid, [tid, tasker, bid], (err, data) => {
-        if (err) {
-            console.log("Error in insert bid");
-        } else {
-            res.redirect('/details?tid=' + tid);
+
+    pool.connect((err, client, done) => {
+        function abort(err) {
+            if(err) {
+                client.query('ROLLBACK', function(err) { done(); });
+                return true; 
+            }
+            return false;
         }
+    
+        client.query('BEGIN', (err, res1) => {
+            if(abort(err)) {
+                console.log(err);
+                return;
+            };
+            client.query(sql_query.query.delete_bid, [tid, tasker], function(err, res2) {
+                if(abort(err)) {
+                    console.log(err);
+                    return;
+                }; 
+                client.query(sql_query.query.insert_bid, [tid, tasker, bid], function(err, res3) {
+                    if(abort(err)) {
+                        console.log(err);
+                        return;
+                    }
+                    client.query('COMMIT', function(err, res4) {
+                        console.log(5);
+                        if(abort(err)) {
+                            console.log(err);
+                            return;
+                        };
+                        res.redirect('/details?tid=' + tid);
+                    });
+                });
+            });
+        });
     });
 }
 
