@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include head.ejs %>
+<body>
+
+<div class="site-wrap">
+
+    <div class="site-mobile-menu">
+        <div class="site-mobile-menu-header">
+            <div class="site-mobile-menu-close mt-3">
+                <span class="icon-close2 js-menu-toggle"></span>
+            </div>
+        </div>
+        <div class="site-mobile-menu-body"></div>
+    </div>
+
+    <% if(!auth) { %>
+    <%- include('navbar.ejs', {auth: auth}); %>
+    <% } else { %>
+    <%- include('navbar.ejs', {user: user, auth: auth}); %>
+    <% } %>
+
+    <%- include('title.ejs', {title: "User Details"}) %>
+
+    <div class="site-section"  data-aos="fade">
+        <div class="container">
+
+            <table class="table" style="width:100%">
+                <tr>
+                    <th>Username</th>
+                    <td><%= user[0].username %></td>
+                </tr>
+                <tr>
+                    <th>Gender</th>
+                    <td><%= user[0].education %></td>
+                </tr>
+                <tr>
+                    <th>Region</th>
+                    <td><%= user[0].rname %></td>
+                </tr>
+                <tr>
+                    <th>Email</th>
+                    <td><%= user[0].email %></td>
+                </tr>
+                <tr>
+                    <th>Score</th>
+                    <td><%= user[0].score %></td>
+                </tr>
+
+            </table>
+        </div>
+    </div>
+    <%- include footer.ejs %>
+</div>
+
+<%- include script.ejs %>
+
+</body>
+</html>

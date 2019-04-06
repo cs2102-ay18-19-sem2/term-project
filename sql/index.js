@@ -22,6 +22,8 @@ sql.query = {
     ON T.tid = B.btid WHERE T.tid = $1",
     admin_view_tasks: "SELECT * FROM tasks",
     admin_view_users: "SELECT accounts.username as username, users.rname as rname, users.score as score FROM accounts NATURAL JOIN users",
+    admin_get_user_details: "SELECT accounts.username as username, users.gender as gender, users.education as education, users.rname as rname, accounts.email as email, users.score as score FROM accounts NATURAL JOIN users WHERE aid = $1",
+    admin_get_user_tasks: "SELECT tasks.title as title FROM users",
     get_user_info: "SELECT * FROM users WHERE aid=$1",
 
     // Update

@@ -43,11 +43,12 @@ function initRouter(app) {
     app.get('/admin', passport.authMiddleware(), admin);
 
     /* PROTECTED POST */
-    app.post('/open_user_details', passport.authMiddleware(), open_user_details);
     app.post('/receive_post', passport.authMiddleware(), receive_post);
     app.post('/update_acc_info', passport.authMiddleware(), update_acc_info);
     app.post('/update_user_info', passport.authMiddleware(), update_user_info);
     app.post('/update_pass', passport.authMiddleware(), update_pass);
+    app.get('/view_user_details', passport.authMiddleware(), view_user_details);
+
 
     /* Sign Up */
     app.post('/receive_signup', receive_signup);
@@ -126,6 +127,20 @@ function view_users(req, res, next) {
     });
 }
 
+function view_user_details(req, res, next) {
+    console.log('HIIIIIIIII')
+    pool.query(sql_query.query.admin_get_user_details, [req.query.aid] , (err, data) => {
+    console.log(req.query)
+        console.log(sql_query.query.admin_get_user_details, req.query.aid);
+        if (err) {
+            console.log(err);
+            console.log("Error encountered when requesting task detail.")
+        } else {
+            basic(req, res, 'view_user_details', {title: "Task Details", auth: true, user: data.rows})
+        }
+    });
+}
+
 /* Admin can view all the tasks. */
 function view_tasks(req, res, next) {
   pool.query(sql_query.query.admin_view_tasks, (err, data) => {
@@ -136,18 +151,6 @@ function view_tasks(req, res, next) {
       basic(req, res, 'view_tasks', {title: "Tasks", page: '', tasks_list: data.rows, auth: true });
     }
   });
-}
-
-/* Direct to the page of a specific user*/
-function open_user_details(req, res, next){
-   var enquire_aid = req.body.enquire_aid
-   pool.query(sql_query.query.get_user_info, [enquire_aid], (err, data) => {
-    if (err) {
-        console.log("Cannot find the user you are looking for");
-    } else {
-        basic(req, res, 'view_single_user', {auth: true, enquire_info: data.rows[0]});
-    }
-   });
 }
 
 function index(req, res, next) {
