@@ -11,8 +11,13 @@ sql.query = {
     search: "SELECT * FROM tasks WHERE tasks.title LIKE $1",
     get_region_name: "SELECT rname FROM regions",
     get_task_num: "SELECT COUNT(*) AS num FROM tasks",
-    get_bidder_for_task: `SELECT A.aid as bidder_id, A.username as bidder_name, B.salary as salary \
-    FROM (accounts NATURAL JOIN users) as A JOIN bids B ON (A.aid = B.tasker_id) WHERE B.tid = $1 `,
+    get_bidders_for_task: `SELECT A.aid as bidder_id, A.username as bidder_name, B.salary as salary, B.tid as tid \
+    FROM accounts A JOIN bids B on A.aid = B.tasker_id \
+    WHERE B.tid=$1`,
+    get_min_bidder_for_task: `SELECT * FROM bids B WHERE B.tid=$1 \
+    AND B.salary = (SELECT MIN(B.salary) FROM bids B GROUP BY B.tid HAVING B.tid = $1)`,
+    get_bidder_for_task: "SELECT * FROM accounts A JOIN tasks T on A.aid = T.tasker_id WHERE T.tid = $1",
+    get_task:"SELECT * FROM tasks WHERE tid=$1 ",
     filter: "SELECT * FROM tasks T WHERE T.salary >= $1 AND T.salary <= $2 AND T.task_date >= $3 AND T.post_date <= $4 AND ($7 = 'true' OR T.rname = $5) AND ($8 = 'true' OR T.cname = $6)",
     admin_view_users: "SELECT * FROM users",
     get_profile: "SELECT * FROM users",
@@ -32,6 +37,9 @@ sql.query = {
     update_acc_info: 'UPDATE accounts SET username=$2 WHERE aid=$1',
     update_user_info: 'UPDATE users SET gender=$2, rname=$3, education=$4 WHERE aid=$1',
     update_pass: 'UPDATE accounts SET password=$2 WHERE aid=$1',
+    select_bid: 'UPDATE tasks SET tasker_id=$2, sname =\'Ongoing\', salary=$3 WHERE tid=$1',
+    select_failed: 'UPDATE tasks SET sname=\'Failed\' WHERE tid=$1 ',
+    set_completed: "UPDATE tasks SET sname=\'Completed\' WHERE tid =$1",
 
 
     //Insertion
