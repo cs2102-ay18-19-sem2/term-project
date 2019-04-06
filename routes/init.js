@@ -39,10 +39,11 @@ function initRouter(app) {
     app.get('/post', passport.authMiddleware(), post);
     app.get('/profile', passport.authMiddleware(), profile);
     app.get('/view_users', passport.authMiddleware(), view_users);
-    app.get('/view_tasks', passport.antiMiddleware(), view_tasks);
-    app.get('/admin', passport.antiMiddleware(), admin);
+    app.get('/view_tasks', passport.authMiddleware(), view_tasks);
+    app.get('/admin', passport.authMiddleware(), admin);
 
     /* PROTECTED POST */
+    app.post('/open_user_details', passport.authMiddleware(), open_user_details);
     app.post('/receive_post', passport.authMiddleware(), receive_post);
     app.post('/update_acc_info', passport.authMiddleware(), update_acc_info);
     app.post('/update_user_info', passport.authMiddleware(), update_user_info);
@@ -137,6 +138,18 @@ function view_tasks(req, res, next) {
       regions: regions, dates: dateRanges, ranges: ranges, auth: true });
     }
   });
+}
+
+/* Direct to the page of a specific user*/
+function open_user_details(req, res, next){
+   var enquire_aid = req.body.enquire_aid
+   pool.query(sql_query.query.get_user_info, [enquire_aid], (err, data) => {
+    if (err) {
+        console.log("Cannot find the user you are looking for");
+    } else {
+        basic(req, res, 'view_single_user', {auth: true, enquire_info: data.rows[0]});
+    }
+   });
 }
 
 function index(req, res, next) {
@@ -397,7 +410,8 @@ function receive_login(req, res, next){
             }
             console.log(user);
             pool.query(sql_query.query.check_if_admin, [user.aid], (err, data) => {
-              if (typeof data === undefined) {
+              console.log(data)
+              if (data.rows.length == 0) {
                 console.log("You are not admin.");
                 return res.redirect('/?user=' + user.aid);
               } else {

@@ -83,13 +83,14 @@
         </thead>
         <tbody>
 
+        <%
+          for (var i = 0; i < users_list.length; i++) {
+          var cur_user = users_list[i];
+        %>
         <tr>
           <td colspan="4">
             <div class = "card">
-              <h5 class="card-title">A0000002B</h5>
-              <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-              <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-              <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
+              <h5 class="card-title"><%= cur_user.username %></h5>
               <form action="/details">
                 <div style="display: flex;">
                   <button class="col-md-6 btn-outline-primary" id="tid" name="tid" value="1" onclick="this.form.submit()">
@@ -103,20 +104,7 @@
             </div>
           </td>
         </tr>
-        <tr>
-          <td colspan="4">
-            <div class = "card">
-              <h5 class="card-title">A0000002B</h5>
-              <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-              <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-              <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-              <div style="display: flex;">
-                <button class="col-md-6 btn-outline-primary">View Details</button>
-                <button class="col-md-6 btn-primary">Delete</button>
-              </div>
-            </div>
-          </td>
-        </tr>
+        <<% } %>>
         </tbody>
       </table>
     </div>

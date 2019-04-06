@@ -20,7 +20,6 @@ sql.query = {
     FROM tasks T LEFT OUTER JOIN \
     (SELECT B.tid AS btid, MAX(B.salary) AS best_bid FROM bids B GROUP BY B.tid) AS B \
     ON T.tid = B.btid WHERE T.tid = $1",
-    get_user_info: "SELECT * FROM users WHERE aid= (SELECT aid FROM accounts WHERE username=$1)",
     admin_view_tasks: "SELECT * FROM tasks",
     get_user_info: "SELECT * FROM users WHERE aid=$1",
 
