@@ -59,7 +59,9 @@ function initRouter(app) {
     app.get('/logout', passport.authMiddleware(), logout);
 
     /* Post */
-    app.post('/details/bid', bid)
+    app.post('/details/bid', bid);
+	app.post('/details/select_bid', select_bid);
+	app.post('/details/system_select', system_select);
 }
 
 function admin(req,res, next) {
@@ -177,7 +179,7 @@ function tasks(req, res, next) {
     var task_date = isEmpty(req.query.task_date, "Task Date") ? getDate(new Date()) : getDate(req.query.date);
     var post_date = isEmpty(req.query.post_date, "Post Date") ? getDate(new Date()) : getDate(req.query.date);
     var range = isEmpty(req.query.range, "Salary") ? [0, infinity] : rangeNum[ranges.indexOf(req.query.range)];
-    
+
     pool.query(sql_query.query.search, ["%%"], (err, data) => {
         if(err) {
             console.log("Error encountered when searching");
@@ -227,7 +229,7 @@ function show(req, res, data1) {
     var selectedPostDate = isEmpty(req.query.date, "Post Date") ? "Post Date" : req.query.date;
     var selectedTaskDate = isEmpty(req.query.date, "Task Date") ? "Task Date" : req.query.date;
     var selectedRange = isEmpty(req.query.range, "Salary") ? "Salary" : ranges[ranges.indexOf(req.query.range)];
-    
+
     pool.query(sql_query.query.get_task_type, (err, data2) => {
         if(err) {
             console.log("Error encountered when reading classifications");
@@ -272,10 +274,56 @@ function details(req, res, next) {
         console.log(sql_query.query.get_detail, req.query.tid);
         if (err) {
             console.log(err);
-            console.log("Error encountered when requesing task detail.")
+            console.log("Error encountered when requesing task detail.");
         } else {
-            var format_task_date = data.rows.map((row) => getFormattedDate(row.task_date))
-            basic(req, res, 'details', {title: "Task Details", auth: req.isAuthenticated(), task: data.rows, formatted_task_date: format_task_date})
+            var format_task_date = data.rows.map((row) => getFormattedDate(row.task_date));
+			if (req.user.aid != data.rows[0].finder_id) {
+            	basic(req, res, 'details', {
+					title: "Task Details",
+					auth: req.isAuthenticated(),
+					task: data.rows, formatted_task_date: format_task_date,
+					section: 1
+				});
+			} else if (req.user.aid == data.rows[0].finder_id && data.rows[0].sname == 'Unassigned') {
+				pool.query(sql_query.query.get_bidders_for_task, [req.query.tid], (err, data1) => {
+					console.log(sql_query.query.get_bidders_for_task, req.query.tid);
+					if (err) {
+						console.error("Cannot get bidders for the task.");
+					} else {
+						basic(req, res, 'details', {
+							title: "Task Details",
+							auth: req.isAuthenticated(),
+							task: data.rows,
+							formatted_task_date: format_task_date,
+							bidders: data1.rows,
+							section: 2
+						});
+					}
+				});
+			} else if (data.rows[0].sname == 'Ongoing' || data.rows[0].sname == 'Completed' ) {
+				pool.query(sql_query.query.get_bidder_for_task, [req.query.tid], (err,data2)=>{
+					if (err) {
+						console.error("Cannot get bidder for the task.");
+					} else {
+						basic(req, res, 'details', {
+							title: "Task Details",
+							auth: req.isAuthenticated(),
+							task: data.rows,
+							formatted_task_date: format_task_date,
+							bidder: data2.rows,
+							section: 3
+						});
+					}
+				});
+			} else {
+				basic(req, res, 'details', {
+					title: "Task Details",
+					auth: req.isAuthenticated(),
+					task: data.rows,
+					formatted_task_date: format_task_date,
+					section: 4
+				});
+			}
         }
     });
 }
@@ -300,11 +348,11 @@ function bid(req, res, next) {
         function abort(err) {
             if(err) {
                 client.query('ROLLBACK', function(err) { done(); });
-                return true; 
+                return true;
             }
             return false;
         }
-    
+
         client.query('BEGIN', (err, res1) => {
             if(abort(err)) {
                 console.log(err);
@@ -314,7 +362,7 @@ function bid(req, res, next) {
                 if(abort(err)) {
                     console.log(err);
                     return;
-                }; 
+                };
                 client.query(sql_query.query.insert_bid, [tid, tasker, bid], function(err, res3) {
                     if(abort(err)) {
                         console.log(err);
@@ -523,6 +571,93 @@ function receive_post(req, res, next) {
 			}
 		}
 	})
+}
+
+
+function select_bid(req,res,next) {
+	//select a bidder manually
+	var tid = Number(req.body.tid);
+	var tasker = Number(req.body.bidder_id);
+	var salary = Number(req.body.salary);
+	pool.query(sql_query.query.select_bid, [tid, tasker, salary], (err, data) => {
+		if (err) {
+			console.log(req.body.tid, req.body.bidder_id, req.body.salary);
+			console.log("cannot select bidder.");
+			res.redirect('/details?tid='+ tid);
+		} else {
+			res.redirect('/details?tid=' + tid);
+		}
+	});
+}
+
+function system_select(req, res, next) {
+	var tid = Number(req.body.tid);
+	pool.connect((err, client, done) => {
+		function abort(err) {
+			if(err) {
+				client.query('ROLLBACK', function(err) { done(); });
+				return true;
+			}
+			return false;
+		}
+		client.query('BEGIN', (err, res1) => {
+            if(abort(err)) {
+                console.log(err);
+                return;
+            };
+			client.query(sql_query.query.get_min_bidder_for_task, [tid], function(err, res2) {
+                if(abort(err)) {
+                    console.log(err);
+                    return;
+                };
+				var bidder = res2.rows[0];
+				console.log(bidder);
+				if (typeof bidder == "undefined") {
+					var today = new Date();
+					var date =  new Date(req.body.date);
+					if (date < today) {
+						client.query(sql_query.query.select_failed, [tid], function(err, res3) {
+							if(abort(err)){
+								console.log("1");
+								console.log(err);
+								return;
+							}
+							client.query('COMMIT', function(err, res4) {
+								console.log(5);
+								if(abort(err)) {
+									console.log(err);
+									return;
+								};
+								res.redirect('/details?tid=' + tid);
+							});
+						});
+					}
+					client.query('ROLLBACK', function(err) {
+						console.log("No bidder to select.");
+						res.redirect('/details?tid=' + tid);
+					});
+				}
+				var salary = Number(bidder.salary);
+				var tasker = Number(bidder.tasker_id);
+				client.query(sql_query.query.select_bid, [tid, tasker, salary], function(err, res3) {
+					if(abort(err)){
+						console.log(err);
+						return;
+					}
+					client.query('COMMIT', function(err, res4) {
+						console.log(5);
+						if(abort(err)) {
+							console.log(err);
+							return;
+						};
+						res.redirect('/details?tid=' + tid);
+					});
+				});
+
+			});
+		});
+	});
+
 }
 
 module.exports = initRouter;
