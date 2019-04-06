@@ -27,7 +27,7 @@
 
             <%- include('details_table.ejs', {task: task, formatted_task_date: formatted_task_date})%>
             <div class="row justify-content-center">
-                <% if (section == 1) { %>
+                <% if (1 == 1) { %>
                     <form action="/details/bid" class="p-5 bg-white" method="post">
                         <input type="hidden" id="tid" name="tid" value="<%=task[0].tid%>" class="form-control">
                         <div class="row form-group">
@@ -42,7 +42,7 @@
                             </div>
                         </div>
                     </form>
-                <$ } else { $>
+                <% } else { %>
                     <form action="/" class="p-5 bg-white" method="post"></form>
                     </form>
                 <% } %>

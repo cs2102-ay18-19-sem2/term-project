@@ -19,8 +19,9 @@ sql.query = {
     get_profile: "SELECT * FROM users",
     get_detail: "SELECT * \
     FROM tasks T LEFT OUTER JOIN \
-    (SELECT B.tid AS btid, MIN(B.salary) AS best_bid FROM bids B GROUP BY B.tid) AS B \
-    ON T.tid = B.btid WHERE T.tid = $1",
+    (SELECT B.tid AS btid, MIN(B.salary) AS best_bid FROM bids B GROUP BY B.tid) AS B ON T.tid = B.btid \
+    LEFT OUTER JOIN accounts U ON U.aid = T.finder_id \
+    WHERE T.tid = $1",
     get_user_info: "SELECT * FROM users WHERE aid= (SELECT aid FROM accounts WHERE username=$1)",
     admin_view_tasks: "SELECT * FROM tasks",
     get_user_info: "SELECT * FROM users WHERE aid=$1",
