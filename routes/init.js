@@ -40,6 +40,7 @@ function initRouter(app) {
     /* Protected GET */
     app.get('/post', passport.authMiddleware(), post);
     app.get('/profile', passport.authMiddleware(), profile);
+    app.get('/dashboard', passport.authMiddleware(), dashboard);
     app.get('/view_users', passport.authMiddleware(), view_users);
     app.get('/view_tasks', passport.authMiddleware(), view_tasks);
     app.get('/admin', passport.authMiddleware(), admin);
@@ -738,6 +739,35 @@ function system_select(req, res, next) {
 		});
 	});
 
+}
+
+function dashboard(req, res, next) {
+    var aid = req.user.aid;
+    pool.query(sql_query.query.get_posted_tasks, [aid], (err, data) => {
+        if(err){
+            console.log("cannot select posted tasks.");
+            res.redirect('/profile');
+        }else{
+            var posted = data.rows;
+            pool.query(sql_query.query.get_assigned_tasks, [aid], (err, data) => {
+                if(err){
+                    console.log("cannot select posted tasks.");
+                    res.redirect('/profile');
+                }else{
+                    var assigned = data.rows;
+                    pool.query(sql_query.query.get_bidding_tasks, [aid], (err, data) => {
+                        if(err){
+                            console.log("cannot select posted tasks.");
+                            res.redirect('/profile');
+                        }else{
+                             var bidding = data.rows;
+                             basic(req, res, 'dashboard', {posted_tasks: posted, assigned_tasks: assigned, bidding_tasks: bidding, auth: true});
+                        }
+                    });
+                }
+            });
+        }
+    });
 }
 
 module.exports = initRouter;

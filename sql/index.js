@@ -32,6 +32,10 @@ sql.query = {
     admin_get_user_details: "SELECT accounts.username as username, users.gender as gender, users.education as education, users.rname as rname, accounts.email as email, users.score as score FROM accounts NATURAL JOIN users WHERE aid = $1",
     admin_get_user_tasks: "SELECT tasks.title as title FROM tasks JOIN users ON tasks.tasker_id = users.aid WHERE users.aid = $1",
     get_user_info: "SELECT * FROM users WHERE aid=$1",
+    get_review: "SELECT * FROM reviews WHERE tid=$1",
+    get_posted_tasks: "SELECT * FROM tasks WHERE finder_id=$1",
+    get_assigned_tasks: "SELECT * FROM tasks WHERE sname = \'Ongoing\' and tasker_id=$1",
+    get_bidding_tasks: "SELECT * FROM tasks T WHERE T.sname = \'Unassigned\' and EXISTS (SELECT 1 FROM bids WHERE tid=T.tid and tasker_id=$1)",
 
     // Update
     update_acc_info: 'UPDATE accounts SET username=$2 WHERE aid=$1',

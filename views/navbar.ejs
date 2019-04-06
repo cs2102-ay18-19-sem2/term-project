@@ -26,6 +26,11 @@
                         <li class="active"><a href="/profile?user=<%=user%>">My Profile</a></li>
                         <% } %>
 
+                        <% if(auth){ %>
+                        <li class="active"><a href="/dashboard">My Dashboard</a></li>
+                        <% } else{ %>
+                        <% } %>
+
                     </ul>
                 </nav>
             </div>
