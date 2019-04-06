@@ -217,6 +217,10 @@ function getDate(choice) {
     return resultDate.getUTCFullYear() + "-" + (resultDate.getUTCMonth() + 1) + "-" + resultDate.getUTCDate();
 }
 
+function getFormattedDate(date) {
+    return date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
+}
+
 function show(req, res, data1) {
     var selectedType = isEmpty(req.query.type, "Type") ? "Type" : req.query.type;
     var selectedRegion = isEmpty(req.query.region, "Region") ? "Region" : req.query.region;
@@ -233,8 +237,13 @@ function show(req, res, data1) {
                     console.log("Error encountered when reading regions");
                 } else {
                     var isAuth = req.isAuthenticated();
+                    var tasks_info = {
+                        task_date: data1.rows.map(row => getFormattedDate(row.task_date)),
+                        post_date: data1.rows.map(row => getFormattedDate(row.post_date))
+                    };
                     var info = {
                         tasks: data1.rows,
+                        formatted_info: tasks_info,
                         type: selectedType,
                         region: selectedRegion,
                         postDate: selectedPostDate,
@@ -265,15 +274,8 @@ function details(req, res, next) {
             console.log(err);
             console.log("Error encountered when requesing task detail.")
         } else {
-            var format_task_date = data.rows.map($0.date.getUTCFullYear() + "-" + ($0.date.getUTCMonth() + 1) + "-" + $0.date.getUTCDate())
-            var format_start_time = data.rows.start_time;
-            var format_end_time = data.rows.end_time;
-            var formatted_info = {
-                task_date: format_task_date,
-                start_time: format_start_time,
-                end_time: format_end_time
-            };
-            basic(req, res, 'details', {title: "Task Details", auth: req.isAuthenticated(), task: data.rows, formatted_task: formatted_info})
+            var format_task_date = data.rows.map((row) => getFormattedDate(row.task_date))
+            basic(req, res, 'details', {title: "Task Details", auth: req.isAuthenticated(), task: data.rows, formatted_task_date: format_task_date})
         }
     });
 }
@@ -473,13 +475,13 @@ function receive_post(req, res, next) {
 			var end_time = req.body.end_hour + ":" + req.body.end_minute;
 
 			var today = new Date()
-			var today_date = today.getUTCFullYear() + "-" + (today.getUTCMonth() + 1) + "-" + today.getUTCDate();
+			var today_date = getFormattedDate(today);
 
 			if (date < today) {
 				console.error("This date has already passed.");
 				res.redirect('/post?info=fail');
 			} else {
-				var datestring = date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
+				var datestring = getFormattedDate(date);
 				pool.query(sql_query.query.add_task, [tid, title, rname, cname, finder_id, salary, today_date, datestring,start_time, end_time, desc], (err, data) => {
 					if(err) {
 						console.error("Cannot add the task");

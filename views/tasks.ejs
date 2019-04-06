@@ -110,8 +110,9 @@
                                     <div class="card">
                                         <h5 class="card-title"><%= tasks[i].title %></h5>
                                         <p class="card-text">Type: <%= tasks[i].cname %></p>
-                                        <p class="card-text">Task Date: <%= tasks[i].task_date.toString() %></p>
-                                        <p class="card-text">Post Date: <%= tasks[i].post_date.toString() %></p>
+                                        <p class="card-text">Task Date: <%= formatted_info.task_date[i].toString() %></p>
+                                        <p class="card-text">Post Date: <%= formatted_info.post_date[i].toString() %></p>
+                                        <p class="card-text">Time: <%= tasks[i].start_time %> ~ <%= tasks[i].end_time %></p>
                                         <p class="card-text">Salary: <%= tasks[i].salary %></p>
                                         <p class="card-text">Region: <%= tasks[i].rname %></p>
                                         <form action="/details">
