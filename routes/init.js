@@ -618,7 +618,6 @@ function system_select(req, res, next) {
 					if (date < today) {
 						client.query(sql_query.query.select_failed, [tid], function(err, res3) {
 							if(abort(err)){
-								console.log("1");
 								console.log(err);
 								return;
 							}
@@ -636,24 +635,24 @@ function system_select(req, res, next) {
 						console.log("No bidder to select.");
 						res.redirect('/details?tid=' + tid);
 					});
-				}
-				var salary = Number(bidder.salary);
-				var tasker = Number(bidder.tasker_id);
-				client.query(sql_query.query.select_bid, [tid, tasker, salary], function(err, res3) {
-					if(abort(err)){
-						console.log(err);
-						return;
-					}
-					client.query('COMMIT', function(err, res4) {
-						console.log(5);
-						if(abort(err)) {
+				} else {
+					var salary = Number(bidder.salary);
+					var tasker = Number(bidder.tasker_id);
+					client.query(sql_query.query.select_bid, [tid, tasker, salary], function(err, res5) {
+						if(abort(err)){
 							console.log(err);
 							return;
-						};
-						res.redirect('/details?tid=' + tid);
+						}
+						client.query('COMMIT', function(err, res6) {
+							console.log(5);
+							if(abort(err)) {
+								console.log(err);
+								return;
+							};
+							res.redirect('/details?tid=' + tid);
+						});
 					});
-				});
-
+				}
 			});
 		});
 	});
