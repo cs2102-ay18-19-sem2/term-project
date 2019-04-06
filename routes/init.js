@@ -33,7 +33,7 @@ function initRouter(app) {
     app.get('/login', login);
     app.get('/tasks/search', tasks_search);
     app.get('/tasks', tasks)
-    app.get('/post', post);
+    //app.get('/post', post); need to remove because can only post if authenticated
     app.get('/details', details)
 
     /* Protected GET */
@@ -188,7 +188,7 @@ function tasks(req, res, next) {
                     console.log("Error encountered when filtering");
                     index(req, res, next);
                 } else {
-                    show(req, res, data);             
+                    show(req, res, data);
                 }
             });
         }
@@ -429,19 +429,28 @@ function logout(req, res, next){
 }
 
 function post(req, res, next) {
-    pool.query(sql_query.query.get_task_type, (err, data1) => {
-        if(err) {
-            console.log("Error encountered when reading classifications");
-        } else {
-          pool.query(sql_query.query.get_region_name, (err, data2) => {
-						if (err){
-							console.log("Error encountered when reading regions");
-						} else {
-								basic(req, res, 'post', { title:"Post New Task", types: data1.rows, regions:data2.rows, auth: true});
-						}
-					})
-        }
-    })
+	pool.query(sql_query.query.get_task_type, (err, data1) => {
+		if(err) {
+			console.log("Error encountered when reading classifications");
+			res.redirect('/');
+		} else {
+			pool.query(sql_query.query.get_region, (err, data2) => {
+				if (err) {
+					console.log("Error encountered when reading regions");
+					res.redirect('/');
+				}else {
+					var page = {
+					title:"Post New Task",
+					types: data1.rows,
+					regionData:data2.rows,
+					auth: true,
+					info_msg: msg(req, 'info', "", "This task cannot be posted due to error in inputs")
+					}
+				basic(req, res, 'post', page);
+				}
+			})
+		}
+	})
 }
 
 function receive_post(req, res, next) {
@@ -468,12 +477,13 @@ function receive_post(req, res, next) {
 
 			if (date < today) {
 				console.error("This date has already passed.");
+				res.redirect('/post?info=fail');
 			} else {
 				var datestring = date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
 				pool.query(sql_query.query.add_task, [tid, title, rname, cname, finder_id, salary, today_date, datestring,start_time, end_time, desc], (err, data) => {
 					if(err) {
 						console.error("Cannot add the task");
-						res.redirect('/post');
+						res.redirect('/post?info=fail');
 					} else {
 						res.redirect('/');
 					}
