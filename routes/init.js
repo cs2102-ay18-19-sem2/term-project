@@ -129,16 +129,15 @@ function view_users(req, res, next) {
 }
 
 function view_user_details(req, res, next) {
-    console.log('HIIIIIIIII')
-    pool.query(sql_query.query.admin_get_user_details, [req.query.aid] , (err, data) => {
-    console.log(req.query)
-        console.log(sql_query.query.admin_get_user_details, req.query.aid);
-        if (err) {
-            console.log(err);
-            console.log("Error encountered when requesting task detail.")
-        } else {
-            basic(req, res, 'view_user_details', {title: "Task Details", auth: true, user: data.rows})
-        }
+    pool.query(sql_query.query.admin_get_user_details, [req.query.aid] , (err, data1) => {
+        pool.query(sql_query.query.admin_get_user_tasks, [req.query.aid], (err, data2) => {
+            if (err) {
+                        console.log(err);
+                        console.log("Error encountered when requesting task detail.")
+                    } else {
+                        basic(req, res, 'view_user_details', {title: "Task Details", auth: true, user: data1.rows, tasks: data2.rows})
+                    }
+        })
     });
 }
 
