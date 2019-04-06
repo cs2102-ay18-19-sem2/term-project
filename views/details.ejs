@@ -25,40 +25,7 @@
     <div class="site-section"  data-aos="fade">
         <div class="container">
 
-            <table class="table" style="width:100%">
-                <tr>
-                    <th>Status</th>
-                    <td><%= task[0].sname %></td>
-                </tr>
-                <tr>
-                    <th>Region</th>
-                    <td><%= task[0].rname %></td>
-                </tr>
-                <tr>
-                    <th>Salary</th>
-                    <td><%= task[0].salary %></td>
-                </tr>
-                <tr>
-                    <th>Task Date</th>
-                    <td><%= formatted_task_date[0] %></td>
-                </tr>
-                <tr>
-                    <th>Start Time</th>
-                    <td><%= task[0].start_time %></td>
-                </tr>
-                <tr>
-                    <th>End Time</th>
-                    <td><%= task[0].end_time %></td>
-                </tr>
-                <tr>
-                    <th>Description</th>
-                    <td><%= task[0].description %></td>
-                </tr>
-                <tr>
-                    <th>Current Lowest Bid</th>
-                    <td><%= task[0].best_bid == null ? "NULL" : task[0].best_bid %></td>
-                </tr>
-            </table>
+            <%- include('details_table.ejs', {task: task, formatted_task_date: formatted_task_date})%>
             <div class="row justify-content-center">
                 <form action="/details/bid" class="p-5 bg-white" method="post">
                     <input type="hidden" id="tid" name="tid" value="<%=task[0].tid%>" class="form-control">
