@@ -25,51 +25,27 @@
     <div class="site-section"  data-aos="fade">
         <div class="container">
 
-            <table class="table" style="width:100%">
-                <tr>
-                    <th>Status</th>
-                    <td><%= task[0].sname %></td>
-                </tr>
-                <tr>
-                    <th>Region</th>
-                    <td><%= task[0].rname %></td>
-                </tr>
-                <tr>
-                    <th>ID</th>
-                    <td><%= task[0].tid %></td>
-                </tr>
-                <tr>
-                    <th>Salary</th>
-                    <td><%= task[0].salary %></td>
-                </tr>
-                <tr>
-                    <th>Task Date</th>
-                    <td><%= task[0].task_date %></td>
-                </tr>
-                <tr>
-                    <th>Description</th>
-                    <td><%= task[0].description %></td>
-                </tr>
-                <tr>
-                    <th>Current Lowest Bid</th>
-                    <td><%= task[0].best_bid == null ? "NULL" : task[0].best_bid %></td>
-                </tr>
-            </table>
+            <%- include('details_table.ejs', {task: task, formatted_task_date: formatted_task_date})%>
             <div class="row justify-content-center">
-                <form action="/details/bid" class="p-5 bg-white" method="post">
-                    <input type="hidden" id="tid" name="tid" value="<%=task[0].tid%>" class="form-control">
-                    <div class="row form-group">
-                        <div class="col-md-12">
-                            <label class="text-black" for="Bid">Bid With: </label>
-                            <input type="number" id="bid" name="bid" class="form-control">
+                <% if (section == 1) { %>
+                    <form action="/details/bid" class="p-5 bg-white" method="post">
+                        <input type="hidden" id="tid" name="tid" value="<%=task[0].tid%>" class="form-control">
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <label class="text-black" for="Bid">Bid With: </label>
+                                <input type="number" id="bid" name="bid" class="form-control">
+                            </div>
                         </div>
-                    </div>
-                    <div class="row form-group">
-                        <div class="col-md-12">
-                            <input type="submit" value="Bid" class="btn btn-primary col-md-12 text-white">
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <input type="submit" value="Bid" class="btn btn-primary col-md-12 text-white">
+                            </div>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                <$ } else { $>
+                    <form action="/" class="p-5 bg-white" method="post"></form>
+                    </form>
+                <% } %>
             </div>
         </div>
     </div>

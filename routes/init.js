@@ -15,7 +15,8 @@ const infinity = 2147483647;
 
 var ranges = ["≤1000", "1000-2000", "2000-3000", "≥3000"];
 var rangeNum = [[0, 1000], [1000, 2000], [2000, 3000], [3000, infinity]];
-var dateRanges = ["last 3 days", "last one week", "last one month(30 days)"];
+var date_last_ranges = ["last 3 days", "last one week", "last one month(30 days)"];
+var date_next_ranges = ["next 3 days", "next one week", "next one month(30 days)"];
 
 var gender_class = ["Female", "Male", "Others"];
 var education_level = ['High School', 'College', 'Postgraduate', 'Other'];
@@ -121,7 +122,7 @@ function view_users(req, res, next) {
                 + " users.");
         } else {
             basic(req, res, 'view_users', {title: "Users", page: '', types: data.rows,
-            regions: regions, dates: dateRanges, ranges: ranges, auth: true });
+            regions: regions, dates: date_last_ranges, ranges: ranges, auth: true });
       }
     });
 }
@@ -134,7 +135,7 @@ function view_tasks(req, res, next) {
           + " users.");
     } else {
       basic(req, res, 'view_tasks', {title: "Tasks", page: '', types: data.rows,
-      regions: regions, dates: dateRanges, ranges: ranges, auth: true });
+      regions: regions, dates: date_last_ranges, ranges: ranges, auth: true });
     }
   });
 }
@@ -173,16 +174,16 @@ function tasks(req, res, next) {
     var all_regions = 'false';
     var type = isEmpty(req.query.type, "Type") ? all_types = 'true' : req.query.type;
     var region = isEmpty(req.query.region, "Region") ? all_regions = 'true' : req.query.region;
-    var date = isEmpty(req.query.date, "Date") ? getDate(new Date()) : getDate(req.query.date);
+    var task_date = isEmpty(req.query.task_date, "Task Date") ? getDate(new Date()) : getDate(req.query.date);
+    var post_date = isEmpty(req.query.post_date, "Post Date") ? getDate(new Date()) : getDate(req.query.date);
     var range = isEmpty(req.query.range, "Salary") ? [0, infinity] : rangeNum[ranges.indexOf(req.query.range)];
-    console.log("tasks: " + type + "-" + region + "-" + range + "-" + date);
-    console.log(sql_query.query.filter, [type, region, date, range[0], range[1]]);
+    
     pool.query(sql_query.query.search, ["%%"], (err, data) => {
         if(err) {
             console.log("Error encountered when searching");
             index(req, res, next);
         } else {
-            pool.query(sql_query.query.filter, [range[0], range[1], date, region, type, all_regions, all_types], (err, data) => {
+            pool.query(sql_query.query.filter, [range[0], range[1], task_date, post_date, region, type, all_regions, all_types], (err, data) => {
                 if(err) {
                     console.log("Error encountered when filtering");
                     index(req, res, next);
@@ -203,25 +204,30 @@ function getDate(choice) {
     var resultDate = currentDate;
     console.log(currentDate);
     switch (choice) {
-    case dateRanges[0]:
+    case date_last_ranges[0]:
         resultDate = new Date(resultDate.setDate(currentDate.getDate()-3));
         break;
-    case dateRanges[1]:
+    case date_last_ranges[1]:
         resultDate = new Date(resultDate.setDate(currentDate.getDate()-7));
         break;
-    case dateRanges[2]:
+    case date_last_ranges[2]:
         resultDate = new Date(resultDate.setDate(currentDate.getDate()-30));
         break;
     }
     return resultDate.getUTCFullYear() + "-" + (resultDate.getUTCMonth() + 1) + "-" + resultDate.getUTCDate();
 }
 
+function getFormattedDate(date) {
+    return date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
+}
+
 function show(req, res, data1) {
     var selectedType = isEmpty(req.query.type, "Type") ? "Type" : req.query.type;
     var selectedRegion = isEmpty(req.query.region, "Region") ? "Region" : req.query.region;
-    var selectedDate = isEmpty(req.query.date, "Date") ? "Date" : req.query.date;
+    var selectedPostDate = isEmpty(req.query.date, "Post Date") ? "Post Date" : req.query.date;
+    var selectedTaskDate = isEmpty(req.query.date, "Task Date") ? "Task Date" : req.query.date;
     var selectedRange = isEmpty(req.query.range, "Salary") ? "Salary" : ranges[ranges.indexOf(req.query.range)];
-    console.log("show: " + selectedType + "-" + selectedRegion + "-" + selectedDate + "-" + selectedRange);
+    
     pool.query(sql_query.query.get_task_type, (err, data2) => {
         if(err) {
             console.log("Error encountered when reading classifications");
@@ -231,15 +237,22 @@ function show(req, res, data1) {
                     console.log("Error encountered when reading regions");
                 } else {
                     var isAuth = req.isAuthenticated();
+                    var tasks_info = {
+                        task_date: data1.rows.map(row => getFormattedDate(row.task_date)),
+                        post_date: data1.rows.map(row => getFormattedDate(row.post_date))
+                    };
                     var info = {
                         tasks: data1.rows,
+                        formatted_info: tasks_info,
                         type: selectedType,
                         region: selectedRegion,
-                        taskDate: selectedDate,
+                        postDate: selectedPostDate,
+                        taskDate: selectedTaskDate,
                         range: selectedRange,
                         types: data2.rows,
                         regions: data3.rows,
-                        dates: dateRanges,
+                        task_dates: date_next_ranges,
+                        post_dates: date_last_ranges,
                         ranges: ranges,
                         auth: isAuth
                     };
@@ -261,7 +274,8 @@ function details(req, res, next) {
             console.log(err);
             console.log("Error encountered when requesing task detail.")
         } else {
-            basic(req, res, 'details', {title: "Task Details", auth: req.isAuthenticated(), task: data.rows})
+            var format_task_date = data.rows.map((row) => getFormattedDate(row.task_date))
+            basic(req, res, 'details', {title: "Task Details", auth: req.isAuthenticated(), task: data.rows, formatted_task_date: format_task_date})
         }
     });
 }
@@ -281,12 +295,42 @@ function bid(req, res, next) {
     var bid = Number(req.body.bid);
     var tid = Number(req.body.tid);
     var tasker = req.user.aid;
-    pool.query(sql_query.query.insert_bid, [tid, tasker, bid], (err, data) => {
-        if (err) {
-            console.log("Error in insert bid");
-        } else {
-            res.redirect('/details?tid=' + tid);
+
+    pool.connect((err, client, done) => {
+        function abort(err) {
+            if(err) {
+                client.query('ROLLBACK', function(err) { done(); });
+                return true; 
+            }
+            return false;
         }
+    
+        client.query('BEGIN', (err, res1) => {
+            if(abort(err)) {
+                console.log(err);
+                return;
+            };
+            client.query(sql_query.query.delete_bid, [tid, tasker], function(err, res2) {
+                if(abort(err)) {
+                    console.log(err);
+                    return;
+                }; 
+                client.query(sql_query.query.insert_bid, [tid, tasker, bid], function(err, res3) {
+                    if(abort(err)) {
+                        console.log(err);
+                        return;
+                    }
+                    client.query('COMMIT', function(err, res4) {
+                        console.log(5);
+                        if(abort(err)) {
+                            console.log(err);
+                            return;
+                        };
+                        res.redirect('/details?tid=' + tid);
+                    });
+                });
+            });
+        });
     });
 }
 
@@ -461,13 +505,13 @@ function receive_post(req, res, next) {
 			var end_time = req.body.end_hour + ":" + req.body.end_minute;
 
 			var today = new Date()
-			var today_date = today.getUTCFullYear() + "-" + (today.getUTCMonth() + 1) + "-" + today.getUTCDate();
+			var today_date = getFormattedDate(today);
 
 			if (date < today) {
 				console.error("This date has already passed.");
 				res.redirect('/post?info=fail');
 			} else {
-				var datestring = date.getUTCFullYear() + "-" + (date.getUTCMonth() + 1) + "-" + date.getUTCDate();
+				var datestring = getFormattedDate(date);
 				pool.query(sql_query.query.add_task, [tid, title, rname, cname, finder_id, salary, today_date, datestring,start_time, end_time, desc], (err, data) => {
 					if(err) {
 						console.error("Cannot add the task");
