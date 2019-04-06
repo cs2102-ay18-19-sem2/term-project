@@ -27,20 +27,25 @@
 
             <%- include('details_table.ejs', {task: task, formatted_task_date: formatted_task_date})%>
             <div class="row justify-content-center">
-                <form action="/details/bid" class="p-5 bg-white" method="post">
-                    <input type="hidden" id="tid" name="tid" value="<%=task[0].tid%>" class="form-control">
-                    <div class="row form-group">
-                        <div class="col-md-12">
-                            <label class="text-black" for="Bid">Bid With: </label>
-                            <input type="number" id="bid" name="bid" class="form-control">
+                <% if (section == 1) { %>
+                    <form action="/details/bid" class="p-5 bg-white" method="post">
+                        <input type="hidden" id="tid" name="tid" value="<%=task[0].tid%>" class="form-control">
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <label class="text-black" for="Bid">Bid With: </label>
+                                <input type="number" id="bid" name="bid" class="form-control">
+                            </div>
                         </div>
-                    </div>
-                    <div class="row form-group">
-                        <div class="col-md-12">
-                            <input type="submit" value="Bid" class="btn btn-primary col-md-12 text-white">
+                        <div class="row form-group">
+                            <div class="col-md-12">
+                                <input type="submit" value="Bid" class="btn btn-primary col-md-12 text-white">
+                            </div>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                <$ } else { $>
+                    <form action="/" class="p-5 bg-white" method="post"></form>
+                    </form>
+                <% } %>
             </div>
         </div>
     </div>
