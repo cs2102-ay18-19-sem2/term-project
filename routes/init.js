@@ -121,8 +121,7 @@ function view_users(req, res, next) {
             console.log("Error encountered when admin trying to view all"
                 + " users.");
         } else {
-            basic(req, res, 'view_users', {title: "Users", page: '', types: data.rows,
-            regions: regions, dates: dateRanges, ranges: ranges, auth: true });
+            basic(req, res, 'view_users', {title: "Users", page: '', users_list: data.rows, auth: true});
       }
     });
 }
@@ -134,8 +133,7 @@ function view_tasks(req, res, next) {
       console.log("Error encountered when admin trying to view all"
           + " users.");
     } else {
-      basic(req, res, 'view_tasks', {title: "Tasks", page: '', types: data.rows,
-      regions: regions, dates: dateRanges, ranges: ranges, auth: true });
+      basic(req, res, 'view_tasks', {title: "Tasks", page: '', tasks_list: data.rows, auth: true });
     }
   });
 }

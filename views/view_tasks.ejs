@@ -16,7 +16,7 @@
 
   <%- include('navbar.ejs', {auth: auth}) %>
 
-  <%- include('title.ejs', {title: "Registered Users"}) %>
+  <%- include('title.ejs', {title: "Posted Tasks"}) %>
 
   <div class="site-section"  data-aos="fade">
     <div class="container">
@@ -24,99 +24,30 @@
       <div class="row mb-5">
         <div class="text-left border-primary">
           <h2 class="font-weight-light text-primary pb-3">Viewing all
-            registered users.</h2>
+            posted tasks.</h2>
         </div>
       </div>
       <table class="table">
-        <thead>
-        <tr>
-          <form id="tableForm" action="/view_users" method="get">
-            <th scope="col" style="width:25%;">
-              <select class="browser-default custom-select" id="type" name="type" onchange="this.form.submit()">
-                <optgroup label="Type">
-                  <option name="tableType">Type</option>
-                  <% for (var i = 0; i < types.length; i++) { %>
-
-                    <option name="tableType"><%= types[i].cname %></option>
-
-                  <% } %>
-                </optgroup>
-              </select>
-            </th>
-            <th scope="col" style="width:25%;">
-              <select class="browser-default custom-select" id="date" name="date" onchange="this.form.submit()">
-                <optgroup label="Date">
-                  <option name="tableType">Date</option>
-                  <% for (var i = 0; i < dates.length; i++) { %>
-
-                    <option name="tableType"><%= dates[i] %></option>
-
-                  <% } %>
-                </optgroup>
-              </select>
-            </th>
-            <th scope="col" style="width:25%;">
-              <select class="browser-default custom-select" id="range" name="range" onchange="this.form.submit()">
-                <optgroup label="Salary">
-                  <option name="tableType">Salary</option>
-                  <% for (var i = 0; i < ranges.length; i++) { %>
-                    <option name="tableType"><%= ranges[i] %></option>
-
-                  <% } %>
-                </optgroup>
-              </select>
-            </th>
-            <th scope="col" style="width:25%;">
-              <select class="browser-default custom-select" id="region" name="region" onchange="this.form.submit()">
-                <optgroup label="Region">
-                  <option name="tableType">Region</option>
-                  <% for (var i = 0; i < regions.length; i++) { %>
-
-                    <option name="tableType"><%= regions[i].rname %></option>
-
-                  <% } %>
-                </optgroup>
-              </select>
-            </th>
-          </form>
-        </tr>
-        </thead>
         <tbody>
-
+        <% for(var i=0; i < tasks_list.length; i++) { %>
         <tr>
           <td colspan="4">
-            <div class = "card">
-              <h5 class="card-title">A0000002B</h5>
-              <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-              <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-              <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
+            <div class="card">
+              <h5 class="card-title"><%= tasks_list[i].title %></h5>
+              <p class="card-text">Task Date: <%= tasks_list[i].task_date %></p>
+              <p class="card-text">Start Time: <%= tasks_list[i].start_time %></p>
+              <p class="card-text">End Time: <%= tasks_list[i].end_time %></p>
+              <p class="card-text">Description: <%= tasks_list[i].description %></p>
               <form action="/details">
                 <div style="display: flex;">
-                  <button class="col-md-6 btn-outline-primary" id="tid" name="tid" value="1" onclick="this.form.submit()">
+                  <button class="col-md-12 btn-outline-primary" id="tid" name="tid" value="<%=i%>" onclick="this.form.submit()">
                     View Details
-                  </button>
-                  <button class="col-md-6 btn-primary" id="tid" name="tid" value="1" onclick="this.form.submit()">
-                    Delete
                   </button>
                 </div>
               </form>
-            </div>
           </td>
         </tr>
-        <tr>
-          <td colspan="4">
-            <div class = "card">
-              <h5 class="card-title">A0000002B</h5>
-              <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-              <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-              <p class="card-text">TestTestTestTestTestTestTestTestTestTestTestTestTestTest</p>
-              <div style="display: flex;">
-                <button class="col-md-6 btn-outline-primary">View Details</button>
-                <button class="col-md-6 btn-primary">Delete</button>
-              </div>
-            </div>
-          </td>
-        </tr>
+        <% } %>
         </tbody>
       </table>
     </div>
