@@ -1,3 +1,8 @@
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO public;
+
 CREATE TYPE gender_class AS ENUM('Female', 'Male', 'Others');
 CREATE TYPE education_level AS ENUM ('other', 'high school', 'college',
 'postgraduate');
