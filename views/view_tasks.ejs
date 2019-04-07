@@ -33,18 +33,21 @@
         <tr>
           <td colspan="4">
             <div class="card">
-              <h5 class="card-title"><%= tasks_list[i].title %></h5>
-              <p class="card-text">Task Date: <%= tasks_list[i].task_date %></p>
-              <p class="card-text">Start Time: <%= tasks_list[i].start_time %></p>
-              <p class="card-text">End Time: <%= tasks_list[i].end_time %></p>
-              <p class="card-text">Description: <%= tasks_list[i].description %></p>
-              <form action="/details">
-                <div style="display: flex;">
-                  <button class="col-md-12 btn-outline-primary" id="tid" name="tid" value="<%=i%>" onclick="this.form.submit()">
+              <div class="card-body">
+                <h5 class="card-title"><%= tasks_list[i].title %></h5>
+                <p class="card-text">Task Date: <%= tasks_list[i].task_date %></p>
+                <p class="card-text">Start Time: <%= tasks_list[i].start_time %></p>
+                <p class="card-text">End Time: <%= tasks_list[i].end_time %></p>
+                <p class="card-text">Description: <%= tasks_list[i].description %></p>
+                <form action="/details">
+                  <div style="display: flex;">
+                    <button class="col-md-12 btn-outline-primary" id="tid" name="tid" value="<%=i%>" onclick="this.form.submit()">
                     View Details
                   </button>
-                </div>
-              </form>
+                  </div>
+                </form>
+              </div>
+            </div>
           </td>
         </tr>
         <% } %>

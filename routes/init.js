@@ -34,14 +34,16 @@ function initRouter(app) {
     app.get('/tasks/search', tasks_search);
     app.get('/tasks', tasks);
     //app.get('/post', post); need to remove because can only post if authenticated
-    app.get('/details', details);
+    app.get('/details', passport.authMiddleware(), details);
 	app.get('/update_task', update_task);
 
     /* Protected GET */
     app.get('/post', passport.authMiddleware(), post);
     app.get('/profile', passport.authMiddleware(), profile);
+    app.get('/dashboard', passport.authMiddleware(), dashboard);
     app.get('/view_users', passport.authMiddleware(), view_users);
     app.get('/view_tasks', passport.authMiddleware(), view_tasks);
+    app.get('/view_user_details', passport.authMiddleware(), view_user_details);
     app.get('/admin', passport.authMiddleware(), admin);
 
     /* PROTECTED POST */
@@ -49,7 +51,6 @@ function initRouter(app) {
     app.post('/update_acc_info', passport.authMiddleware(), update_acc_info);
     app.post('/update_user_info', passport.authMiddleware(), update_user_info);
     app.post('/update_pass', passport.authMiddleware(), update_pass);
-    app.get('/view_user_details', passport.authMiddleware(), view_user_details);
 
 
     /* Sign Up */
@@ -62,9 +63,9 @@ function initRouter(app) {
     app.get('/logout', passport.authMiddleware(), logout);
 
     /* Post */
-    app.post('/details/bid', bid);
-	app.post('/details/select_bid', select_bid);
-	app.post('/details/system_select', system_select);
+    app.post('/details/bid', passport.authMiddleware(), bid);
+	app.post('/details/select_bid', passport.authMiddleware(), select_bid);
+	app.post('/details/system_select', passport.authMiddleware(), system_select);
 }
 
 function admin(req,res, next) {
@@ -302,13 +303,14 @@ function update_task(req, res, next) {
             };
             client.query(sql_query.query.get_task, [tid], (err, res2) => {
 				var task = res2.rows[0];
+				/*
 				if (task.task_date >= date) {
 					client.query('ROLLBACK', function(err) {
 						console.log("Nothing to update.");
 						res.redirect('/details?tid=' + tid);
 					});
 					return;
-				} else {
+				} else { */
 					if (task.sname == 'Unassigned') {
 						client.query(sql_query.query.select_fail, [tid], (err, res3) => {
 							if(abort(err)) {
@@ -342,7 +344,7 @@ function update_task(req, res, next) {
 							return;
 						});
 					});
-				}
+				//}
 			});
 		});
 	});
@@ -354,14 +356,15 @@ function details(req, res, next) {
         console.log(sql_query.query.get_detail, req.query.tid);
         if (err) {
             console.log(err);
-            console.log("Error encountered when requesing task detail.");
+            console.log("Error encountered when requesting task detail.");
         } else {
             var format_task_date = data.rows.map((row) => getFormattedDate(row.task_date));
-			if (req.user.aid != data.rows[0].finder_id) {
+			if (req.user.aid != data.rows[0].finder_id && data.rows[0].sname == 'Unassigned') {
             	basic(req, res, 'details', {
 					title: "Task Details",
 					auth: req.isAuthenticated(),
-					task: data.rows, formatted_task_date: format_task_date,
+					task: data.rows,
+					formatted_task_date: format_task_date,
 					section: 1
 				});
 			} else if (req.user.aid == data.rows[0].finder_id && data.rows[0].sname == 'Unassigned') {
@@ -380,31 +383,39 @@ function details(req, res, next) {
 						});
 					}
 				});
-			} else if (data.rows[0].sname == 'Ongoing' || data.rows[0].sname == 'Completed' ) {
-				pool.query(sql_query.query.get_bidder_for_task, [req.query.tid], (err,data2)=>{
-					if (err) {
-						console.error("Cannot get bidder for the task.");
-					} else {
-						basic(req, res, 'details', {
-							title: "Task Details",
-							auth: req.isAuthenticated(),
-							task: data.rows,
-							formatted_task_date: format_task_date,
-							bidder: data2.rows,
-							section: 3
-						});
-					}
-				});
+			} else if (data.rows[0].sname == 'Ongoing' || data.rows[0].sname == 'Completed') {
+			    pool.query(sql_query.query.get_bidder_for_task, [req.query.tid], (err,data2)=>{
+            	    if (err) {
+            		    console.error("Cannot get bidder for the task.");
+            		} else {
+            		    var sec_id = 3;
+                        if(req.user.aid == data.rows[0].finder_id || req.user.aid == data.rows[0].tasker_id) {
+                            if( data.rows[0].sname == 'Ongoing') {
+                                sec_id = 4;
+                            } else if (data.rows[0].sname == 'Completed') {
+                        	    sec_id = 5;
+                            }
+                        } else {}
+                        basic(req, res, 'details', {
+                            title: "Task Details",
+                            auth: req.isAuthenticated(),
+                            task: data.rows,
+                            bidder: data2.rows,
+                            formatted_task_date: format_task_date,
+                            section: sec_id});
+            		}
+            	});
 			} else {
-				basic(req, res, 'details', {
-					title: "Task Details",
-					auth: req.isAuthenticated(),
-					task: data.rows,
-					formatted_task_date: format_task_date,
-					section: 4
-				});
+                basic(req, res, 'details', {
+                	title: "Task Details",
+                	auth: req.isAuthenticated(),
+                	task: data.rows,
+                	formatted_task_date: format_task_date,
+                	section: 6
+                });
+
 			}
-        }
+		}
     });
 }
 
@@ -738,6 +749,35 @@ function system_select(req, res, next) {
 		});
 	});
 
+}
+
+function dashboard(req, res, next) {
+    var aid = req.user.aid;
+    pool.query(sql_query.query.get_posted_tasks, [aid], (err, data) => {
+        if(err){
+            console.log("cannot select posted tasks.");
+            res.redirect('/profile');
+        }else{
+            var posted = data.rows;
+            pool.query(sql_query.query.get_assigned_tasks, [aid], (err, data) => {
+                if(err){
+                    console.log("cannot select posted tasks.");
+                    res.redirect('/profile');
+                }else{
+                    var assigned = data.rows;
+                    pool.query(sql_query.query.get_bidding_tasks, [aid], (err, data) => {
+                        if(err){
+                            console.log("cannot select posted tasks.");
+                            res.redirect('/profile');
+                        }else{
+                             var bidding = data.rows;
+                             basic(req, res, 'dashboard', {posted_tasks: posted, assigned_tasks: assigned, bidding_tasks: bidding, auth: true});
+                        }
+                    });
+                }
+            });
+        }
+    });
 }
 
 module.exports = initRouter;

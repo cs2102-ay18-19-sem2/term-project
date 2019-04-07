@@ -55,6 +55,7 @@
                             <tr>
                                 <td colspan="4">
                                   <div class = "card">
+                                    <div class="card-body">
                                     <h5 class="card-title"><%= bidders[i].bidder_name %></h5>
                                     <p class="card-text">Salary: <%= bidders[i].salary%></p>
                                     <form action="/details/select_bid" method="post">
@@ -67,6 +68,7 @@
                                             </button>
                                         </div>
                                     </form>
+                                    </div>
                                   </div>
                                 </td>
                             </tr>
@@ -80,12 +82,33 @@
                       Help Select Tasker
                     </button>
                 </form>
-            <% } else if (section == 3) {%>
+            <% } else if (section == 3 || section == 4 || section == 5) {%>
                 <label class="text-black">Assigned Tasker:</label>
                 <div class = "card">
                   <h5 class="card-title"><%= bidder[0].username %></h5>
                   <p class="card-text">Salary: <%= bidder[0].salary%></p>
-              </div>
+                </div>
+                <% if(section == 4) { %>
+                    <form action="/update_task">
+                        <input type="hidden" id="tid" name="tid" value="<%=task[0].tid%>" class="form-control">
+                        <button class="col-md-12 btn-outline-primary" onclick="this.form.submit()">
+                            Task Completed
+                        </button>
+                    </form>
+                <% } else if(section == 5){ %>
+                    <form action="/update_task">
+                        <input type="hidden" id="tid" name="tid" value="<%=task[0].tid%>" class="form-control">
+                        <button class="col-md-12 btn-outline-primary" onclick="this.form.submit()">
+                            Give Reviews
+                        </button>
+                    </form>
+                <% } else {}%>
+            <% } else if ( section == 6) {%>
+            <label class="text-black">Task Not Available:</label>
+                <div class = "card">
+                    <h5 class="card-title"><%= task[0].title %></h5>
+                    <p class="card-text"><%= task[0].status %></p>
+                </div>
             <% } else { %>
             <% } %>
         </div>
