@@ -39,8 +39,9 @@ sql.query = {
 
     get_review: "SELECT * FROM reviews WHERE tid=$1",
     get_posted_tasks: "SELECT * FROM tasks WHERE finder_id=$1",
-    get_assigned_tasks: "SELECT * FROM tasks WHERE sname = \'Ongoing\' and tasker_id=$1",
+    get_assigned_tasks: "SELECT * FROM tasks WHERE tasker_id=$1",
     get_bidding_tasks: "SELECT * FROM tasks T WHERE T.sname = \'Unassigned\' and EXISTS (SELECT 1 FROM bids WHERE tid=T.tid and tasker_id=$1)",
+    get_posted_reviews: "SELECT * FROM reviews WHERE tid=$1 AND reviewer_id=$2",
 
     // Update
     update_acc_info: 'UPDATE accounts SET username=$2 WHERE aid=$1',
@@ -58,7 +59,7 @@ sql.query = {
     delete_bid: 'DELETE FROM bids WHERE tid = $1 AND tasker_id = $2',
     insert_bid: 'INSERT INTO bids (tid, tasker_id, salary) VALUES ($1, $2, $3)',
     add_task: 'INSERT INTO tasks (tid, title, rname, cname, finder_id, salary, post_date , task_date, start_time, end_time, description) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)',
-    add_review: 'INSERT INTO reviews (tid, reviewer_id, receiver_id, score) VALUES ($1, $2, $3)'
+    add_review: 'INSERT INTO reviews (tid, reviewer_id, receiver_id, score) VALUES ($1, $2, $3, $4)'
 }
 
 module.exports = sql

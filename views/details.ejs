@@ -84,10 +84,12 @@
                 </form>
             <% } else if (section == 3 || section == 4 || section == 5) {%>
                 <label class="text-black">Assigned Tasker:</label>
-                <div class = "card">
-                  <h5 class="card-title"><%= bidder[0].username %></h5>
-                  <p class="card-text">Salary: <%= bidder[0].salary%></p>
-                </div>
+                    <div class = "card">
+                        <div class="card-body">
+                            <h5 class="card-title"><%= bidder[0].username %></h5>
+                            <p class="card-text">Salary: <%= bidder[0].salary%></p>
+                        </div>
+                    </div>
                 <% if(section == 4) { %>
                     <form action="/update_task">
                         <input type="hidden" id="tid" name="tid" value="<%=task[0].tid%>" class="form-control">
@@ -96,12 +98,23 @@
                         </button>
                     </form>
                 <% } else if(section == 5){ %>
-                    <form action="/update_task">
-                        <input type="hidden" id="tid" name="tid" value="<%=task[0].tid%>" class="form-control">
-                        <button class="col-md-12 btn-outline-primary" onclick="this.form.submit()">
-                            Give Reviews
-                        </button>
-                    </form>
+                    <div class="row justify-content-center">
+                        <form action="/review" class="p-5 bg-white" method="post">
+                            <input type="hidden" id="tid" name="tid" value="<%=task[0].tid%>" class="form-control">
+                            <input type="hidden" id="totalid" name="totalid" value="<%=parseInt(task[0].tasker_id)+parseInt(task[0].finder_id)%>" class="form-control">
+                            <div class="row form-group">
+                                <div class="col-md-12">
+                                    <label class="text-black" for="rating">Rating: </label>
+                                    <input type="number" id="rating" name="rating" class="form-control" min="0" max="5" step="1">
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-12">
+                                    <input type="submit" value="rating" class="btn btn-primary col-md-12 text-white">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 <% } else {}%>
             <% } else if ( section == 6) {%>
             <label class="text-black">Task Not Available:</label>
