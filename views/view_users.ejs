@@ -44,10 +44,9 @@
                   </button>
                 </div>
               </form>
-              <form action="/delete_user" method="post">
+              <form action="/delete_user">
                 <div style="display: flex;">
-                  <button class="col-md-12 btn-primary" id="aid" name="aid"
-                          value="<%=i%>" onclick="this.form.submit()">
+                  <button class="col-md-12 btn-primary" id="aid" name="aid" value="<%=users_list[i].aid%>" onclick="this.form.submit()">
                     Delete
                   </button>
                 </div>

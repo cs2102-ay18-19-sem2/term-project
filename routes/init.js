@@ -46,14 +46,13 @@ function initRouter(app) {
     app.get('/view_user_details', passport.authMiddleware(), view_user_details);
     app.get('/view_task_details', passport.authMiddleware(), view_task_details);
     app.get('/admin', passport.authMiddleware(), admin);
+    app.get('/delete_user', passport.authMiddleware(), delete_user);
 
     /* PROTECTED POST */
     app.post('/receive_post', passport.authMiddleware(), receive_post);
     app.post('/update_acc_info', passport.authMiddleware(), update_acc_info);
     app.post('/update_user_info', passport.authMiddleware(), update_user_info);
     app.post('/update_pass', passport.authMiddleware(), update_pass);
-    app.post('/detele_user', passport.authMiddleware(), detele_user);
-
 
     /* Sign Up */
     app.post('/receive_signup', receive_signup);
@@ -492,13 +491,14 @@ function bid(req, res, next) {
 }
 
 function delete_user(req, res, next) {
-  var aid = req.query.aid
+  var aid = req.query.aid;
   pool.query(sql_query.query.admin_delete_user, [aid], (err, data) => {
+    console.log(aid)
     if (err) {
       console.log("Error in delete user");
-      res.redirect('/view_users');
+      res.redirect('/view_users?fail');
     } else {
-      res.redirect('/view_users');
+      res.redirect('/view_users?success');
     }
   })
 }
