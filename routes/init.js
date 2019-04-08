@@ -138,17 +138,34 @@ function view_users(req, res, next) {
 }
 
 function view_user_details(req, res, next) {
-    pool.query(sql_query.query.admin_get_user_details, [req.query.aid] , (err, data1) => {
-        pool.query(sql_query.query.admin_get_user_tasks, [req.query.aid], (err, data2) => {
-            if (err) {
-                        console.log(err);
-                        console.log("Error encountered when requesting  user"
-                            + " details.");
-                    } else {
-                        basic(req, res, 'view_user_details', {title: "Task Details", auth: true, user: data1.rows, tasks: data2.rows})
-                    }
+    if (req.query.aid == undefined) {
+      console.log(req.query.tid);
+      // get user from task
+      pool.query(sql_query.query.view_bidder, [req.query.tid], (err, data1) => {
+        pool.query(sql_query.query.admin_get_user_tasks, [data1.rows[0].aid], (err, data2) => {
+          if (err) {
+            console.log(err);
+            console.log("Error encountered when requesting  user"
+                + " details.");
+          } else {
+            basic(req, res, 'view_user_details', {title: "Task Details", auth: true, user: data1.rows, tasks: data2.rows})
+          }
         })
-    });
+      })
+
+    } else {
+      pool.query(sql_query.query.admin_get_user_details, [req.query.aid] , (err, data1) => {
+        pool.query(sql_query.query.admin_get_user_tasks, [req.query.aid], (err, data2) => {
+          if (err) {
+            console.log(err);
+            console.log("Error encountered when requesting  user"
+                + " details.");
+          } else {
+            basic(req, res, 'view_user_details', {title: "Task Details", auth: true, user: data1.rows, tasks: data2.rows})
+          }
+        })
+      });
+    }
 }
 
 /* Admin can view all the tasks. */
@@ -379,6 +396,7 @@ function details(req, res, next) {
             console.log("Error encountered when requesting task detail.");
         } else {
             var format_task_date = data.rows.map((row) => getFormattedDate(row.task_date));
+            console.log(req.user.aid, data.rows[0].finder_id);
 			if (req.user.aid != data.rows[0].finder_id && data.rows[0].sname == 'Unassigned') {
             	basic(req, res, 'details', {
 					title: "Task Details",
@@ -588,8 +606,8 @@ function receive_signup(req, res, next) {
             var password_confirm = req.body.password_confirm;
 
             if (password.localeCompare(password_confirm) != 0) {
-                //if the password and the confirmed password not match
-                //reload the sign up page
+                // if the password and the confirmed password not match
+                // reload the sign up page
                 console.error("passwords not match");
                 signup(req, res, next);
             } else {
