@@ -52,6 +52,7 @@ function initRouter(app) {
     app.post('/update_acc_info', passport.authMiddleware(), update_acc_info);
     app.post('/update_user_info', passport.authMiddleware(), update_user_info);
     app.post('/update_pass', passport.authMiddleware(), update_pass);
+    app.post('/detele_user', passport.authMiddleware(), detele_user);
 
 
     /* Sign Up */
@@ -488,6 +489,18 @@ function bid(req, res, next) {
             });
         });
     });
+}
+
+function delete_user(req, res, next) {
+  var aid = req.query.aid
+  pool.query(sql_query.query.admin_delete_user, [aid], (err, data) => {
+    if (err) {
+      console.log("Error in delete user");
+      res.redirect('/view_users');
+    } else {
+      res.redirect('/view_users');
+    }
+  })
 }
 
 function update_acc_info(req, res, next) {

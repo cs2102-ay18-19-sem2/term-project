@@ -33,6 +33,7 @@ sql.query = {
     admin_get_user_tasks: "SELECT tasks.title as title FROM tasks JOIN users ON tasks.tasker_id = users.aid WHERE users.aid = $1",
     admin_get_task_details: "SELECT * FROM tasks WHERE tid=$1",
     admin_get_tasker_info: "SELECT * FROM accounts WHERE aid=$1",
+    admin_delete_user: "DELETE FROM users WHERE aid=$1",
     get_user_info: "SELECT * FROM users WHERE aid=$1",
     get_review: "SELECT * FROM reviews WHERE tid=$1",
     get_posted_tasks: "SELECT * FROM tasks WHERE finder_id=$1",

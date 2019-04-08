@@ -28,6 +28,7 @@ CREATE TABLE accounts(
   email 	VARCHAR(74) UNIQUE,
   username 	VARCHAR(74) NOT NULL,
   password 	VARCHAR(74) NOT NULL
+  ON DELETE CASCADE
 );
 
 CREATE TABLE users(
@@ -39,11 +40,13 @@ CREATE TABLE users(
   PRIMARY KEY (aid),
   FOREIGN KEY (aid)   REFERENCES accounts,
   FOREIGN KEY (rname) REFERENCES regions
+  ON DELETE CASCADE
 );
 
 CREATE TABLE admins(
   aid 			   INTEGER PRIMARY KEY,
   FOREIGN KEY(aid) REFERENCES accounts
+  ON DELETE CASCADE
 );
 
 CREATE TABLE specializes (
@@ -68,6 +71,7 @@ CREATE TABLE tasks(
   tasker_id   INTEGER REFERENCES users(aid),
   check (tasker_id <> finder_id),
   check (start_time < end_time)
+  ON DELETE CASCADE
 );
 
 CREATE TABLE bids (
@@ -75,6 +79,7 @@ CREATE TABLE bids (
   tasker_id INTEGER REFERENCES users,
   salary    INTEGER NOT NULL,
   PRIMARY   KEY (tid, tasker_id)
+  ON DELETE CASCADE
 );
 
 CREATE TABLE reviews(
@@ -85,6 +90,7 @@ CREATE TABLE reviews(
   score       	INTEGER NOT NULL,
   PRIMARY KEY (tid, reviewer_id, receiver_id),
   check(score >= 0 and score <= 5)
+  ON DELETE CASCADE
 );
 
 
