@@ -26,15 +26,17 @@ sql.query = {
     (SELECT B.tid AS btid, MIN(B.salary) AS best_bid FROM bids B GROUP BY B.tid) AS B ON T.tid = B.btid \
     LEFT OUTER JOIN accounts U ON U.aid = T.finder_id \
     WHERE T.tid = $1`,
-    get_user_info: "SELECT * FROM users WHERE aid= (SELECT aid FROM accounts WHERE username=$1)",
+
+    // admin query
     admin_view_tasks: "SELECT * FROM tasks",
-    admin_view_users: "SELECT accounts.username as username, users.rname as rname, users.score as score FROM accounts NATURAL JOIN users",
+    admin_view_users: `SELECT accounts.aid as aid, accounts.username as \
+     username, users.rname as rname, users.score as score FROM accounts NATURAL JOIN users`,
     admin_get_user_details: "SELECT accounts.username as username, users.gender as gender, users.education as education, users.rname as rname, accounts.email as email, users.score as score FROM accounts NATURAL JOIN users WHERE aid = $1",
     admin_get_user_tasks: "SELECT tasks.title as title FROM tasks JOIN users ON tasks.tasker_id = users.aid WHERE users.aid = $1",
     admin_get_task_details: "SELECT * FROM tasks WHERE tid=$1",
     admin_get_tasker_info: "SELECT * FROM accounts WHERE aid=$1",
     admin_delete_user: "DELETE FROM users WHERE aid=$1",
-    get_user_info: "SELECT * FROM users WHERE aid=$1",
+
     get_review: "SELECT * FROM reviews WHERE tid=$1",
     get_posted_tasks: "SELECT * FROM tasks WHERE finder_id=$1",
     get_assigned_tasks: "SELECT * FROM tasks WHERE sname = \'Ongoing\' and tasker_id=$1",
