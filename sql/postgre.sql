@@ -3,8 +3,6 @@ CREATE SCHEMA public;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO public;
 
-CREATE TYPE role AS ENUM ('finder','tasker');
-
 CREATE TABLE regions (
   rname   VARCHAR(74) PRIMARY KEY
 );
@@ -33,7 +31,9 @@ CREATE TABLE accounts(
 CREATE TABLE users(
   aid 		INTEGER,
   rname		VARCHAR(74),
-  score   INTEGER,
+  score   NUMERIC(2) DEFAULT 5.00,
+  score_total NUMERIC(2) DEFAULT 0.00,
+  score_count NUMERIC(2) DEFAULT 0.00,
   gender  VARCHAR(74),
   education VARCHAR(74),
   PRIMARY KEY (aid),
@@ -71,8 +71,8 @@ CREATE TABLE tasks(
 );
 
 CREATE TABLE bids (
-  tid       INTEGER REFERENCES tasks,
-  tasker_id INTEGER REFERENCES users,
+  tid       INTEGER REFERENCES tasks ON DELETE CASCADE,
+  tasker_id INTEGER REFERENCES users ON DELETE CASCADE,
   salary    INTEGER NOT NULL,
   PRIMARY   KEY (tid, tasker_id)
 );
@@ -81,12 +81,25 @@ CREATE TABLE reviews(
   tid         	INTEGER REFERENCES tasks,
   reviewer_id 	INTEGER NOT NULL REFERENCES users(aid) ON DELETE CASCADE,
   receiver_id 	INTEGER NOT NULL REFERENCES users(aid) ON DELETE CASCADE,
-  receiver_role role NOT NULL,
   score       	INTEGER NOT NULL,
   PRIMARY KEY (tid, reviewer_id, receiver_id),
   check(score >= 0 and score <= 5)
 );
 
+CREATE OR REPLACE FUNCTION prevent_wrong_review()
+RETURNS TRIGGER AS $$
+BEGIN;t := NEW.tid; rv := NEW.reviewer_id; rc := NEW.receiver_id; r = NEW.score;
+       IF EXISTS (SELECT 1 FROM tasks WHERE tid = t AND ((tasker_id = rv AND finder_id = rc) OR (tasker_id = rc AND finder_id = rv)))
+            THEN UPDATE users SET score_count = score_count + 1 WHERE aid = rc;
+                 UPDATE users SET score_total = score_total + r WHERE aid = rc;
+                 UPDATE users SET score = score_total / score_count WHERE aid = rc;
+            RETURN NEW;
+       ELSE RETURN NULL;
+END; $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER p_w_r
+AFTER INSERT ON reviews FOR EACH ROW
+EXECUTE PROCEDURE prevent_wrong_review();
 
 INSERT INTO regions (rname) VALUES ('Kent Ridge');
 INSERT INTO regions (rname) VALUES ('Buona Vista');

@@ -62,7 +62,8 @@ sql.query = {
     add_user: 'INSERT INTO users (aid, rname, score) VALUES ($1, $2, 5)',
     delete_bid: 'DELETE FROM bids WHERE tid = $1 AND tasker_id = $2',
     insert_bid: 'INSERT INTO bids (tid, tasker_id, salary) VALUES ($1, $2, $3)',
-    add_task: 'INSERT INTO tasks (tid, title, rname, cname, finder_id, salary, post_date , task_date, start_time, end_time, description) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)'
+    add_task: 'INSERT INTO tasks (tid, title, rname, cname, finder_id, salary, post_date , task_date, start_time, end_time, description) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)',
+    add_review: 'INSERT INTO reviews (tid, reviewer_id, receiver_id, score) VALUES ($1, $2, $3)'
 }
 
 module.exports = sql
