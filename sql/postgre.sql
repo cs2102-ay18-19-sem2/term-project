@@ -156,3 +156,30 @@ CREATE OR REPLACE TRIGGER deleteAcc
 AFTER DETELE ON users
 FOR EACH ROW
 EXECUTE PROCEDURE trig_func()
+
+CREATE OR REPLACE FUNCTION bid_verify()
+RETURNS TRIGGER AS $$
+DECLARE new_score NUMERIC;
+DECLARE min_score NUMERIC;
+DECLARE min_bid NUMERIC;
+BEGIN
+  SELECT score INTO new_score
+  FROM users 
+  WHERE users.aid = NEW.tasker_id;
+  SELECT min(salary) INTO min_bid
+  FROM bids;
+  SELECT max(score) INTO min_score
+  FROM users 
+  WHERE users.aid 
+  IN (SELECT tasker_id FROM bids WHERE bids.salary = min_bid);
+  IF NEW.salary > min_bid AND new_score < min_score 
+    THEN RETURN NULL;
+  ELSE 
+    RETURN NEW; 
+  END IF;
+END; $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER bid
+BEFORE INSERT OR UPDATE ON bids
+FOR EACH ROW
+EXECUTE PROCEDURE bid_verify();
