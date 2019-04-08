@@ -44,6 +44,7 @@ function initRouter(app) {
     app.get('/view_users', passport.authMiddleware(), view_users);
     app.get('/view_tasks', passport.authMiddleware(), view_tasks);
     app.get('/view_user_details', passport.authMiddleware(), view_user_details);
+    app.get('/view_task_details', passport.authMiddleware(), view_task_details);
     app.get('/admin', passport.authMiddleware(), admin);
 
     /* PROTECTED POST */
@@ -137,7 +138,8 @@ function view_user_details(req, res, next) {
         pool.query(sql_query.query.admin_get_user_tasks, [req.query.aid], (err, data2) => {
             if (err) {
                         console.log(err);
-                        console.log("Error encountered when requesting task detail.")
+                        console.log("Error encountered when requesting  user"
+                            + " details.");
                     } else {
                         basic(req, res, 'view_user_details', {title: "Task Details", auth: true, user: data1.rows, tasks: data2.rows})
                     }
@@ -156,6 +158,21 @@ function view_tasks(req, res, next) {
     }
   });
 }
+
+function view_task_details(req, res, next) {
+  pool.query(sql_query.query.admin_get_task_details, [req.query.tid] , (err, data1) => {
+    console.log(data1.rows[0], req.query.tid);
+    pool.query(sql_query.query.admin_get_tasker_info, [data1.rows[0].tasker_id], (err, data2) => {
+      if (err) {
+        console.log(err);
+        console.log("Error encountered when requesting task detail.")
+      } else {
+        basic(req, res, 'view_user_details', {title: "Task Details", auth: true, task: data1.rows, tasker: data2.rows})
+      }
+    })
+  });
+}
+
 
 function index(req, res, next) {
     pool.query(sql_query.query.get_task_type, (err, data) => {
