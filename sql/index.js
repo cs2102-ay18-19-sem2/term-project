@@ -19,7 +19,6 @@ sql.query = {
     get_bidder_for_task: "SELECT * FROM accounts A JOIN tasks T on A.aid = T.tasker_id WHERE T.tid = $1",
     get_task:"SELECT * FROM tasks WHERE tid=$1 ",
     filter: "SELECT * FROM tasks T WHERE T.salary >= $1 AND T.salary <= $2 AND T.task_date >= $3 AND T.post_date <= $4 AND ($7 = 'true' OR T.rname = $5) AND ($8 = 'true' OR T.cname = $6)",
-    admin_view_users: "SELECT * FROM users",
     get_profile: "SELECT * FROM users",
     get_detail: `SELECT * \
     FROM tasks T LEFT OUTER JOIN \
@@ -36,6 +35,7 @@ sql.query = {
     admin_get_task_details: "SELECT * FROM tasks WHERE tid=$1",
     admin_get_tasker_info: "SELECT * FROM accounts WHERE aid=$1",
     admin_delete_user: "DELETE FROM users WHERE aid=$1",
+    admin_delete_task: "DELETE FROM tasks WHERE tid=$1",
 
     get_review: "SELECT * FROM reviews WHERE tid=$1",
     get_posted_tasks: "SELECT * FROM tasks WHERE finder_id=$1",
@@ -52,7 +52,7 @@ sql.query = {
 
 
     //Insertion
-	add_account: 'INSERT INTO accounts (aid, email, username, password)'
+	  add_account: 'INSERT INTO accounts (aid, email, username, password)'
        + ' VALUES ($1, $2, $3, $4)',
     add_user: 'INSERT INTO users (aid, rname, score) VALUES ($1, $2, 5)',
     delete_bid: 'DELETE FROM bids WHERE tid = $1 AND tasker_id = $2',
