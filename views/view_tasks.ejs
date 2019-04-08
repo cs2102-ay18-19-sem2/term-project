@@ -39,13 +39,23 @@
                 <p class="card-text">Start Time: <%= tasks_list[i].start_time %></p>
                 <p class="card-text">End Time: <%= tasks_list[i].end_time %></p>
                 <p class="card-text">Description: <%= tasks_list[i].description %></p>
-                <form action="/details">
+                <form action="/view_task_details">
                   <div style="display: flex;">
                     <button class="col-md-12 btn-outline-primary" id="tid" name="tid" value="<%=i%>" onclick="this.form.submit()">
                     View Details
                   </button>
                   </div>
                 </form>
+                <form action="/delete_task">
+                  <div style="display: flex;">
+                    <button class="col-md-12 btn-primary" id="tid" name="tid"
+                            value="<%=tasks_list[i].tid %>" onclick="this.form
+                            .submit()">
+                      Delete
+                    </button>
+                  </div>
+                </form>
+
               </div>
             </div>
           </td>

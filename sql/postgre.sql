@@ -37,13 +37,13 @@ CREATE TABLE users(
   gender  VARCHAR(74),
   education VARCHAR(74),
   PRIMARY KEY (aid),
-  FOREIGN KEY (aid)   REFERENCES accounts,
+  FOREIGN KEY (aid)   REFERENCES accounts ON DELETE CASCADE,
   FOREIGN KEY (rname) REFERENCES regions
 );
 
 CREATE TABLE admins(
   aid 			   INTEGER PRIMARY KEY,
-  FOREIGN KEY(aid) REFERENCES accounts
+  FOREIGN KEY(aid) REFERENCES accounts ON DELETE CASCADE
 );
 
 CREATE TABLE specializes (
@@ -65,22 +65,22 @@ CREATE TABLE tasks(
   start_time  TIME NOT NULL,
   end_time    TIME NOT NULL,
   description VARCHAR(200),
-  tasker_id   INTEGER REFERENCES users(aid),
+  tasker_id   INTEGER REFERENCES users(aid) ON DELETE CASCADE,
   check (tasker_id <> finder_id),
   check (start_time < end_time)
 );
 
 CREATE TABLE bids (
-  tid       INTEGER REFERENCES tasks,
-  tasker_id INTEGER REFERENCES users,
+  tid       INTEGER REFERENCES tasks ON DELETE CASCADE,
+  tasker_id INTEGER REFERENCES users ON DELETE CASCADE,
   salary    INTEGER NOT NULL,
   PRIMARY   KEY (tid, tasker_id)
 );
 
 CREATE TABLE reviews(
   tid         	INTEGER REFERENCES tasks,
-  reviewer_id 	INTEGER NOT NULL REFERENCES users(aid),
-  receiver_id 	INTEGER NOT NULL REFERENCES users(aid),
+  reviewer_id 	INTEGER NOT NULL REFERENCES users(aid) ON DELETE CASCADE,
+  receiver_id 	INTEGER NOT NULL REFERENCES users(aid) ON DELETE CASCADE,
   score       	INTEGER NOT NULL,
   PRIMARY KEY (tid, reviewer_id, receiver_id),
   check(score >= 0 and score <= 5)
@@ -143,3 +143,16 @@ INSERT INTO accounts (aid, email, username, password) VALUES (0,
 'admin2102@gmail.com', 'admin2102', '$2b$10$M/lrxu2.2oqy3N6nalCgmOEd6Gwhn6VWqnNJE61pU3GBL8xK4F/h2');
 
 INSERT INTO admins (aid) VALUES (0);
+
+CREATE OR REPLACE FUNCTION trig_func()
+RETURNS TRIGGER AS $$
+BEGIN
+DELETE FROM accounts
+WHERE aid = OLD.aid
+RETURN NULL;
+END; $$ LANGUAGE plpgsql
+
+CREATE OR REPLACE TRIGGER deleteAcc
+AFTER DETELE ON users
+FOR EACH ROW
+EXECUTE PROCEDURE trig_func()

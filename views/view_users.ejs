@@ -38,8 +38,16 @@
               <p class="card-text">Score: <%= users_list[i].score %></p>
               <form action="/view_user_details">
                 <div style="display: flex;">
-                  <button class="col-md-12 btn-outline-primary" id="aid" name="aid" value="<%=i+1%>" onclick="this.form.submit()">
+                  <button class="col-md-12 btn-outline-primary" id="aid"
+                          name="aid" value="<%=i+1%>" onclick="this.form.submit()">
                     View Details
+                  </button>
+                </div>
+              </form>
+              <form action="/delete_user">
+                <div style="display: flex;">
+                  <button class="col-md-12 btn-primary" id="aid" name="aid" value="<%=users_list[i].aid%>" onclick="this.form.submit()">
+                    Delete
                   </button>
                 </div>
               </form>
