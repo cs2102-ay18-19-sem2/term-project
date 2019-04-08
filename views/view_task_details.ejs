@@ -27,51 +27,45 @@
 
             <div class="row mb-5">
                 <div class="text-left border-primary">
-                    <h2 class="font-weight-light text-primary pb-3">User Information</h2>
+                    <h2 class="font-weight-light text-primary pb-3">Task
+                        Details</h2>
                 </div>
             </div>
 
             <table class="table" style="width:100%">
                 <tr>
-                    <th>Username</th>
-                    <td><%= user[0].username %></td>
+                    <th>Title</th>
+                    <td><%= task[0].title %></td>
                 </tr>
                 <tr>
-                    <th>Gender</th>
-                    <td><%= user[0].education %></td>
+                    <th>Status</th>
+                    <td><%=task[0].sname %></td>
                 </tr>
                 <tr>
                     <th>Region</th>
-                    <td><%= user[0].rname %></td>
+                    <td><%= task[0].rname %></td>
                 </tr>
                 <tr>
-                    <th>Email</th>
-                    <td><%= user[0].email %></td>
+                    <th>Classification</th>
+                    <td><%= task[0].cname %></td>
                 </tr>
                 <tr>
-                    <th>Score</th>
-                    <td><%= user[0].score %></td>
+                    <th>Proposed Salary</th>
+                    <td><%= task[0].salary %></td>
                 </tr>
-
-            </table>
-
-            <div class="row mb-5">
-                <div class="text-left border-primary">
-                    <h2 class="font-weight-light text-primary pb-3">Assigned Tasks</h2>
-                </div>
-            </div>
-
-            <table class="table">
-                <tbody>
-                <% for(var i=0; i < tasks.length; i++) { %>
                 <tr>
-                    <td colspan="4">
-                        <div class="card">
-                            <h5 class="card-text"><%= tasks[i].title %></h5>
-                    </td>
+                    <th>Task Date</th>
+                    <td><%= task[0].task_date %></td>
                 </tr>
-                <% } %>
-                </tbody>
+                <tr>
+                    <th>Description</th>
+                    <td><%= task[0].description %></td>
+                </tr>
+                <tr>
+                    <th>Assigned to:</th>
+                    <td><%= tasker[0].username %></td>
+                </tr>
+
             </table>
 
         </div>
