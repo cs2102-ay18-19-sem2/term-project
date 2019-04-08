@@ -37,13 +37,13 @@ CREATE TABLE users(
   gender  VARCHAR(74),
   education VARCHAR(74),
   PRIMARY KEY (aid),
-  FOREIGN KEY (aid)   REFERENCES accounts,
+  FOREIGN KEY (aid)   REFERENCES accounts ON DELETE CASCADE,
   FOREIGN KEY (rname) REFERENCES regions
 );
 
 CREATE TABLE admins(
   aid 			   INTEGER PRIMARY KEY,
-  FOREIGN KEY(aid) REFERENCES accounts
+  FOREIGN KEY(aid) REFERENCES accounts ON DELETE CASCADE
 );
 
 CREATE TABLE specializes (
@@ -65,7 +65,7 @@ CREATE TABLE tasks(
   start_time  TIME NOT NULL,
   end_time    TIME NOT NULL,
   description VARCHAR(200),
-  tasker_id   INTEGER REFERENCES users(aid),
+  tasker_id   INTEGER REFERENCES users(aid) ON DELETE CASCADE,
   check (tasker_id <> finder_id),
   check (start_time < end_time)
 );
@@ -79,8 +79,8 @@ CREATE TABLE bids (
 
 CREATE TABLE reviews(
   tid         	INTEGER REFERENCES tasks,
-  reviewer_id 	INTEGER NOT NULL REFERENCES users(aid),
-  receiver_id 	INTEGER NOT NULL REFERENCES users(aid),
+  reviewer_id 	INTEGER NOT NULL REFERENCES users(aid) ON DELETE CASCADE,
+  receiver_id 	INTEGER NOT NULL REFERENCES users(aid) ON DELETE CASCADE,
   receiver_role role NOT NULL,
   score       	INTEGER NOT NULL,
   PRIMARY KEY (tid, reviewer_id, receiver_id),

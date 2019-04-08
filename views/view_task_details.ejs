@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include head.ejs %>
+<body>
+
+<div class="site-wrap">
+
+    <div class="site-mobile-menu">
+        <div class="site-mobile-menu-header">
+            <div class="site-mobile-menu-close mt-3">
+                <span class="icon-close2 js-menu-toggle"></span>
+            </div>
+        </div>
+        <div class="site-mobile-menu-body"></div>
+    </div>
+
+    <% if(!auth) { %>
+    <%- include('navbar.ejs', {auth: auth}); %>
+    <% } else { %>
+    <%- include('navbar.ejs', {user: user, auth: auth}); %>
+    <% } %>
+
+    <%- include('title.ejs', {title: "Task Details"}) %>
+
+    <div class="site-section"  data-aos="fade">
+        <div class="container">
+
+            <div class="row mb-5">
+                <div class="text-left border-primary">
+                    <h2 class="font-weight-light text-primary pb-3">Task
+                        Details</h2>
+                </div>
+            </div>
+
+            <table class="table" style="width:100%">
+                <tr>
+                    <th>Title</th>
+                    <td><%= task[0].title %></td>
+                </tr>
+                <tr>
+                    <th>Status</th>
+                    <td><%=task[0].sname %></td>
+                </tr>
+                <tr>
+                    <th>Region</th>
+                    <td><%= task[0].rname %></td>
+                </tr>
+                <tr>
+                    <th>Classification</th>
+                    <td><%= task[0].cname %></td>
+                </tr>
+                <tr>
+                    <th>Proposed Salary</th>
+                    <td><%= task[0].salary %></td>
+                </tr>
+                <tr>
+                    <th>Task Date</th>
+                    <td><%= task[0].task_date %></td>
+                </tr>
+                <tr>
+                    <th>Description</th>
+                    <td><%= task[0].description %></td>
+                </tr>
+                <tr>
+                    <th>Assigned to:</th>
+                    <td><%= tasker[0].username %></td>
+                </tr>
+
+            </table>
+
+        </div>
+    </div>
+    <%- include footer.ejs %>
+</div>
+
+<%- include script.ejs %>
+
+</body>
+</html>

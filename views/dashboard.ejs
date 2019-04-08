@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include head.ejs %>
+<body>
+
+<div class="site-wrap">
+
+  <div class="site-mobile-menu">
+    <div class="site-mobile-menu-header">
+      <div class="site-mobile-menu-close mt-3">
+        <span class="icon-close2 js-menu-toggle"></span>
+      </div>
+    </div>
+    <div class="site-mobile-menu-body"></div>
+  </div>
+
+  <% if(!auth) { %>
+  <%- include('navbar.ejs', {auth: auth}); %>
+  <% } else { %>
+  <%- include('navbar.ejs', {user: user, auth: auth}); %>
+  <% } %>
+
+  <%- include('title.ejs', {title: "My Tasks"}) %>
+
+  <div class="site-section"  data-aos="fade">
+    <div class="container">
+
+      <div class="row mb-5">
+        <div class="text-left border-primary">
+          <h2 class="font-weight-light text-primary pb-3">Posted Tasks</h2>
+        </div>
+      </div>
+
+      <table class="table">
+        <tbody>
+        <% for(var i=0; i < posted_tasks.length; i++) { %>
+        <tr>
+          <td colspan="4">
+            <div class="card">
+              <div class="card-body">
+              <h5 class="card-title"><%= posted_tasks[i].title %></h5>
+              <p class="card-text">Task Date: <%= posted_tasks[i].task_date %></p>
+              <p class="card-text">Start Time: <%= posted_tasks[i].start_time %></p>
+              <p class="card-text">End Time: <%= posted_tasks[i].end_time %></p>
+              <p class="card-text">Description: <%= posted_tasks[i].description %></p>
+              <p class="card-text">Status: <%= posted_tasks[i].sname %></p>
+
+                <form action="/details">
+                  <div style="display: flex;">
+                    <button class="col-md-12 btn-outline-primary" id="tid" name="tid" value="<%=posted_tasks[i].tid%>" onclick="this.form.submit()">
+                      <% if (posted_tasks[i].sname == "Unassigned") { %>
+                        Select a Tasker
+                      <% } else if(posted_tasks[i].sname == "Ongoing") { %>
+                        Confirm Completed
+                      <% } else if(posted_tasks[i].sname == "Completed") { %>
+                        Give a Review
+                      <% } else { %>
+                      <% } %>
+                    </button>
+                  </div>
+                </form>
+
+              </div>
+            </div>
+          </td>
+        </tr>
+        <% } %>
+        </tbody>
+      </table>
+
+
+
+      <div class="row mb-5">
+        <div class="text-left border-primary">
+          <h2 class="font-weight-light text-primary pb-3">Assigned Tasks</h2>
+        </div>
+      </div>
+
+      <table class="table">
+        <tbody>
+        <% for(var i=0; i < assigned_tasks.length; i++) { %>
+        <tr>
+          <td colspan="4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title"><%= assigned_tasks[i].title %></h5>
+                <p class="card-text">Task Date: <%= assigned_tasks[i].task_date %></p>
+                <p class="card-text">Start Time: <%= assigned_tasks[i].start_time %></p>
+                <p class="card-text">End Time: <%= assigned_tasks[i].end_time %></p>
+                <p class="card-text">Description: <%= assigned_tasks[i].description %></p>
+                <p class="card-text">Status: <%= assigned_tasks[i].sname %></p>
+                <form action="/details">
+                  <div style="display: flex;">
+                    <button class="col-md-12 btn-outline-primary" id="tid" name="tid" value="<%=assigned_tasks[i].tid%>" onclick="this.form.submit()">
+                      View Details
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <% } %>
+        </tbody>
+      </table>
+
+      <div class="row mb-5">
+        <div class="text-left border-primary">
+          <h2 class="font-weight-light text-primary pb-3">Bidding Tasks</h2>
+        </div>
+      </div>
+
+      <table class="table">
+        <tbody>
+        <% for(var i=0; i < bidding_tasks.length; i++) { %>
+        <tr>
+          <td colspan="4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title"><%= bidding_tasks[i].title %></h5>
+                <p class="card-text">Task Date: <%= bidding_tasks[i].task_date %></p>
+                <p class="card-text">Start Time: <%= bidding_tasks[i].start_time %></p>
+                <p class="card-text">End Time: <%= bidding_tasks[i].end_time %></p>
+                <p class="card-text">Description: <%= bidding_tasks[i].description %></p>
+                <p class="card-text">Status Date: <%= bidding_tasks[i].sname %></p>
+                <form action="/details">
+                  <div style="display: flex;">
+                    <button class="col-md-12 btn-outline-primary" id="tid" name="tid" value="<%=bidding_tasks[i].tid%>" onclick="this.form.submit()">
+                      View Details
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <% } %>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+  <%- include footer.ejs %>
+</div>
+
+<%- include script.ejs %>
+
+</body>

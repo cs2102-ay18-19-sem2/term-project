@@ -32,16 +32,24 @@ function initRouter(app) {
     app.get('/signup', signup);
     app.get('/login', login);
     app.get('/tasks/search', tasks_search);
-    app.get('/tasks', tasks)
+    app.get('/tasks', tasks);
     //app.get('/post', post); need to remove because can only post if authenticated
-    app.get('/details', details)
+    app.get('/details', passport.authMiddleware(), details);
+	  app.get('/update_task', update_task);
 
     /* Protected GET */
     app.get('/post', passport.authMiddleware(), post);
     app.get('/profile', passport.authMiddleware(), profile);
+    app.get('/dashboard', passport.authMiddleware(), dashboard);
+
+    /* Admin pages */
+    app.get('/admin', passport.authMiddleware(), admin);
     app.get('/view_users', passport.authMiddleware(), view_users);
-    app.get('/view_tasks', passport.antiMiddleware(), view_tasks);
-    app.get('/admin', passport.antiMiddleware(), admin);
+    app.get('/view_tasks', passport.authMiddleware(), view_tasks);
+    app.get('/view_user_details', passport.authMiddleware(), view_user_details);
+    app.get('/view_task_details', passport.authMiddleware(), view_task_details);
+    app.get('/delete_user', passport.authMiddleware(), delete_user);
+    app.get('/delete_task', passport.authMiddleware(), delete_task);
 
     /* PROTECTED POST */
     app.post('/receive_post', passport.authMiddleware(), receive_post);
@@ -59,9 +67,9 @@ function initRouter(app) {
     app.get('/logout', passport.authMiddleware(), logout);
 
     /* Post */
-    app.post('/details/bid', bid);
-	app.post('/details/select_bid', select_bid);
-	app.post('/details/system_select', system_select);
+    app.post('/details/bid', passport.authMiddleware(), bid);
+	  app.post('/details/select_bid', passport.authMiddleware(), select_bid);
+	  app.post('/details/system_select', passport.authMiddleware(), system_select);
 }
 
 function admin(req,res, next) {
@@ -123,9 +131,22 @@ function view_users(req, res, next) {
             console.log("Error encountered when admin trying to view all"
                 + " users.");
         } else {
-            basic(req, res, 'view_users', {title: "Users", page: '', types: data.rows,
-            regions: regions, dates: date_last_ranges, ranges: ranges, auth: true });
+            basic(req, res, 'view_users', {title: "Users", page: '', users_list: data.rows, auth: true});
       }
+    });
+}
+
+function view_user_details(req, res, next) {
+    pool.query(sql_query.query.admin_get_user_details, [req.query.aid] , (err, data1) => {
+        pool.query(sql_query.query.admin_get_user_tasks, [req.query.aid], (err, data2) => {
+            if (err) {
+                        console.log(err);
+                        console.log("Error encountered when requesting  user"
+                            + " details.");
+                    } else {
+                        basic(req, res, 'view_user_details', {title: "Task Details", auth: true, user: data1.rows, tasks: data2.rows})
+                    }
+        })
     });
 }
 
@@ -136,11 +157,25 @@ function view_tasks(req, res, next) {
       console.log("Error encountered when admin trying to view all"
           + " users.");
     } else {
-      basic(req, res, 'view_tasks', {title: "Tasks", page: '', types: data.rows,
-      regions: regions, dates: date_last_ranges, ranges: ranges, auth: true });
+      basic(req, res, 'view_tasks', {title: "Tasks", page: '', tasks_list: data.rows, auth: true });
     }
   });
 }
+
+function view_task_details(req, res, next) {
+  pool.query(sql_query.query.admin_get_task_details, [req.query.tid] , (err, data1) => {
+    console.log(data1.rows[0], req.query.tid);
+    pool.query(sql_query.query.admin_get_tasker_info, [data1.rows[0].tasker_id], (err, data2) => {
+      if (err) {
+        console.log(err);
+        console.log("Error encountered when requesting task detail.")
+      } else {
+        basic(req, res, 'view_user_details', {title: "Task Details", auth: true, task: data1.rows, tasker: data2.rows})
+      }
+    })
+  });
+}
+
 
 function index(req, res, next) {
     pool.query(sql_query.query.get_task_type, (err, data) => {
@@ -269,19 +304,87 @@ function show(req, res, data1) {
     });
 }
 
+function update_task(req, res, next) {
+	var date = new Date();
+	var tid = Number(req.query.tid);
+
+	pool.connect((err, client, done) => {
+		function abort(err) {
+			if(err) {
+				client.query('ROLLBACK', function(err) { done(); });
+				return true;
+			}
+			return false;
+		}
+		client.query('BEGIN', (err, res1) => {
+			if(abort(err)) {
+                console.log(err);
+                return;
+            };
+            client.query(sql_query.query.get_task, [tid], (err, res2) => {
+				var task = res2.rows[0];
+				/*
+				if (task.task_date >= date) {
+					client.query('ROLLBACK', function(err) {
+						console.log("Nothing to update.");
+						res.redirect('/details?tid=' + tid);
+					});
+					return;
+				} else { */
+					if (task.sname == 'Unassigned') {
+						client.query(sql_query.query.select_fail, [tid], (err, res3) => {
+							if(abort(err)) {
+								console.log(err);
+								return;
+							};
+							client.query('COMMIT', function(err, res4) {
+								console.log("Task passed without being assigned.");
+								if(abort(err)) {
+									console.log(err);
+									return;
+								};
+								res.redirect('/details?tid=' + tid);
+								return;
+							});
+						});
+					}
+					client.query(sql_query.query.set_completed, [tid], (err, res3) => {
+						if(abort(err)) {
+							console.log(err);
+							return;
+						};
+						client.query('COMMIT', function(err, res4) {
+							console.log(5);
+							if(abort(err)) {
+								console.log(err);
+								return;
+							};
+							console.log("Task has been completed.");
+							res.redirect('/details?tid=' + tid);
+							return;
+						});
+					});
+				//}
+			});
+		});
+	});
+
+}
+
 function details(req, res, next) {
     pool.query(sql_query.query.get_detail, [req.query.tid] , (err, data) => {
         console.log(sql_query.query.get_detail, req.query.tid);
         if (err) {
             console.log(err);
-            console.log("Error encountered when requesing task detail.");
+            console.log("Error encountered when requesting task detail.");
         } else {
             var format_task_date = data.rows.map((row) => getFormattedDate(row.task_date));
-			if (req.user.aid != data.rows[0].finder_id) {
+			if (req.user.aid != data.rows[0].finder_id && data.rows[0].sname == 'Unassigned') {
             	basic(req, res, 'details', {
 					title: "Task Details",
 					auth: req.isAuthenticated(),
-					task: data.rows, formatted_task_date: format_task_date,
+					task: data.rows,
+					formatted_task_date: format_task_date,
 					section: 1
 				});
 			} else if (req.user.aid == data.rows[0].finder_id && data.rows[0].sname == 'Unassigned') {
@@ -300,31 +403,39 @@ function details(req, res, next) {
 						});
 					}
 				});
-			} else if (data.rows[0].sname == 'Ongoing' || data.rows[0].sname == 'Completed' ) {
-				pool.query(sql_query.query.get_bidder_for_task, [req.query.tid], (err,data2)=>{
-					if (err) {
-						console.error("Cannot get bidder for the task.");
-					} else {
-						basic(req, res, 'details', {
-							title: "Task Details",
-							auth: req.isAuthenticated(),
-							task: data.rows,
-							formatted_task_date: format_task_date,
-							bidder: data2.rows,
-							section: 3
-						});
-					}
-				});
+			} else if (data.rows[0].sname == 'Ongoing' || data.rows[0].sname == 'Completed') {
+			    pool.query(sql_query.query.get_bidder_for_task, [req.query.tid], (err,data2)=>{
+            	    if (err) {
+            		    console.error("Cannot get bidder for the task.");
+            		} else {
+            		    var sec_id = 3;
+                        if(req.user.aid == data.rows[0].finder_id || req.user.aid == data.rows[0].tasker_id) {
+                            if( data.rows[0].sname == 'Ongoing') {
+                                sec_id = 4;
+                            } else if (data.rows[0].sname == 'Completed') {
+                        	    sec_id = 5;
+                            }
+                        } else {}
+                        basic(req, res, 'details', {
+                            title: "Task Details",
+                            auth: req.isAuthenticated(),
+                            task: data.rows,
+                            bidder: data2.rows,
+                            formatted_task_date: format_task_date,
+                            section: sec_id});
+            		}
+            	});
 			} else {
-				basic(req, res, 'details', {
-					title: "Task Details",
-					auth: req.isAuthenticated(),
-					task: data.rows,
-					formatted_task_date: format_task_date,
-					section: 4
-				});
+                basic(req, res, 'details', {
+                	title: "Task Details",
+                	auth: req.isAuthenticated(),
+                	task: data.rows,
+                	formatted_task_date: format_task_date,
+                	section: 6
+                });
+
 			}
-        }
+		}
     });
 }
 
@@ -380,6 +491,32 @@ function bid(req, res, next) {
             });
         });
     });
+}
+
+function delete_user(req, res, next) {
+  var aid = req.query.aid;
+  pool.query(sql_query.query.admin_delete_user, [aid], (err, data) => {
+    console.log(aid)
+    if (err) {
+      console.log("Error in delete user");
+      res.redirect('/view_users?fail');
+    } else {
+      res.redirect('/view_users?success');
+    }
+  })
+}
+
+function delete_task(req, res, next) {
+  var tid = req.query.tid;
+  pool.query(sql_query.query.admin_delete_task, [tid], (err, data) => {
+    console.log(tid)
+    if (err) {
+      console.log("Error in delete task");
+      res.redirect('/view_tasks?fail');
+    } else {
+      res.redirect('/view_tasks?success');
+    }
+  })
 }
 
 function update_acc_info(req, res, next) {
@@ -489,7 +626,8 @@ function receive_login(req, res, next){
             }
             console.log(user);
             pool.query(sql_query.query.check_if_admin, [user.aid], (err, data) => {
-              if (typeof data === undefined) {
+              console.log(data)
+              if (data.rows.length == 0) {
                 console.log("You are not admin.");
                 return res.redirect('/?user=' + user.aid);
               } else {
@@ -618,7 +756,6 @@ function system_select(req, res, next) {
 					if (date < today) {
 						client.query(sql_query.query.select_failed, [tid], function(err, res3) {
 							if(abort(err)){
-								console.log("1");
 								console.log(err);
 								return;
 							}
@@ -636,28 +773,57 @@ function system_select(req, res, next) {
 						console.log("No bidder to select.");
 						res.redirect('/details?tid=' + tid);
 					});
-				}
-				var salary = Number(bidder.salary);
-				var tasker = Number(bidder.tasker_id);
-				client.query(sql_query.query.select_bid, [tid, tasker, salary], function(err, res3) {
-					if(abort(err)){
-						console.log(err);
-						return;
-					}
-					client.query('COMMIT', function(err, res4) {
-						console.log(5);
-						if(abort(err)) {
+				} else {
+					var salary = Number(bidder.salary);
+					var tasker = Number(bidder.tasker_id);
+					client.query(sql_query.query.select_bid, [tid, tasker, salary], function(err, res5) {
+						if(abort(err)){
 							console.log(err);
 							return;
-						};
-						res.redirect('/details?tid=' + tid);
+						}
+						client.query('COMMIT', function(err, res6) {
+							console.log(5);
+							if(abort(err)) {
+								console.log(err);
+								return;
+							};
+							res.redirect('/details?tid=' + tid);
+						});
 					});
-				});
-
+				}
 			});
 		});
 	});
 
+}
+
+function dashboard(req, res, next) {
+    var aid = req.user.aid;
+    pool.query(sql_query.query.get_posted_tasks, [aid], (err, data) => {
+        if(err){
+            console.log("cannot select posted tasks.");
+            res.redirect('/profile');
+        }else{
+            var posted = data.rows;
+            pool.query(sql_query.query.get_assigned_tasks, [aid], (err, data) => {
+                if(err){
+                    console.log("cannot select posted tasks.");
+                    res.redirect('/profile');
+                }else{
+                    var assigned = data.rows;
+                    pool.query(sql_query.query.get_bidding_tasks, [aid], (err, data) => {
+                        if(err){
+                            console.log("cannot select posted tasks.");
+                            res.redirect('/profile');
+                        }else{
+                             var bidding = data.rows;
+                             basic(req, res, 'dashboard', {posted_tasks: posted, assigned_tasks: assigned, bidding_tasks: bidding, auth: true});
+                        }
+                    });
+                }
+            });
+        }
+    });
 }
 
 module.exports = initRouter;
