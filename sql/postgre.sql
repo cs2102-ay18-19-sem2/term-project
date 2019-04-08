@@ -86,20 +86,23 @@ CREATE TABLE reviews(
   check(score >= 0 and score <= 5)
 );
 
-CREATE OR REPLACE FUNCTION prevent_wrong_review()
+CREATE OR REPLACE FUNCTION update_score()
 RETURNS TRIGGER AS $$
-BEGIN;t := NEW.tid; rv := NEW.reviewer_id; rc := NEW.receiver_id; r = NEW.score;
+DECLARE t INTEGER;rv INTEGER; rc INTEGER; r INTEGER;
+BEGIN t := NEW.tid; rv := NEW.reviewer_id; rc := NEW.receiver_id; r = NEW.score;
        IF EXISTS (SELECT 1 FROM tasks WHERE tid = t AND ((tasker_id = rv AND finder_id = rc) OR (tasker_id = rc AND finder_id = rv)))
             THEN UPDATE users SET score_count = score_count + 1 WHERE aid = rc;
                  UPDATE users SET score_total = score_total + r WHERE aid = rc;
                  UPDATE users SET score = score_total / score_count WHERE aid = rc;
+
             RETURN NEW;
        ELSE RETURN NULL;
+       END IF;
 END; $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER p_w_r
-AFTER INSERT ON reviews FOR EACH ROW
-EXECUTE PROCEDURE prevent_wrong_review();
+BEFORE INSERT ON reviews FOR EACH ROW
+EXECUTE PROCEDURE update_score();
 
 INSERT INTO regions (rname) VALUES ('Kent Ridge');
 INSERT INTO regions (rname) VALUES ('Buona Vista');
