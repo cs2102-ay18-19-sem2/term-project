@@ -41,7 +41,7 @@ sql.query = {
      accounts.email as email, users.score as score FROM accounts NATURAL JOIN users 
      WHERE aid = (SELECT tasker_id FROM tasks WHERE tid=$1)`,
 
-
+    get_user_info: "SELECT * FROM users WHERE aid=$1",
     get_review: "SELECT * FROM reviews WHERE tid=$1",
     get_posted_tasks: "SELECT * FROM tasks WHERE finder_id=$1",
     get_assigned_tasks: "SELECT * FROM tasks WHERE tasker_id=$1",
