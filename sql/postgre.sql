@@ -104,6 +104,20 @@ CREATE TRIGGER p_w_r
 BEFORE INSERT ON reviews FOR EACH ROW
 EXECUTE PROCEDURE update_score();
 
+
+CREATE OR REPLACE FUNCTION trig_func()
+RETURNS TRIGGER AS $$
+BEGIN
+DELETE FROM accounts
+WHERE aid = OLD.aid;
+RETURN NULL;
+END; $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER deleteAcc
+AFTER DELETE ON users
+FOR EACH ROW
+EXECUTE PROCEDURE trig_func();
+
 INSERT INTO regions (rname) VALUES ('Kent Ridge');
 INSERT INTO regions (rname) VALUES ('Buona Vista');
 INSERT INTO regions (rname) VALUES ('Bugis');
