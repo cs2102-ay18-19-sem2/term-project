@@ -36,6 +36,11 @@ sql.query = {
     admin_get_tasker_info: "SELECT * FROM accounts WHERE aid=$1",
     admin_delete_user: "DELETE FROM users WHERE aid=$1",
     admin_delete_task: "DELETE FROM tasks WHERE tid=$1",
+    view_bidder: `SELECT accounts.aid as aid, accounts.username as username,\
+     users.gender as gender, users.education as education, users.rname as rname, 
+     accounts.email as email, users.score as score FROM accounts NATURAL JOIN users 
+     WHERE aid = (SELECT tasker_id FROM tasks WHERE tid=$1)`,
+
 
     get_review: "SELECT * FROM reviews WHERE tid=$1",
     get_posted_tasks: "SELECT * FROM tasks WHERE finder_id=$1",
