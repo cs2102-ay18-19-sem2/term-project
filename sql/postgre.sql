@@ -172,11 +172,14 @@ BEGIN
   FROM users 
   WHERE users.aid 
   IN (SELECT tasker_id FROM bids WHERE bids.salary = min_bid);
-  IF NEW.salary > min_bid AND new_score < min_score THEN RETURN NULL;
-  ELSE RETURN NEW; END IF;
+  IF NEW.salary > min_bid AND new_score < min_score 
+    THEN RETURN NULL;
+  ELSE 
+    RETURN NEW; 
+  END IF;
 END; $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER bid
+CREATE TRIGGER bid
 BEFORE INSERT OR UPDATE ON bids
 FOR EACH ROW
-EXECUTE PROCEDURE bid_verify(NEW)
+EXECUTE PROCEDURE bid_verify();
