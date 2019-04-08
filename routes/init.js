@@ -170,7 +170,7 @@ function view_task_details(req, res, next) {
         console.log(err);
         console.log("Error encountered when requesting task detail.")
       } else {
-        basic(req, res, 'view_user_details', {title: "Task Details", auth: true, task: data1.rows, tasker: data2.rows})
+        basic(req, res, 'view_task_details', {title: "Task Details", auth: true, task: data1.rows, tasker: data2.rows})
       }
     })
   });
@@ -700,6 +700,8 @@ function receive_post(req, res, next) {
 				var datestring = getFormattedDate(date);
 				pool.query(sql_query.query.add_task, [tid, title, rname, cname, finder_id, salary, today_date, datestring,start_time, end_time, desc], (err, data) => {
 					if(err) {
+					  console.log(err);
+            console.log(data);
 						console.error("Cannot add the task");
 						res.redirect('/post?info=fail');
 					} else {
