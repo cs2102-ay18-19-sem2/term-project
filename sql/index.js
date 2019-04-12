@@ -25,11 +25,12 @@ sql.query = {
     (SELECT B.tid AS btid, MIN(B.salary) AS best_bid FROM bids B GROUP BY B.tid) AS B ON T.tid = B.btid \
     LEFT OUTER JOIN accounts U ON U.aid = T.finder_id \
     WHERE T.tid = $1`,
+    get_total_earned: "SELECT sum(salary) as total_money, sum(end_time - start_time) as total_time from tasks where sname = 'Completed' group by tasker_id",
 
     // admin query
     admin_view_tasks: "SELECT * FROM tasks",
     admin_view_users: `SELECT accounts.aid as aid, accounts.username as \
-     username, users.rname as rname, users.score as score FROM accounts NATURAL JOIN users`,
+    username, users.rname as rname, users.score as score FROM accounts NATURAL JOIN users`,
     admin_get_user_details: "SELECT accounts.username as username, users.gender as gender, users.education as education, users.rname as rname, accounts.email as email, users.score as score FROM accounts NATURAL JOIN users WHERE aid = $1",
     admin_get_user_tasks: "SELECT tasks.title as title FROM tasks JOIN users ON tasks.tasker_id = users.aid WHERE users.aid = $1",
     admin_get_task_details: "SELECT * FROM tasks WHERE tid=$1",
