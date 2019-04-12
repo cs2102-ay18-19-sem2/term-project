@@ -58,16 +58,28 @@
                                     <div class="card-body">
                                     <h5 class="card-title"><%= bidders[i].bidder_name %></h5>
                                     <p class="card-text">Salary: <%= bidders[i].salary%></p>
-                                    <form action="/details/select_bid" method="post">
                                         <input type="hidden" id="salary" name="salary" value="<%=bidders[i].salary%>" class="form-control">
                                         <input type="hidden" id="tid" name="tid" value="<%=bidders[i].tid%>" class="form-control">
                                         <input type="hidden" id="bidder_id" name="bidder_id" value="<%=bidders[i].bidder_id%>" class="form-control">
+                                      <form action="/view_user_details">
                                         <div style="display: flex;">
+                                          <button class="col-md-12
+                                          btn-primary" id='aid' name='aid'
+                                                  value="<%= bidders[i].bidder_id%>"
+                                                  onclick="this.form
+                                          .submit()">
+                                            View Profile
+                                          </button>
+                                        </div>
+                                      </form>
+                                      <form action="/details/select_bid" method="post">
+                                      <div style="display: flex;">
                                             <button class="col-md-12 btn-outline-primary" onclick="this.form.submit()">
                                               Select Bidder
                                             </button>
-                                        </div>
+                                      </div>
                                     </form>
+
                                     </div>
                                   </div>
                                 </td>
@@ -91,6 +103,16 @@
                         </div>
                     </div>
                 <% if(section == 4) { %>
+              <form action="/view_user_details">
+                <div style="display: flex;">
+                  <button class="col-md-12
+                                          btn-primary" id='aid' name='aid'
+                          value="<%= bidder[0].aid%>"
+                          onclick="this.form.submit()">
+                    View Profile
+                  </button>
+                </div>
+              </form>
                     <form action="/update_task">
                         <input type="hidden" id="tid" name="tid" value="<%=task[0].tid%>" class="form-control">
                         <button class="col-md-12 btn-outline-primary" onclick="this.form.submit()">
