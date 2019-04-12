@@ -104,6 +104,25 @@ CREATE TRIGGER p_w_r
 BEFORE INSERT ON reviews FOR EACH ROW
 EXECUTE PROCEDURE update_score();
 
+
+CREATE OR REPLACE FUNCTION place_bid()
+RETURNS TRIGGER AS $$
+DECLARE taskid INTEGER; taskerid INTEGER; taskstart TIME; taskend TIME;
+BEGIN taskid := NEW.tid; taskerid := NEW.tasker_id;
+      taskstart := (SELECT start_time from tasks WHERE tid = taskid);
+      taskend := (SELECT end_time from tasks WHERE tid = taskid);
+      IF EXISTS (SELECT t1.tid as t1_tid, t1.start_time as t1_start, t1.end_time as t1_end FROM tasks t1
+            WHERE (t1_tid <> taskid AND t1_start <= taskend AND taskstart <= t1_end))
+            THEN RETURN NULL;
+      ELSE RETURN NEW;
+      END IF;
+END; $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER p_w_b
+BEFORE INSERT ON bids FOR EACH ROW
+EXECUTE PROCEDURE place_bid();
+
+
 INSERT INTO regions (rname) VALUES ('Kent Ridge');
 INSERT INTO regions (rname) VALUES ('Buona Vista');
 INSERT INTO regions (rname) VALUES ('Bugis');
@@ -143,16 +162,3 @@ INSERT INTO accounts (aid, email, username, password) VALUES (0,
 'admin2102@gmail.com', 'admin2102', '$2b$10$M/lrxu2.2oqy3N6nalCgmOEd6Gwhn6VWqnNJE61pU3GBL8xK4F/h2');
 
 INSERT INTO admins (aid) VALUES (0);
-
-CREATE OR REPLACE FUNCTION trig_func()
-RETURNS TRIGGER AS $$
-BEGIN
-DELETE FROM accounts
-WHERE aid = OLD.aid
-RETURN NULL;
-END; $$ LANGUAGE plpgsql
-
-CREATE OR REPLACE TRIGGER deleteAcc
-AFTER DETELE ON users
-FOR EACH ROW
-EXECUTE PROCEDURE trig_func()
